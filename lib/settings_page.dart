@@ -114,27 +114,39 @@ class SettingsPage extends StatelessWidget {
                   IconButton(
                     icon: Image.asset('assets/github-mark.png', height: 30), // 画像を表示
                     onPressed: () async {
-                      final Uri url = Uri.parse('https://github.com/ryuya0124/musical_note_calculator');
+                      final Uri url = Uri.parse("https://github.com/ryuya0124/musical_note_calculator");
 
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url, mode: LaunchMode.externalApplication); // 外部ブラウザで開く
-                      } else {
-                        throw 'Could not launch $url';
+                      try {
+                        // URLを直接開く
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      } catch (e) {
+                        // エラーが発生した場合に処理
+                        print("Error: $e");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to open the URL: $e')),
+                        );
                       }
                     },
+
                     color: appBarColor, // アイコンの色をAppBarに合わせる
                   ),
                   // GitHubへのリンクボタン
                   TextButton(
                     onPressed: () async {
-                      final Uri url = Uri.parse('https://github.com/ryuya0124/musical_note_calculator');
+                      final Uri url = Uri.parse("https://github.com/ryuya0124/musical_note_calculator");
 
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url, mode: LaunchMode.externalApplication); // 外部ブラウザで開く
-                      } else {
-                        throw 'Could not launch $url';
+                      try {
+                        // URLを直接開く
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      } catch (e) {
+                        // エラーが発生した場合に処理
+                        print("Error: $e");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to open the URL: $e')),
+                        );
                       }
                     },
+
                     child: Text(
                       'GitHubで見る',
                       style: TextStyle(
