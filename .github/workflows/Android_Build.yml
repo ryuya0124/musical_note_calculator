@@ -11,20 +11,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3  # リポジトリをチェックアウト
 
-    - name: Install Android SDK
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y android-sdk
-        sudo apt-get install -y adb  # adb をインストール
-
-    - name: Install Android SDK components
-      run: |
-        sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-30"  # 必要なSDKコンポーネントをインストール
-
-    - name: Accept Android SDK licenses
-      run: |
-        yes | sdkmanager --licenses  # SDK ライセンスに同意
-
     - name: Install Flutter
       run: |
         # Flutterを安定版でクローン
@@ -36,6 +22,20 @@ jobs:
 
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
+
+    - name: Install commandlinetools and accept SDK licenses
+      run: |
+        # Android SDK command-line toolsをインストール
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
+        unzip commandlinetools-linux-7583922_latest.zip -d $HOME/android-sdk
+        # sdkmanager のパスを設定
+        export PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/bin
+        # SDK ライセンスに同意
+        yes | sdkmanager --licenses
+        # 必要な SDK コンポーネントをインストール
+        sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-30"
 
     - name: Build Android app
       run: flutter build apk --release  # Androidアプリのリリースビルド
