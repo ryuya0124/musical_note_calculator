@@ -11,18 +11,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3  # リポジトリをチェックアウト
 
-    - name: Install Flutter
-      run: |
-        # Flutterを安定版でクローン
-        git clone https://github.com/flutter/flutter.git -b stable
-        # Flutter のパスを設定
-        export PATH="$PATH:`pwd`/flutter/bin"
-        # flutter doctor を実行してセットアップ
-        flutter doctor
-
-    - name: Install dependencies
-      run: flutter pub get  # 依存関係をインストール
-
     - name: Install commandlinetools and accept SDK licenses
       run: |
         # Android SDK command-line toolsをインストール
@@ -36,6 +24,18 @@ jobs:
         yes | sdkmanager --licenses
         # 必要な SDK コンポーネントをインストール
         sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-30"
+
+    - name: Install Flutter
+      run: |
+        # Flutterを安定版でクローン
+        git clone https://github.com/flutter/flutter.git -b stable
+        # Flutter のパスを設定
+        export PATH="$PATH:`pwd`/flutter/bin"
+        # flutter doctor を実行してセットアップ
+        flutter doctor
+
+    - name: Install dependencies
+      run: flutter pub get  # 依存関係をインストール
 
     - name: Build Android app
       run: flutter build apk --release  # Androidアプリのリリースビルド
