@@ -29,8 +29,8 @@ jobs:
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
 
-    - name: Build Android app (debug)
-      run: flutter build apk --debug  # Androidアプリのデバッグビルド
+    - name: Build Android app (release)
+      run: flutter build apk --release # Androidアプリのreleaseビルド
 
     - name: Rename APK file
       run: mv $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/app-debug.apk $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/musical_note_calculator.apk  # APKの名前を変更
