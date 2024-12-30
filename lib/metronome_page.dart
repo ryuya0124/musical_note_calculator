@@ -1,11 +1,12 @@
-// metronome_page.dart
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart'; // 音声再生用パッケージ
+import 'package:audioplayers/audioplayers.dart';
 
 class MetronomePage extends StatefulWidget {
-  final Map<String, String> note;
+  final double bpm;
+  final String note;
 
-  MetronomePage({required this.note});
+  MetronomePage({required this.bpm, required this.note});
 
   @override
   _MetronomePageState createState() => _MetronomePageState();
@@ -14,91 +15,99 @@ class MetronomePage extends StatefulWidget {
 class _MetronomePageState extends State<MetronomePage> {
   late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
-  double _bpm = 120.0; // 初期BPM設定
-  late double _noteDuration;
+  late Duration _interval;
+  late String _note;
+  Timer? _metronomeTimer;
+
+  // 音源のパス
+  final String _strongTick = 'metronome_tick_strong.wav';
+  final String _weakTick = 'metronome_tick_weak.wav';
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
-    _noteDuration = _getNoteDuration(widget.note['duration']!);
-  }
-
-  // 音符の長さに基づいて期間を計算
-  double _getNoteDuration(String note) {
-    switch (note) {
-      case '1/32':
-        return 32.0;
-      case '1/16':
-        return 16.0;
-      case '1/4':
-        return 4.0;
-      case '1/1':
-        return 1.0;
-      default:
-        return 4.0;
-    }
-  }
-
-  // メトロノームの音を再生
-  Future<void> _playMetronome() async {
-    if (_isPlaying) return;
-
-    _isPlaying = true;
-    final double interval = 60.0 / _bpm; // 1分間に何拍鳴らすか
-
-    int beatCount = 0; // 拍のカウント
-    while (_isPlaying) {
-      if (beatCount % 4 == 0) {
-        // 1小節の最初、強拍
-        await _audioPlayer.play(AssetSource('assets/metronome_tick_strong.wav')); // 強拍の音
-      } else {
-        // それ以外、弱拍
-        await _audioPlayer.play(AssetSource('assets/metronome_tick_weak.wav')); // 弱拍の音
-      }
-      beatCount++; // 拍のカウントを進める
-      await Future.delayed(Duration(milliseconds: (interval * 1000).toInt())); // 次の拍まで待機
-    }
-  }
-
-  // メトロノームの停止
-  void _stopMetronome() {
-    _isPlaying = false;
-    _audioPlayer.stop();
+    _note = widget.note;
+    _interval = Duration(milliseconds: (60000 / widget.bpm).round());
   }
 
   @override
   void dispose() {
     _audioPlayer.dispose();
+    _metronomeTimer?.cancel();
     super.dispose();
+  }
+
+  Duration _calculateNoteInterval(String note) {
+    switch (note) {
+      case '全音符':
+        return Duration(milliseconds: _interval.inMilliseconds * 4);
+      case '付点4分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds * 1.5).round());
+      case '4分音符':
+        return _interval;
+      case '8分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds / 2).round());
+      case '16分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds / 4).round());
+      case '付点8分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds / 2 + _interval.inMilliseconds / 4).round());
+      case '32分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds / 8).round());
+      default:
+        return _interval;
+    }
+  }
+
+  void _toggleMetronome() {
+    if (_isPlaying) {
+      _stopMetronome();
+    } else {
+      _startMetronome();
+    }
+    setState(() {
+      _isPlaying = !_isPlaying;
+    });
+  }
+
+  void _startMetronome() {
+    int counter = 0;
+    Duration noteInterval = _calculateNoteInterval(_note);
+
+    _metronomeTimer = Timer.periodic(noteInterval, (timer) async {
+      // 強拍と弱拍を切り替え
+      String tickSound = (counter == 0) ? _strongTick : _weakTick;
+      await _audioPlayer.play(AssetSource(tickSound));
+
+      counter = (counter + 1) % 4; // 拍を繰り返す（4拍単位でリセット）
+
+      if (!_isPlaying) {
+        timer.cancel();
+      }
+    });
+  }
+
+  void _stopMetronome() {
+    _isPlaying = false;
+    _metronomeTimer?.cancel();
+    _audioPlayer.stop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('メトロノーム')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(
+        title: Text('Metronome - ${widget.note}'),
+      ),
+      body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('音符: ${widget.note['name']}'),
-            Text('リズム: ${widget.note['duration']}'),
-            Text('BPM: $_bpm'),
-            Slider(
-              value: _bpm,
-              min: 60.0,
-              max: 200.0,
-              divisions: 140,
-              label: _bpm.round().toString(),
-              onChanged: (value) {
-                setState(() {
-                  _bpm = value;
-                });
-              },
-            ),
+            Text('BPM: ${widget.bpm}', style: TextStyle(fontSize: 24)),
+            SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _isPlaying ? _stopMetronome : _playMetronome,
-              child: Text(_isPlaying ? '停止' : '再生'),
+              onPressed: _toggleMetronome,
+              child: Text(_isPlaying ? 'Stop' : 'Start'),
             ),
           ],
         ),

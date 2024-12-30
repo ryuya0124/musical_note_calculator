@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'settings_page.dart';
 import 'settings_model.dart';
+import 'metronome_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -16,16 +17,22 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // 初期設定を取得
     _selectedUnit = context.read<SettingsModel>().selectedUnit;
+
+    // リスナーを追加して、入力が変わったときに再計算するようにする
+    _bpmController.addListener(_calculateNotes);
+  }
+
+  @override
+  void dispose() {
+    _bpmController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final appBarColor = Theme.of(context).primaryColor;
     final titleTextStyle = Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white);
-
-    // SettingsModel から有効な音符を取得
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
 
     return Scaffold(
@@ -39,13 +46,12 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              // 設定画面に遷移
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SettingsPage()),
               );
             },
-            color: titleTextStyle?.color, // 歯車アイコンの色をtitleTextStyleと一致させる
+            color: titleTextStyle?.color,
           ),
         ],
       ),
@@ -57,42 +63,48 @@ class _HomePageState extends State<HomePage> {
               children: [
                 TextField(
                   controller: _bpmController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true), // 小数点入力を許可
                   decoration: InputDecoration(labelText: 'BPMを入力'),
                 ),
                 SizedBox(height: 10),
-                DropdownButton<String>(
-                  value: context.watch<SettingsModel>().selectedUnit,
-                  items: ['ms', 's', 'µs'].map((String unit) {
-                    return DropdownMenuItem<String>(
-                      value: unit,
-                      child: Text(unit),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      context.read<SettingsModel>().setUnit(value);
-                      setState(() {
-                        _selectedUnit = value;
-                      });
-                    }
-                  },
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: _calculateNotes,
-                  child: Text('計算'),
+                Row(
+                  children: [
+                    Text(
+                      '単位切り替え',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(width: 10),
+                    DropdownButton<String>(
+                      value: context.watch<SettingsModel>().selectedUnit,
+                      items: ['ms', 's', 'µs'].map((String unit) {
+                        return DropdownMenuItem<String>(
+                          value: unit,
+                          child: Text(unit),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          context.read<SettingsModel>().setUnit(value);
+                          setState(() {
+                            _selectedUnit = value;
+                          });
+                          _calculateNotes(); // ドロップダウン変更時に計算
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           Expanded(
-            child: _notes.isNotEmpty
+            child: _bpmController.text.isEmpty
+                ? Center(child: Text('BPMを入力すると音符が計算されます'))
+                : _notes.isNotEmpty
                 ? ListView.builder(
               itemCount: _notes.length,
               itemBuilder: (context, index) {
                 final note = _notes[index];
-                // 設定で無効にした音符は表示しない
                 if (enabledNotes[note['name']] == true) {
                   return Card(
                     margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -116,10 +128,21 @@ class _HomePageState extends State<HomePage> {
                           fontSize: 16,
                         ),
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MetronomePage(
+                              bpm: double.parse(_bpmController.text),
+                              note: note['name']!,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 } else {
-                  return Container(); // 無効な音符は空のコンテナで非表示
+                  return Container(); // 無効な音符は非表示
                 }
               },
             )
@@ -132,10 +155,20 @@ class _HomePageState extends State<HomePage> {
 
   void _calculateNotes() {
     final bpmInput = _bpmController.text;
-    if (bpmInput.isEmpty) return;
+    if (bpmInput.isEmpty) {
+      setState(() {
+        _notes = []; // BPMが空の場合は音符リストをクリア
+      });
+      return;
+    }
 
-    final bpm = int.tryParse(bpmInput);
-    if (bpm == null || bpm <= 0) return;
+    final bpm = double.tryParse(bpmInput);
+    if (bpm == null || bpm <= 0) {
+      setState(() {
+        _notes = []; // 不正なBPMの場合も音符リストをクリア
+      });
+      return;
+    }
 
     final quarterNoteLengthMs = 60000.0 / bpm;
     final conversionFactor = _selectedUnit == 's'
