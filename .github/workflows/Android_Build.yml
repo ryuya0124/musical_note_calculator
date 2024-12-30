@@ -13,12 +13,29 @@ jobs:
 
     - name: Install Flutter
       run: |
+        # Flutterを安定版でクローン
         git clone https://github.com/flutter/flutter.git -b stable
-        export PATH="$PATH:`pwd`/flutter/bin"  # Flutter のパスを設定
-        flutter doctor  # インストールと依存関係の確認
+        # Flutter のパスを設定
+        export PATH="$PATH:`pwd`/flutter/bin"
+        # flutter doctor を実行してセットアップ
+        flutter doctor
 
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
+
+    - name: Install Android SDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y android-sdk
+        sudo apt-get install -y adb  # adb をインストール
+
+    - name: Accept Android SDK licenses
+      run: |
+        yes | sdkmanager --licenses  # SDK ライセンスに同意
+
+    - name: Install Android SDK components
+      run: |
+        sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-30"  # 必要なSDKコンポーネントをインストール
 
     - name: Build Android app
       run: flutter build apk --release  # Androidアプリのリリースビルド
