@@ -5,33 +5,38 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest  # macOS環境で実行
+    runs-on: macos-latest  # macOS環境でビルド
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3  # リポジトリをチェックアウト
 
-    - name: Install Flutter
-      run: |
-        git clone https://github.com/flutter/flutter.git -b stable
-        echo "export PATH=\"\$PATH:`pwd`/flutter/bin\"" >> $GITHUB_ENV
-        flutter doctor  # インストールと依存関係の確認
+    - name: Cache Flutter SDK
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.pub-cache
+          ~/.flutter
+        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-flutter-
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.27.1'
 
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
 
-    - name: Build iOS app
-      run: flutter build ios --release  # iOSアプリのリリースビルド
+    - name: Build iOS app (release)
+      run: flutter build ipa --release  # iOSアプリのリリースビルド
 
-    - name: Create IPA file
-      run: |
-        mkdir -p $GITHUB_WORKSPACE/build/ios/ipa
-        xcrun -sdk iphoneos PackageApplication -v build/ios/iphoneos/Runner.app -o $GITHUB_WORKSPACE/build/ios/ipa/musical_note_calculator.ipa
-      env:
-        HOME: $HOME
+    - name: Rename IPA file
+      run: mv $GITHUB_WORKSPACE/build/ios/ipa/Runner.ipa $GITHUB_WORKSPACE/build/ios/ipa/musical_note_calculator.ipa  # IPAの名前を変更
 
     - name: Upload IPA as artifact
       uses: actions/upload-artifact@v3
       with:
         name: musical-note-calculator-ipa
-        path: $GITHUB_WORKSPACE/build/ios/ipa/musical_note_calculator.ipa  # 生成されたIPAファイルをアップロード
+        path: $GITHUB_WORKSPACE/build/ios/ipa/musical_note_calculator.ipa  # 変更後のIPAをアップロード
