@@ -38,5 +38,5 @@ jobs:
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v3
       with:
-        name: musical-note-calculator-apk
+        name: musical_note_calculator.apk
         path: $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/musical_note_calculator.apk  # 変更後のAPKをアップロード
