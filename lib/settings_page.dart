@@ -113,38 +113,16 @@ class SettingsPage extends StatelessWidget {
                   // GitHubのアイコンを表示
                   IconButton(
                     icon: Image.asset('assets/github-mark.png', height: 30), // 画像を表示
-                    onPressed: () async {
-                      final Uri url = Uri.parse("https://github.com/ryuya0124/musical_note_calculator");
-
-                      try {
-                        // URLを直接開く
-                        await launchUrl(url, mode: LaunchMode.externalApplication);
-                      } catch (e) {
-                        // エラーが発生した場合に処理
-                        print("Error: $e");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Failed to open the URL: $e')),
-                        );
-                      }
+                    onPressed: () {
+                      move_github(context);
                     },
 
                     color: appBarColor, // アイコンの色をAppBarに合わせる
                   ),
                   // GitHubへのリンクボタン
                   TextButton(
-                    onPressed: () async {
-                      final Uri url = Uri.parse("https://github.com/ryuya0124/musical_note_calculator");
-
-                      try {
-                        // URLを直接開く
-                        await launchUrl(url, mode: LaunchMode.externalApplication);
-                      } catch (e) {
-                        // エラーが発生した場合に処理
-                        print("Error: $e");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Failed to open the URL: $e')),
-                        );
-                      }
+                    onPressed: () {
+                      move_github(context);
                     },
 
                     child: Text(
@@ -162,5 +140,19 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void move_github(context) async{
+    final Uri url = Uri.parse("https://github.com/ryuya0124/musical_note_calculator");
+    try {
+      // URLを直接開く
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // エラーが発生した場合に処理
+      print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to open the URL: $e')),
+      );
+    }
   }
 }

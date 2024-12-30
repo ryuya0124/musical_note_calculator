@@ -18,7 +18,7 @@ class _MetronomePageState extends State<MetronomePage> {
   late AudioPlayer audioPlayer;
   bool isPlaying = false;
   late Duration interval;
-  late String _note;
+  late String note;
   Timer? metronomeTimer;
 
   // 音源のパス
@@ -30,7 +30,7 @@ class _MetronomePageState extends State<MetronomePage> {
   void initState() {
     super.initState();
     audioPlayer = AudioPlayer();
-    _note = widget.note;
+    note = widget.note;
     interval = Duration(milliseconds: (60000 / widget.bpm).round());
   }
 
@@ -45,22 +45,22 @@ class _MetronomePageState extends State<MetronomePage> {
     switch (state) {
       case AppLifecycleState.inactive:
         //非アクティブになったときの処理
-        _stopMetronome();
+        stopMetronome();
         break;
       case AppLifecycleState.paused:
         //停止されたときの処理
-        _stopMetronome();
+        stopMetronome();
         break;
       case AppLifecycleState.resumed:
         //再開されたときの処理
         break;
       case AppLifecycleState.detached:
         //破棄されたときの処理
-        _stopMetronome();
+        stopMetronome();
         break;
       case AppLifecycleState.hidden:
         // アプリがバックグラウンドに完全に移行したときの処理
-        _stopMetronome();
+        stopMetronome();
         break;
     }
   }
@@ -109,20 +109,20 @@ class _MetronomePageState extends State<MetronomePage> {
   }
 
 
-  void _toggleMetronome() {
+  void toggleMetronome() {
     if (isPlaying) {
-      _stopMetronome();
+      stopMetronome();
     } else {
-      _startMetronome();
+      startMetronome();
     }
     setState(() {
       isPlaying = !isPlaying;
     });
   }
 
-  void _startMetronome() {
+  void startMetronome() {
     int counter = 0;
-    Duration noteInterval = _calculateNoteInterval(_note);
+    Duration noteInterval = _calculateNoteInterval(note);
 
     metronomeTimer = Timer.periodic(noteInterval, (timer) async {
       // 強拍と弱拍を切り替え
@@ -137,7 +137,7 @@ class _MetronomePageState extends State<MetronomePage> {
     });
   }
 
-  void _stopMetronome() {
+  void stopMetronome() {
     isPlaying = false;
     metronomeTimer?.cancel();
     audioPlayer.stop();
@@ -156,7 +156,7 @@ class _MetronomePageState extends State<MetronomePage> {
             Text('BPM: ${widget.bpm}', style: TextStyle(fontSize: 24)),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _toggleMetronome,
+              onPressed: toggleMetronome,
               child: Text(isPlaying ? 'Stop' : 'Start'),
             ),
           ],
