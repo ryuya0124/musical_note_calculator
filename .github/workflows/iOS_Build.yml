@@ -1,0 +1,36 @@
+name: Flutter iOS Build
+
+on:
+  workflow_dispatch:  # 手動でトリガーできるようにする
+
+jobs:
+  build:
+    runs-on: macos-latest  # macOS環境で実行
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3  # リポジトリをチェックアウト
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2  # Flutterのセットアップ
+      with:
+        flutter-version: 'stable'  # 最新の安定版Flutterをインストール
+
+    - name: Install dependencies
+      run: flutter pub get  # 依存関係をインストール
+
+    - name: Build iOS app
+      run: flutter build ios --release  # iOSアプリのリリースビルド
+
+    - name: Create IPA file
+      run: |
+        mkdir -p $GITHUB_WORKSPACE/build/ios/ipa
+        xcrun -sdk iphoneos PackageApplication -v build/ios/iphoneos/Runner.app -o $GITHUB_WORKSPACE/build/ios/ipa/musical_note_calculator.ipa
+      env:
+        HOME: $HOME
+
+    - name: Upload IPA as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: musical-note-calculator-ipa
+        path: $GITHUB_WORKSPACE/build/ios/ipa/musical_note_calculator.ipa  # 生成されたIPAファイルをアップロード
