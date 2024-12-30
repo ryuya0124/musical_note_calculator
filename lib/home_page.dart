@@ -22,21 +22,30 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appBarColor = Theme.of(context).primaryColor;
+    final titleTextStyle = Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white);
+
     // SettingsModel から有効な音符を取得
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Musical Note Calculator'),
+        backgroundColor: appBarColor,
+        title: Text(
+          'Musical Note Calculator',
+          style: titleTextStyle,
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
+              // 設定画面に遷移
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SettingsPage()),
               );
             },
+            color: titleTextStyle?.color, // 歯車アイコンの色をtitleTextStyleと一致させる
           ),
         ],
       ),
@@ -85,9 +94,29 @@ class _HomePageState extends State<HomePage> {
                 final note = _notes[index];
                 // 設定で無効にした音符は表示しない
                 if (enabledNotes[note['name']] == true) {
-                  return ListTile(
-                    title: Text(note['name']!),
-                    trailing: Text(note['duration']!),
+                  return Card(
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(16),
+                      title: Text(
+                        note['name']!,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      trailing: Text(
+                        note['duration']!,
+                        style: TextStyle(
+                          color: appBarColor,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
                   );
                 } else {
                   return Container(); // 無効な音符は空のコンテナで非表示

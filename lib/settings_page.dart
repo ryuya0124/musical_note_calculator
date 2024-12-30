@@ -7,11 +7,22 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // AppBarの背景色を取得
     final appBarColor = Theme.of(context).primaryColor;
+    final titleTextStyle = Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('設定'),
-        backgroundColor: appBarColor, // AppBarの背景色を設定
+        backgroundColor: appBarColor,
+        title: Text(
+          '設定',
+          style: titleTextStyle,
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // 戻るボタン
+          },
+          color: titleTextStyle?.color, // 戻るアイコンの色を歯車と同じ色に設定
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
