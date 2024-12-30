@@ -156,7 +156,7 @@ class SettingsPage extends StatelessWidget {
                 moveGithub(context);
               },
               child: Text(
-                'GitHubで見る',
+                AppLocalizations.of(context)!.view_on_github,
                 style: TextStyle(
                   fontSize: 16,
                   color: appBarColor,

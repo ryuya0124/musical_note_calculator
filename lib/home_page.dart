@@ -211,7 +211,22 @@ class _HomePageState extends State<HomePage> {
       _notes = [
         {'name': AppLocalizations.of(context)!.maxima, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 32), conversionFactor)},
         {'name': AppLocalizations.of(context)!.longa, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 16), conversionFactor)},
-        // 他の音符の名前も同様にローカライズ対応
+        {'name': AppLocalizations.of(context)!.double_whole_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 8), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.whole_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 4), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.dotted_half_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 2, isDotted: true), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.half_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 2), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.fourBeatsThreeConsecutive, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 4 / 3.0), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.dotted_quarter_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1, isDotted: true), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.quarter_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.dotted_eighth_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 2.0, isDotted: true), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.twoBeatsTriplet, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 1.5), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.eighth_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 2.0), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.dotted_sixteenth_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 4.0, isDotted: true), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.oneBeatTriplet, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 3.0), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.sixteenth_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 4.0), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.oneBeatQuintuplet, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 5.0), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.oneBeatSextuplet, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 6.0), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.thirty_second_note, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 8.0), conversionFactor)},
       ];
     });
   }
