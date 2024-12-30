@@ -116,32 +116,39 @@ class _MetronomePageState extends State<MetronomePage> {
     } else {
       startMetronome();
     }
-    setState(() {
-      isPlaying = !isPlaying;
-    });
   }
 
   void startMetronome() {
+    if (isPlaying) return; // すでに再生中なら何もしない
+    setState(() {
+      isPlaying = true;
+    });
+
     int counter = 0;
     Duration noteInterval = _calculateNoteInterval(note);
 
     metronomeTimer = Timer.periodic(noteInterval, (timer) async {
+      if (!isPlaying) {
+        timer.cancel();
+        return;
+      }
+
       // 強拍と弱拍を切り替え
       String tickSound = (counter == 0) ? strongTick : weakTick;
       await audioPlayer.play(AssetSource(tickSound));
 
       counter = (counter + 1) % 4; // 拍を繰り返す（4拍単位でリセット）
-
-      if (!isPlaying) {
-        timer.cancel();
-      }
     });
   }
 
+
   void stopMetronome() {
-    isPlaying = false;
+    if (!isPlaying) return; // すでに停止中なら何もしない
     metronomeTimer?.cancel();
     audioPlayer.stop();
+    setState(() {
+      isPlaying = false;
+    });
   }
 
   @override
