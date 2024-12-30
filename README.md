@@ -1,6 +1,7 @@
 # musical_note_calculator
 
 BPMや音符関連の計算をするアプリ
+Android版をFlutterに移植する
 
 ## Getting Started
 
