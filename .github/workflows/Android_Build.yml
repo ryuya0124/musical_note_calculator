@@ -11,22 +11,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3  # リポジトリをチェックアウト
 
-    - name: Install commandlinetools and accept SDK licenses
-      run: |
-        # Android SDK command-line toolsをインストール
-        sudo apt-get update
-        sudo apt-get install -y wget unzip
-        wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
-        unzip commandlinetools-linux-7583922_latest.zip -d $HOME/android-sdk
-        # 正しいパスを設定 (最新のツールが cmdline-tools/latest にインストールされるはず)
-        export PATH=$HOME/android-sdk/cmdline-tools/bin:$PATH
-        # sdkmanager の存在確認
-        ls $HOME/android-sdk/cmdline-tools/bin/
-        # SDK ライセンスに同意
-        yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
-        # 必要な SDK コンポーネントをインストール
-        $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-30"
-
     - name: Install Flutter
       run: |
         # Flutterを安定版でクローン
@@ -39,11 +23,11 @@ jobs:
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
 
-    - name: Build Android app
-      run: flutter build apk --release  # Androidアプリのリリースビルド
+    - name: Build Android app (debug)
+      run: flutter build apk --debug  # Androidアプリのデバッグビルド
 
     - name: Rename APK file
-      run: mv $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/app-release.apk $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/musical_note_calculator.apk  # APKの名前を変更
+      run: mv $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/app-debug.apk $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/musical_note_calculator.apk  # APKの名前を変更
 
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v3
