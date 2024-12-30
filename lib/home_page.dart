@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'settings_page.dart'; // 設定ページのインポート
-import 'settings_model.dart'; // SettingsModel のインポート
+import 'settings_page.dart';
+import 'settings_model.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -32,7 +32,6 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              // 設定画面に遷移
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SettingsPage()),
