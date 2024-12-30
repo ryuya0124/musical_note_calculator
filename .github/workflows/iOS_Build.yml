@@ -29,8 +29,8 @@ jobs:
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
 
-    - name: Build iOS app (release)
-      run: flutter build ipa --release  # iOSアプリのリリースビルド
+    - name: Build iOS app (debug)
+      run: flutter build ipa --debug  # iOSアプリのリリースビルド
 
     - name: Rename IPA file
       run: mv $GITHUB_WORKSPACE/build/ios/ipa/Runner.ipa $GITHUB_WORKSPACE/build/ios/ipa/musical_note_calculator.ipa  # IPAの名前を変更
