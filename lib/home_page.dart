@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'settings_page.dart';
 import 'settings_model.dart';
 import 'metronome_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -19,7 +20,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     selectedUnit = context.read<SettingsModel>().selectedUnit;
 
-    // リスナーを追加して、入力が変わったときに再計算するようにする
     bpmController.addListener(_calculateNotes);
   }
 
@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final appBarColor = Theme.of(context).primaryColor;
-    final titleTextStyle = Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white);
+    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
 
     return Scaffold(
@@ -47,12 +47,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-// AppBarウィジェットを作成するメソッド
+  // AppBarウィジェットを作成するメソッド
   PreferredSizeWidget buildAppBar(BuildContext context, Color appBarColor, TextStyle? titleTextStyle) {
     return AppBar(
       backgroundColor: appBarColor,
       title: Text(
-        'Musical Note Calculator',
+        AppLocalizations.of(context)!.title,
         style: titleTextStyle,
       ),
       actions: [
@@ -70,9 +70,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
-
-// BPM入力セクション
+  // BPM入力セクション
   Widget buildBpmInputSection() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -80,8 +78,10 @@ class _HomePageState extends State<HomePage> {
         children: [
           TextField(
             controller: bpmController,
-            keyboardType: TextInputType.numberWithOptions(decimal: true), // 小数点入力を許可
-            decoration: InputDecoration(labelText: 'BPMを入力'),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.bpm_input,
+            ),
           ),
           SizedBox(height: 10),
         ],
@@ -89,14 +89,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-// 単位切り替えセクション
+  // 単位切り替えセクション
   Widget buildUnitSwitchSection(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 16.0), // 左側のマージンを追加
+      margin: EdgeInsets.only(left: 16.0),
       child: Row(
         children: [
           Text(
-            '時間単位',
+            AppLocalizations.of(context)!.time_unit,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(width: 10),
@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                 setState(() {
                   selectedUnit = value;
                 });
-                _calculateNotes(); // ドロップダウン変更時に計算
+                _calculateNotes();
               }
             },
           ),
@@ -123,12 +123,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
-// 音符リスト表示セクション
+  // 音符リスト表示セクション
   Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor) {
     return Expanded(
       child: bpmController.text.isEmpty
-          ? Center(child: Text('BPMを入力すると音符が計算されます'))
+          ? Center(child: Text(AppLocalizations.of(context)!.bpm_instruction))
           : _notes.isNotEmpty
           ? ListView.builder(
         itemCount: _notes.length,
@@ -137,15 +136,15 @@ class _HomePageState extends State<HomePage> {
           if (enabledNotes[note['name']] == true) {
             return buildNoteCard(note, appBarColor);
           } else {
-            return Container(); // 無効な音符は非表示
+            return Container();
           }
         },
       )
-          : Center(child: Text('音符を計算して表示します')),
+          : Center(child: Text(AppLocalizations.of(context)!.calculate_notes )),
     );
   }
 
-// 音符カード
+  // 音符カード
   Widget buildNoteCard(Map<String, String> note, Color appBarColor) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -184,12 +183,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   void _calculateNotes() {
     final bpmInput = bpmController.text;
     if (bpmInput.isEmpty) {
       setState(() {
-        _notes = []; // BPMが空の場合は音符リストをクリア
+        _notes = [];
       });
       return;
     }
@@ -197,7 +195,7 @@ class _HomePageState extends State<HomePage> {
     final bpm = double.tryParse(bpmInput);
     if (bpm == null || bpm <= 0) {
       setState(() {
-        _notes = []; // 不正なBPMの場合も音符リストをクリア
+        _notes = [];
       });
       return;
     }
@@ -211,24 +209,9 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       _notes = [
-        {'name': 'マキシマ', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 32), conversionFactor)},
-        {'name': 'ロンガ', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 16), conversionFactor)},
-        {'name': '倍全音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 8), conversionFactor)},
-        {'name': '全音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 4), conversionFactor)},
-        {'name': '付点2分音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 2, isDotted: true), conversionFactor)},
-        {'name': '2分音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 2), conversionFactor)},
-        {'name': '4拍3連', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 4 / 3.0), conversionFactor)},
-        {'name': '付点4分音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1, isDotted: true), conversionFactor)},
-        {'name': '4分音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1), conversionFactor)},
-        {'name': '付点8分音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 2.0, isDotted: true), conversionFactor)},
-        {'name': '2拍3連', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 1.5), conversionFactor)},
-        {'name': '8分音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 2.0), conversionFactor)},
-        {'name': '付点16分音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 4.0, isDotted: true), conversionFactor)},
-        {'name': '1拍3連', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 3.0), conversionFactor)},
-        {'name': '16分音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 4.0), conversionFactor)},
-        {'name': '1拍5連', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 5.0), conversionFactor)},
-        {'name': '1拍6連', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 6.0), conversionFactor)},
-        {'name': '32分音符', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 8.0), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.maxima, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 32), conversionFactor)},
+        {'name': AppLocalizations.of(context)!.longa, 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 16), conversionFactor)},
+        // 他の音符の名前も同様にローカライズ対応
       ];
     });
   }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/widgets.dart'; // WidgetsBindingObserverを使うために必要
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;
@@ -147,7 +148,7 @@ class _MetronomePageState extends State<MetronomePage> {
   Widget build(BuildContext context) {
     // AppBarの背景色と文字色を取得
     final appBarColor = Theme.of(context).primaryColor;
-    final titleTextStyle = Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white);
+    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
 
     return Scaffold(
       appBar: buildAppBar(context, appBarColor, titleTextStyle), // AppBarをビルド
@@ -159,7 +160,7 @@ class _MetronomePageState extends State<MetronomePage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: toggleMetronome,
-              child: Text(isPlaying ? 'Stop' : 'Start'),
+              child: Text(isPlaying ? AppLocalizations.of(context)!.stop : AppLocalizations.of(context)!.start),
             ),
           ],
         ),
@@ -171,7 +172,7 @@ class _MetronomePageState extends State<MetronomePage> {
     return AppBar(
       backgroundColor: appBarColor, // AppBarの背景色を設定
       title: Text(
-        'Metronome - ${widget.note}',
+        AppLocalizations.of(context)!.metronome + ' - ${widget.note}',
         style: titleTextStyle, // タイトルのスタイルを設定
       ),
       leading: IconButton(

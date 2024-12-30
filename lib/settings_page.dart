@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'settings_model.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appBarColor = Theme.of(context).primaryColor;
-    final titleTextStyle = Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white);
+    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
 
     return Scaffold(
       appBar: buildAppBar(context, appBarColor, titleTextStyle),
@@ -31,7 +32,7 @@ class SettingsPage extends StatelessWidget {
     return AppBar(
       backgroundColor: appBarColor,
       title: Text(
-        '設定',
+        AppLocalizations.of(context)!.settings,
         style: titleTextStyle,
       ),
       leading: IconButton(
@@ -49,7 +50,7 @@ class SettingsPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '表示設定',
+          AppLocalizations.of(context)!.display_settings,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -69,7 +70,7 @@ class SettingsPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '時間単位の選択',
+          AppLocalizations.of(context)!.time_unit,
           style: TextStyle(
             fontSize: 16,
             color: appBarColor,
@@ -103,7 +104,7 @@ class SettingsPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '音符設定',
+          AppLocalizations.of(context)!.note_settings,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -133,7 +134,7 @@ class SettingsPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '作成者: りゅうや',
+          AppLocalizations.of(context)!.author,
           style: TextStyle(
             fontSize: 16,
             color: appBarColor,

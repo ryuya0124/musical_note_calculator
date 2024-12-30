@@ -1,14 +1,14 @@
-//main.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'home_page.dart';
-import 'settings_model.dart'; // SettingsModelをインポート
+import 'home_page.dart'; // HomePageのインポート
+import 'settings_model.dart'; // SettingsModelのインポート
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) => SettingsModel(), // SettingsModelを提供
+      create: (context) => SettingsModel(),
       child: MyApp(),
     ),
   );
@@ -18,7 +18,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Musical Note Calculator',
+      // ローカライズ設定を追加
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        AppLocalizations.delegate, // AppLocalizationsを追加
+      ],
+      supportedLocales: [
+        Locale('en', ''), // 英語
+        Locale('ja', ''), // 日本語
+      ],
+      title: '', // 固定のタイトル
       theme: ThemeData(
         primaryColor: Colors.blue,
         appBarTheme: AppBarTheme(
@@ -28,10 +38,11 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         textTheme: TextTheme(
           bodyLarge: TextStyle(color: Colors.black),
+          titleLarge: TextStyle(color: Colors.white),
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: HomePage(), // HomePageを指定
     );
   }
 }
