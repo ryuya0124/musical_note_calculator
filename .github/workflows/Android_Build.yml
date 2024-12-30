@@ -33,10 +33,10 @@ jobs:
       run: flutter build apk --debug # Androidアプリのreleaseビルド
 
     - name: Rename APK file
-      run: mv build/app/outputs/flutter-apk/app-debug.apk $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/musical_note_calculator.apk  # APKの名前を変更
+      run: mv build/app/outputs/flutter-apk/app-debug.apk build/app/outputs/flutter-apk/musical_note_calculator.apk  # APKの名前を変更
 
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v3
       with:
         name: musical_note_calculator.apk
-        path: $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/musical_note_calculator.apk  # 変更後のAPKをアップロード
+        path: build/app/outputs/flutter-apk/musical_note_calculator.apk  # 変更後のAPKをアップロード
