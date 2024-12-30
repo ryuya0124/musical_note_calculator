@@ -14,7 +14,7 @@ jobs:
     - name: Install Flutter
       run: |
         git clone https://github.com/flutter/flutter.git -b stable
-        export PATH="$PATH:`pwd`/flutter/bin"  # Flutter のパスを設定
+        echo "export PATH=\"\$PATH:`pwd`/flutter/bin\"" >> $GITHUB_ENV
         flutter doctor  # インストールと依存関係の確認
 
     - name: Install dependencies
