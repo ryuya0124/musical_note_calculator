@@ -2,8 +2,8 @@
 
 BPMや音符関連の計算をするアプリ<br>
 
-![image](https://github.com/user-attachments/assets/96fd0d06-fc3d-430b-a02e-f13ad2c1c9d1)
-![image](https://github.com/user-attachments/assets/1596c8f5-eeb8-45cd-a1fd-42935688498a)
+![image](https://github.com/user-attachments/assets/96fd0d06-fc3d-430b-a02e-f13ad2c1c9d1){: width="400px"}
+![image](https://github.com/user-attachments/assets/1596c8f5-eeb8-45cd-a1fd-42935688498a){: width="400px"}
 
 
 
