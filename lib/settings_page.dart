@@ -114,13 +114,10 @@ class SettingsPage extends StatelessWidget {
                   IconButton(
                     icon: Image.asset('assets/github-mark.png', height: 30), // 画像を表示
                     onPressed: () async {
-                      const url = 'https://github.com/ryuya0124/musical_note_calculator';
-                      if (await canLaunch(url)) {
-                        await launch(
-                            url,
-                            forceSafariVC: false, // iOSのWebViewを使用しない
-                            forceWebView: false, // デフォルトのブラウザで開く
-                        ); // GitHubのリンクをブラウザで開く
+                      final Uri url = Uri.parse('https://github.com/ryuya0124/musical_note_calculator');
+
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url, mode: LaunchMode.externalApplication); // 外部ブラウザで開く
                       } else {
                         throw 'Could not launch $url';
                       }
@@ -130,13 +127,10 @@ class SettingsPage extends StatelessWidget {
                   // GitHubへのリンクボタン
                   TextButton(
                     onPressed: () async {
-                      const url = 'https://github.com/ryuya0124/musical_note_calculator';
-                      if (await canLaunch(url)) {
-                        await launch(
-                          url,
-                          forceSafariVC: false, // iOSのWebViewを使用しない
-                          forceWebView: false, // デフォルトのブラウザで開く
-                        ); // GitHubのリンクをブラウザで開く
+                      final Uri url = Uri.parse('https://github.com/ryuya0124/musical_note_calculator');
+
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url, mode: LaunchMode.externalApplication); // 外部ブラウザで開く
                       } else {
                         throw 'Could not launch $url';
                       }
