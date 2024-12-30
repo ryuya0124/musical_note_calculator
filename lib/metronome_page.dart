@@ -145,10 +145,12 @@ class _MetronomePageState extends State<MetronomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // AppBarの背景色と文字色を取得
+    final appBarColor = Theme.of(context).primaryColor;
+    final titleTextStyle = Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white);
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Metronome - ${widget.note}'),
-      ),
+      appBar: buildAppBar(context, appBarColor, titleTextStyle), // AppBarをビルド
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -164,4 +166,23 @@ class _MetronomePageState extends State<MetronomePage> {
       ),
     );
   }
+
+  AppBar buildAppBar(BuildContext context, Color appBarColor, TextStyle? titleTextStyle) {
+    return AppBar(
+      backgroundColor: appBarColor, // AppBarの背景色を設定
+      title: Text(
+        'Metronome - ${widget.note}',
+        style: titleTextStyle, // タイトルのスタイルを設定
+      ),
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        onPressed: () {
+          Navigator.pop(context); // 戻るボタン
+        },
+        color: titleTextStyle?.color, // 戻るアイコンの色をタイトルの色に設定
+      ),
+    );
+  }
+
+
 }
