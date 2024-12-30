@@ -41,62 +41,63 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(  // 設定ページのスクロール対応
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: _bpmController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'BPMを入力'),
-              ),
-              SizedBox(height: 10),
-              // DropdownButtonの選択肢をSettingsModelから取得するように変更
-              DropdownButton<String>(
-                value: context.watch<SettingsModel>().selectedUnit,
-                items: ['ms', 's', 'µs'].map((String unit) {
-                  return DropdownMenuItem<String>(
-                    value: unit,
-                    child: Text(unit),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    context.read<SettingsModel>().setUnit(value);
-                    setState(() {
-                      _selectedUnit = value;
-                    });
-                  }
-                },
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _calculateNotes,
-                child: Text('計算'),
-              ),
-              SizedBox(height: 20),
-              if (_notes.isNotEmpty)
-              // 音符一覧をスクロール可能にする
-                ListView.builder(
-                  shrinkWrap: true,  // リストが親のサイズに収まるように
-                  itemCount: _notes.length,
-                  itemBuilder: (context, index) {
-                    final note = _notes[index];
-                    // 設定で無効にした音符は表示しない
-                    if (enabledNotes[note['name']] == true) {
-                      return ListTile(
-                        title: Text(note['name']!),
-                        trailing: Text(note['duration']!),
-                      );
-                    } else {
-                      return Container(); // 無効な音符は空のコンテナで非表示
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _bpmController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: 'BPMを入力'),
+                ),
+                SizedBox(height: 10),
+                DropdownButton<String>(
+                  value: context.watch<SettingsModel>().selectedUnit,
+                  items: ['ms', 's', 'µs'].map((String unit) {
+                    return DropdownMenuItem<String>(
+                      value: unit,
+                      child: Text(unit),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      context.read<SettingsModel>().setUnit(value);
+                      setState(() {
+                        _selectedUnit = value;
+                      });
                     }
                   },
                 ),
-            ],
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _calculateNotes,
+                  child: Text('計算'),
+                ),
+              ],
+            ),
           ),
-        ),
+          Expanded(
+            child: _notes.isNotEmpty
+                ? ListView.builder(
+              itemCount: _notes.length,
+              itemBuilder: (context, index) {
+                final note = _notes[index];
+                // 設定で無効にした音符は表示しない
+                if (enabledNotes[note['name']] == true) {
+                  return ListTile(
+                    title: Text(note['name']!),
+                    trailing: Text(note['duration']!),
+                  );
+                } else {
+                  return Container(); // 無効な音符は空のコンテナで非表示
+                }
+              },
+            )
+                : Center(child: Text('音符を計算して表示します')),
+          ),
+        ],
       ),
     );
   }
