@@ -1,0 +1,32 @@
+name: Flutter Android Build
+
+on:
+  workflow_dispatch:  # 手動でトリガーできるようにする
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # AndroidビルドはLinux環境で実行
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3  # リポジトリをチェックアウト
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2  # Flutterのセットアップ
+      with:
+        flutter-version: 'stable'  # 最新の安定版Flutterをインストール
+
+    - name: Install dependencies
+      run: flutter pub get  # 依存関係をインストール
+
+    - name: Build Android app
+      run: flutter build apk --release  # Androidアプリのリリースビルド
+
+    - name: Rename APK file
+      run: mv $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/app-release.apk $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/musical_note_calculator.apk  # APKの名前を変更
+
+    - name: Upload APK as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: musical-note-calculator-apk
+        path: $GITHUB_WORKSPACE/build/app/outputs/flutter-apk/musical_note_calculator.apk  # 変更後のAPKをアップロード
