@@ -5,57 +5,46 @@ import 'settings_model.dart';
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final settingsModel = Provider.of<SettingsModel>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('設定'),
       ),
-      body: Column(
-        children: [
-          ListTile(
-            title: Text('単位'),
-            subtitle: Text(settingsModel.selectedUnit),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text('単位を選択'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: ['ms', 's', 'µs'].map((unit) {
-                        return ListTile(
-                          title: Text(unit),
-                          onTap: () {
-                            settingsModel.setUnit(unit);
-                            Navigator.pop(context);
-                          },
-                        );
-                      }).toList(),
-                    ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 単位選択用のDropdownButton
+              DropdownButton<String>(
+                value: context.watch<SettingsModel>().selectedUnit,
+                items: ['ms', 's', 'µs'].map((unit) {
+                  return DropdownMenuItem<String>(
+                    value: unit,
+                    child: Text(unit),
                   );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    context.read<SettingsModel>().setUnit(value);
+                  }
                 },
-              );
-            },
+              ),
+              SizedBox(height: 20),
+
+              // 音符の有効無効切り替え用のSwitchListTile
+              ...context.watch<SettingsModel>().enabledNotes.keys.map((note) {
+                return SwitchListTile(
+                  title: Text(note),
+                  value: context.watch<SettingsModel>().enabledNotes[note]!,
+                  onChanged: (bool value) {
+                    context.read<SettingsModel>().toggleNoteEnabled(note);
+                  },
+                );
+              }).toList(),
+            ],
           ),
-          ...settingsModel.enabledNotes.keys.map((note) {
-            return CheckboxListTile(
-              title: Text(note),
-              value: settingsModel.enabledNotes[note],
-              onChanged: (bool? value) {
-                settingsModel.toggleNoteEnabled(note);
-              },
-            );
-          }).toList(),
-          ElevatedButton(
-            onPressed: () {
-              // 設定を保存して戻る
-              Navigator.pop(context);
-            },
-            child: Text('保存'),
-          ),
-        ],
+        ),
       ),
     );
   }

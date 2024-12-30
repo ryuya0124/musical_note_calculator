@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'settings_page.dart'; // 設定ページのインポート
+import 'settings_model.dart'; // SettingsModel のインポート
 
 class HomePage extends StatefulWidget {
   @override
@@ -7,16 +10,38 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _bpmController = TextEditingController();
-  String _selectedUnit = 'ms';
+  late String _selectedUnit;
   List<Map<String, String>> _notes = [];
 
   @override
+  void initState() {
+    super.initState();
+    // 初期設定を取得
+    _selectedUnit = context.read<SettingsModel>().selectedUnit;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // SettingsModel から有効な音符を取得
+    final enabledNotes = context.watch<SettingsModel>().enabledNotes;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Musical Note Calculator'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              // 設定画面に遷移
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(  // ここでスクロール可能にします
+      body: SingleChildScrollView(  // 設定ページのスクロール対応
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -27,8 +52,9 @@ class _HomePageState extends State<HomePage> {
                 decoration: InputDecoration(labelText: 'BPMを入力'),
               ),
               SizedBox(height: 10),
+              // DropdownButtonの選択肢をSettingsModelから取得するように変更
               DropdownButton<String>(
-                value: _selectedUnit,
+                value: context.watch<SettingsModel>().selectedUnit,
                 items: ['ms', 's', 'µs'].map((String unit) {
                   return DropdownMenuItem<String>(
                     value: unit,
@@ -36,9 +62,12 @@ class _HomePageState extends State<HomePage> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  setState(() {
-                    _selectedUnit = value!;
-                  });
+                  if (value != null) {
+                    context.read<SettingsModel>().setUnit(value);
+                    setState(() {
+                      _selectedUnit = value;
+                    });
+                  }
                 },
               ),
               SizedBox(height: 10),
@@ -48,17 +77,22 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 20),
               if (_notes.isNotEmpty)
-                Expanded(  // 結果が空でない場合に表示
-                  child: ListView.builder(
-                    itemCount: _notes.length,
-                    itemBuilder: (context, index) {
-                      final note = _notes[index];
+              // 音符一覧をスクロール可能にする
+                ListView.builder(
+                  shrinkWrap: true,  // リストが親のサイズに収まるように
+                  itemCount: _notes.length,
+                  itemBuilder: (context, index) {
+                    final note = _notes[index];
+                    // 設定で無効にした音符は表示しない
+                    if (enabledNotes[note['name']] == true) {
                       return ListTile(
                         title: Text(note['name']!),
                         trailing: Text(note['duration']!),
                       );
-                    },
-                  ),
+                    } else {
+                      return Container(); // 無効な音符は空のコンテナで非表示
+                    }
+                  },
                 ),
             ],
           ),
