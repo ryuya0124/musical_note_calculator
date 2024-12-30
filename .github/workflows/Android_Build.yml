@@ -11,14 +11,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3  # リポジトリをチェックアウト
 
-    - name: Install Flutter
-      run: |
-        # Flutterを安定版でクローン
-        git clone https://github.com/flutter/flutter.git -b stable
-        # Flutter のパスを設定
-        export PATH="$PATH:`pwd`/flutter/bin"
-        # flutter doctor を実行してセットアップ
-        flutter doctor
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.10.5'
 
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
