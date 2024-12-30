@@ -10,22 +10,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _bpmController = TextEditingController();
-  late String _selectedUnit;
+  final TextEditingController bpmController = TextEditingController();
+  late String selectedUnit;
   List<Map<String, String>> _notes = [];
 
   @override
   void initState() {
     super.initState();
-    _selectedUnit = context.read<SettingsModel>().selectedUnit;
+    selectedUnit = context.read<SettingsModel>().selectedUnit;
 
     // リスナーを追加して、入力が変わったときに再計算するようにする
-    _bpmController.addListener(_calculateNotes);
+    bpmController.addListener(_calculateNotes);
   }
 
   @override
   void dispose() {
-    _bpmController.dispose();
+    bpmController.dispose();
     super.dispose();
   }
 
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: [
                 TextField(
-                  controller: _bpmController,
+                  controller: bpmController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true), // 小数点入力を許可
                   decoration: InputDecoration(labelText: 'BPMを入力'),
                 ),
@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                         if (value != null) {
                           context.read<SettingsModel>().setUnit(value);
                           setState(() {
-                            _selectedUnit = value;
+                            selectedUnit = value;
                           });
                           _calculateNotes(); // ドロップダウン変更時に計算
                         }
@@ -98,7 +98,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Expanded(
-            child: _bpmController.text.isEmpty
+            child: bpmController.text.isEmpty
                 ? Center(child: Text('BPMを入力すると音符が計算されます'))
                 : _notes.isNotEmpty
                 ? ListView.builder(
@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => MetronomePage(
-                              bpm: double.parse(_bpmController.text),
+                              bpm: double.parse(bpmController.text),
                               note: note['name']!,
                             ),
                           ),
@@ -154,7 +154,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _calculateNotes() {
-    final bpmInput = _bpmController.text;
+    final bpmInput = bpmController.text;
     if (bpmInput.isEmpty) {
       setState(() {
         _notes = []; // BPMが空の場合は音符リストをクリア
@@ -171,9 +171,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     final quarterNoteLengthMs = 60000.0 / bpm;
-    final conversionFactor = _selectedUnit == 's'
+    final conversionFactor = selectedUnit == 's'
         ? 1 / 1000.0
-        : _selectedUnit == 'µs'
+        : selectedUnit == 'µs'
         ? 1000.0
         : 1.0;
 
@@ -207,6 +207,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   String _formatDuration(double duration, double conversionFactor) {
-    return '${(duration * conversionFactor).toStringAsFixed(2)} $_selectedUnit';
+    return '${(duration * conversionFactor).toStringAsFixed(2)} $selectedUnit';
   }
 }

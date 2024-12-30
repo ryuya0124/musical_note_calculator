@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 
 class SettingsModel extends ChangeNotifier {
-  String _selectedUnit = 'ms';
-  Map<String, bool> _enabledNotes = {
+  String selectedUnit = 'ms';
+  Map<String, bool> enabledNotes = {
     'マキシマ': true,
     'ロンガ': true,
     '倍全音符': true,
@@ -25,21 +25,18 @@ class SettingsModel extends ChangeNotifier {
     '32分音符': true,
   };
 
-  String get selectedUnit => _selectedUnit;
-  Map<String, bool> get enabledNotes => _enabledNotes;
-
   void setUnit(String unit) {
-    _selectedUnit = unit;
+    selectedUnit = unit;
     notifyListeners();
   }
 
   void toggleNoteEnabled(String note) {
-    _enabledNotes[note] = !_enabledNotes[note]!;
+    enabledNotes[note] = !enabledNotes[note]!;
     notifyListeners();
   }
 
   void setEnabledNotes(Map<String, bool> newEnabledNotes) {
-    _enabledNotes = newEnabledNotes;
+    enabledNotes = newEnabledNotes;
     notifyListeners();
   }
 }
