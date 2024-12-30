@@ -36,122 +36,154 @@ class _HomePageState extends State<HomePage> {
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: appBarColor,
-        title: Text(
-          'Musical Note Calculator',
-          style: titleTextStyle,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
-            },
-            color: titleTextStyle?.color,
-          ),
-        ],
-      ),
+      appBar: buildAppBar(context, appBarColor, titleTextStyle),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: bpmController,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true), // 小数点入力を許可
-                  decoration: InputDecoration(labelText: 'BPMを入力'),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Text(
-                      '単位切り替え',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(width: 10),
-                    DropdownButton<String>(
-                      value: context.watch<SettingsModel>().selectedUnit,
-                      items: ['ms', 's', 'µs'].map((String unit) {
-                        return DropdownMenuItem<String>(
-                          value: unit,
-                          child: Text(unit),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          context.read<SettingsModel>().setUnit(value);
-                          setState(() {
-                            selectedUnit = value;
-                          });
-                          _calculateNotes(); // ドロップダウン変更時に計算
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          buildBpmInputSection(),
+          buildUnitSwitchSection(context),
+          buildNotesList(enabledNotes, appBarColor),
+        ],
+      ),
+    );
+  }
+
+// AppBarウィジェットを作成するメソッド
+  PreferredSizeWidget buildAppBar(BuildContext context, Color appBarColor, TextStyle? titleTextStyle) {
+    return AppBar(
+      backgroundColor: appBarColor,
+      title: Text(
+        'Musical Note Calculator',
+        style: titleTextStyle,
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.settings),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SettingsPage()),
+            );
+          },
+          color: titleTextStyle?.color,
+        ),
+      ],
+    );
+  }
+
+
+
+// BPM入力セクション
+  Widget buildBpmInputSection() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          TextField(
+            controller: bpmController,
+            keyboardType: TextInputType.numberWithOptions(decimal: true), // 小数点入力を許可
+            decoration: InputDecoration(labelText: 'BPMを入力'),
           ),
-          Expanded(
-            child: bpmController.text.isEmpty
-                ? Center(child: Text('BPMを入力すると音符が計算されます'))
-                : _notes.isNotEmpty
-                ? ListView.builder(
-              itemCount: _notes.length,
-              itemBuilder: (context, index) {
-                final note = _notes[index];
-                if (enabledNotes[note['name']] == true) {
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.all(16),
-                      title: Text(
-                        note['name']!,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      trailing: Text(
-                        note['duration']!,
-                        style: TextStyle(
-                          color: appBarColor,
-                          fontSize: 16,
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MetronomePage(
-                              bpm: double.parse(bpmController.text),
-                              note: note['name']!,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                } else {
-                  return Container(); // 無効な音符は非表示
-                }
-              },
-            )
-                : Center(child: Text('音符を計算して表示します')),
+          SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+
+// 単位切り替えセクション
+  Widget buildUnitSwitchSection(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(left: 16.0), // 左側のマージンを追加
+      child: Row(
+        children: [
+          Text(
+            '時間単位',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 10),
+          DropdownButton<String>(
+            value: context.watch<SettingsModel>().selectedUnit,
+            items: ['ms', 's', 'µs'].map((String unit) {
+              return DropdownMenuItem<String>(
+                value: unit,
+                child: Text(unit),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                context.read<SettingsModel>().setUnit(value);
+                setState(() {
+                  selectedUnit = value;
+                });
+                _calculateNotes(); // ドロップダウン変更時に計算
+              }
+            },
           ),
         ],
       ),
     );
   }
+
+
+// 音符リスト表示セクション
+  Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor) {
+    return Expanded(
+      child: bpmController.text.isEmpty
+          ? Center(child: Text('BPMを入力すると音符が計算されます'))
+          : _notes.isNotEmpty
+          ? ListView.builder(
+        itemCount: _notes.length,
+        itemBuilder: (context, index) {
+          final note = _notes[index];
+          if (enabledNotes[note['name']] == true) {
+            return buildNoteCard(note, appBarColor);
+          } else {
+            return Container(); // 無効な音符は非表示
+          }
+        },
+      )
+          : Center(child: Text('音符を計算して表示します')),
+    );
+  }
+
+// 音符カード
+  Widget buildNoteCard(Map<String, String> note, Color appBarColor) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ListTile(
+        contentPadding: EdgeInsets.all(16),
+        title: Text(
+          note['name']!,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        trailing: Text(
+          note['duration']!,
+          style: TextStyle(
+            color: appBarColor,
+            fontSize: 16,
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MetronomePage(
+                bpm: double.parse(bpmController.text),
+                note: note['name']!,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
 
   void _calculateNotes() {
     final bpmInput = bpmController.text;
