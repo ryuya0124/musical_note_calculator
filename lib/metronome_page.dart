@@ -40,24 +40,47 @@ class _MetronomePageState extends State<MetronomePage> {
 
   Duration _calculateNoteInterval(String note) {
     switch (note) {
+      case 'マキシマ':
+        return Duration(milliseconds: (_interval.inMilliseconds * 32).round());
+      case 'ロンガ':
+        return Duration(milliseconds: (_interval.inMilliseconds * 16).round());
+      case '倍全音符':
+        return Duration(milliseconds: (_interval.inMilliseconds * 8).round());
       case '全音符':
-        return Duration(milliseconds: _interval.inMilliseconds * 4);
+        return Duration(milliseconds: (_interval.inMilliseconds * 4).round());
+      case '付点2分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds * 2.5).round());
+      case '2分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds * 2).round());
+      case '4拍3連':
+        return Duration(milliseconds: (_interval.inMilliseconds * 4 / 3).round());
       case '付点4分音符':
         return Duration(milliseconds: (_interval.inMilliseconds * 1.5).round());
       case '4分音符':
         return _interval;
-      case '8分音符':
-        return Duration(milliseconds: (_interval.inMilliseconds / 2).round());
-      case '16分音符':
-        return Duration(milliseconds: (_interval.inMilliseconds / 4).round());
       case '付点8分音符':
         return Duration(milliseconds: (_interval.inMilliseconds / 2 + _interval.inMilliseconds / 4).round());
+      case '2拍3連':
+        return Duration(milliseconds: (_interval.inMilliseconds * 2 / 3).round());
+      case '8分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds / 2).round());
+      case '付点16分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds / 4 + _interval.inMilliseconds / 8).round());
+      case '1拍3連':
+        return Duration(milliseconds: (_interval.inMilliseconds * 1 / 3).round());
+      case '16分音符':
+        return Duration(milliseconds: (_interval.inMilliseconds / 4).round());
+      case '1拍5連':
+        return Duration(milliseconds: (_interval.inMilliseconds * 1 / 5).round());
+      case '1拍6連':
+        return Duration(milliseconds: (_interval.inMilliseconds * 1 / 6).round());
       case '32分音符':
         return Duration(milliseconds: (_interval.inMilliseconds / 8).round());
       default:
         return _interval;
     }
   }
+
 
   void _toggleMetronome() {
     if (_isPlaying) {
