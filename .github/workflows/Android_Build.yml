@@ -18,12 +18,14 @@ jobs:
         sudo apt-get install -y wget unzip
         wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
         unzip commandlinetools-linux-7583922_latest.zip -d $HOME/android-sdk
-        # sdkmanager のフルパスを使ってインストール
-        export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
+        # 正しいパスを設定 (最新のツールが cmdline-tools/latest にインストールされるはず)
+        export PATH=$HOME/android-sdk/cmdline-tools/bin:$PATH
+        # sdkmanager の存在確認
+        ls $HOME/android-sdk/cmdline-tools/bin/
         # SDK ライセンスに同意
-        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+        yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
         # 必要な SDK コンポーネントをインストール
-        $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-30"
+        $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-30"
 
     - name: Install Flutter
       run: |
