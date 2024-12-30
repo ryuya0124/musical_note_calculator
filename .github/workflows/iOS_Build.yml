@@ -33,10 +33,10 @@ jobs:
       run: flutter build ipa --debug  # iOSアプリのリリースビルド
 
     - name: Rename IPA file
-      run: mv $GITHUB_WORKSPACE/build/ios/ipa/Runner.ipa $GITHUB_WORKSPACE/build/ios/ipa/musical_note_calculator.ipa  # IPAの名前を変更
+      run: mv build/ios/ipa/Runner.ipa build/ios/ipa/musical_note_calculator.ipa  # IPAの名前を変更
 
     - name: Upload IPA as artifact
       uses: actions/upload-artifact@v3
       with:
         name: musical-note-calculator-ipa
-        path: $GITHUB_WORKSPACE/build/ios/ipa/musical_note_calculator.ipa  # 変更後のIPAをアップロード
+        path: build/ios/ipa/musical_note_calculator.ipa  # 変更後のIPAをアップロード
