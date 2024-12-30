@@ -11,10 +11,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3  # リポジトリをチェックアウト
 
-    - name: Set up Flutter
-      uses: actions/setup-java@v3  # もし Java が必要であれば
-      with:
-        java-version: '11'  # 必要な Java バージョンを指定
     - name: Install Flutter
       run: |
         git clone https://github.com/flutter/flutter.git -b stable
