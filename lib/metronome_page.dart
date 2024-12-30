@@ -41,7 +41,6 @@ class _MetronomePageState extends State<MetronomePage> {
     super.dispose();
   }
 
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.inactive:

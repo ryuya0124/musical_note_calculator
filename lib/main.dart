@@ -3,8 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'home_page.dart';
-import 'settings_page.dart';
-import 'home_page.dart';
 import 'settings_model.dart'; // SettingsModelをインポート
 
 void main() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart'; // URLを開くために必要なパッケージ
 import 'settings_model.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -87,7 +88,7 @@ class SettingsPage extends StatelessWidget {
                   margin: EdgeInsets.only(left: 8.0), // 左マージンを調整
                   child: SwitchListTile(
                     title: Text(note),
-                    value: context.watch<SettingsModel>().enabledNotes[note]!,
+                    value: context.watch<SettingsModel>().enabledNotes[note]! ,
                     onChanged: (bool value) {
                       context.read<SettingsModel>().toggleNoteEnabled(note);
                     },
@@ -95,6 +96,61 @@ class SettingsPage extends StatelessWidget {
                   ),
                 );
               }).toList(),
+
+              // 作成者セクション
+              SizedBox(height: 40),
+              Text(
+                '作成者: りゅうや',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: appBarColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  // GitHubのアイコンを表示
+                  IconButton(
+                    icon: Image.asset('assets/github-mark.png', height: 30), // 画像を表示
+                    onPressed: () async {
+                      const url = 'https://github.com/ryuya0124/musical_note_calculator';
+                      if (await canLaunch(url)) {
+                        await launch(
+                            url,
+                            forceSafariVC: false, // iOSのWebViewを使用しない
+                            forceWebView: false, // デフォルトのブラウザで開く
+                        ); // GitHubのリンクをブラウザで開く
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    },
+                    color: appBarColor, // アイコンの色をAppBarに合わせる
+                  ),
+                  // GitHubへのリンクボタン
+                  TextButton(
+                    onPressed: () async {
+                      const url = 'https://github.com/ryuya0124/musical_note_calculator';
+                      if (await canLaunch(url)) {
+                        await launch(
+                          url,
+                          forceSafariVC: false, // iOSのWebViewを使用しない
+                          forceWebView: false, // デフォルトのブラウザで開く
+                        ); // GitHubのリンクをブラウザで開く
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    },
+                    child: Text(
+                      'GitHubで見る',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: appBarColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
