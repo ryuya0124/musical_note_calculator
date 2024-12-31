@@ -5,6 +5,9 @@ import 'package:flutter/widgets.dart'; // WidgetsBindingObserverを使うため�
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;
@@ -18,7 +21,6 @@ class MetronomePage extends StatefulWidget {
 }
 
 class _MetronomePageState extends State<MetronomePage> {
-  late AudioCache audioCache;
   late AudioPlayer audioPlayer;
   bool isPlaying = false;
   late Duration interval;
@@ -27,23 +29,44 @@ class _MetronomePageState extends State<MetronomePage> {
   Timer? metronomeTimer;
 
   // 音源のパス
-  final String strongTick = 'metronome_tick_strong.wav';
+  final String strongTick = 'metronome_tick_weak.wav';
   final String weakTick = 'metronome_tick_weak.wav';
+
+  Map<String, String> audioCacheMap = {};
+
+  Future<void> preloadSounds() async {
+    List<String> sounds = ['metronome_tick_strong.wav', 'metronome_tick_weak.wav'];
+    for (var sound in sounds) {
+      final byteData = await rootBundle.load('assets/$sound');
+      final tempFile = File('${(await getTemporaryDirectory()).path}/$sound');
+      await tempFile.writeAsBytes(byteData.buffer.asUint8List());
+      audioCacheMap[sound] = tempFile.path; // ファイルパスをキャッシュ
+    }
+  }
+
+  Future<void> playSound(String assetPath) async {
+    final directory = await getTemporaryDirectory();
+    final file = File('${directory.path}/$assetPath');
+
+    if (!file.existsSync()) {
+      final data = await rootBundle.load(assetPath);
+      await file.writeAsBytes(data.buffer.asUint8List());
+    }
+
+    await audioPlayer.setSource(DeviceFileSource(file.path)); // setSourceを追加
+    await audioPlayer.play(DeviceFileSource(file.path));
+    await audioPlayer.setReleaseMode(ReleaseMode.stop);
+  }
 
   @override
   void initState() {
     super.initState();
-    audioCache = AudioCache(prefix: 'assets/');  // プリロードのためのAudioCache
     audioPlayer = AudioPlayer();
+    audioPlayer.setPlaybackRate(1.0);
+    preloadSounds();
     note = widget.note;
     interval = Duration(microseconds: ( (60000 * 1000) / widget.bpm).round());
     preloadSounds();  // 音源のプリロード
-  }
-
-  // 音源のプリロード
-  void preloadSounds() async {
-    await audioCache.load(strongTick);
-    await audioCache.load(weakTick);
   }
 
   @override
@@ -143,7 +166,7 @@ class _MetronomePageState extends State<MetronomePage> {
       String tickSound = (counter == 0) ? strongTick : weakTick;
 
       // 音声ファイルを再生
-      await audioPlayer.play(AssetSource(tickSound));
+      playSound(tickSound);
 
       counter = (counter + 1) % 4;
     });
