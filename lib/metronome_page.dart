@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/widgets.dart'; // WidgetsBindingObserverを使うために必要
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;
@@ -68,47 +69,46 @@ class _MetronomePageState extends State<MetronomePage> {
 
   Duration _calculateNoteInterval(String note) {
     switch (note) {
-      case 'マキシマ':
+      case 'maxima':  // マキシマ
         return Duration(milliseconds: (interval.inMilliseconds * 32).round());
-      case 'ロンガ':
+      case 'longa':  // ロンガ
         return Duration(milliseconds: (interval.inMilliseconds * 16).round());
-      case '倍全音符':
+      case 'double_whole_note':  // 倍全音符
         return Duration(milliseconds: (interval.inMilliseconds * 8).round());
-      case '全音符':
+      case 'whole_note':  // 全音符
         return Duration(milliseconds: (interval.inMilliseconds * 4).round());
-      case '付点2分音符':
+      case 'dotted_half_note':  // 付点2分音符
         return Duration(milliseconds: (interval.inMilliseconds * 2.5).round());
-      case '2分音符':
+      case 'half_note':  // 2分音符
         return Duration(milliseconds: (interval.inMilliseconds * 2).round());
-      case '4拍3連':
+      case 'fourBeatsThreeConsecutive':  // 4拍3連
         return Duration(milliseconds: (interval.inMilliseconds * 4 / 3).round());
-      case '付点4分音符':
+      case 'dotted_quarter_note':  // 付点4分音符
         return Duration(milliseconds: (interval.inMilliseconds * 1.5).round());
-      case '4分音符':
-        return interval;
-      case '付点8分音符':
+      case 'quarter_note':  // 4分音符
+        return interval;  // 基準となる4分音符の長さ
+      case 'dotted_eighth_note':  // 付点8分音符
         return Duration(milliseconds: (interval.inMilliseconds / 2 + interval.inMilliseconds / 4).round());
-      case '2拍3連':
+      case 'twoBeatsTriplet':  // 2拍3連
         return Duration(milliseconds: (interval.inMilliseconds * 2 / 3).round());
-      case '8分音符':
+      case 'eighth_note':  // 8分音符
         return Duration(milliseconds: (interval.inMilliseconds / 2).round());
-      case '付点16分音符':
+      case 'dotted_sixteenth_note':  // 付点16分音符
         return Duration(milliseconds: (interval.inMilliseconds / 4 + interval.inMilliseconds / 8).round());
-      case '1拍3連':
+      case 'oneBeatTriplet':  // 1拍3連
         return Duration(milliseconds: (interval.inMilliseconds * 1 / 3).round());
-      case '16分音符':
+      case 'sixteenth_note':  // 16分音符
         return Duration(milliseconds: (interval.inMilliseconds / 4).round());
-      case '1拍5連':
+      case 'oneBeatQuintuplet':  // 1拍5連
         return Duration(milliseconds: (interval.inMilliseconds * 1 / 5).round());
-      case '1拍6連':
+      case 'oneBeatSextuplet':  // 1拍6連
         return Duration(milliseconds: (interval.inMilliseconds * 1 / 6).round());
-      case '32分音符':
+      case 'thirty_second_note':  // 32分音符
         return Duration(milliseconds: (interval.inMilliseconds / 8).round());
       default:
-        return interval;
+        return interval;  // 定義されていない音符の場合、元の値を返す
     }
   }
-
 
   void toggleMetronome() {
     if (isPlaying) {
@@ -179,7 +179,7 @@ class _MetronomePageState extends State<MetronomePage> {
     return AppBar(
       backgroundColor: appBarColor, // AppBarの背景色を設定
       title: Text(
-        AppLocalizations.of(context)!.metronome + ' - ${widget.note}',
+        AppLocalizations.of(context)!.metronome + ' - ' + AppLocalizations.of(context)!.getTranslation(widget.note),
         style: titleTextStyle, // タイトルのスタイルを設定
       ),
       leading: IconButton(
