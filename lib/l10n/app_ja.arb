@@ -33,5 +33,6 @@
   "calculate_notes": "音符を計算して表示します",
   "start": "開始",
   "stop": "停止",
-  "bpm": "BPM"
+  "bpm": "BPM",
+  "interval": "間隔"
 }

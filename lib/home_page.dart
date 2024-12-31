@@ -195,6 +195,7 @@ class _HomePageState extends State<HomePage> {
               builder: (context) => MetronomePage(
                 bpm: double.parse(bpmController.text),
                 note: note['name']!,
+                interval: note['duration']!,
               ),
             ),
           );

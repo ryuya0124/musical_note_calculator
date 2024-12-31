@@ -33,5 +33,6 @@
   "calculate_notes": "Calculating and displaying notes.",
   "start": "Start",
   "stop": "Stop",
-  "bpm": "BPM"
+  "bpm": "BPM",
+  "interval": "Interval"
 }

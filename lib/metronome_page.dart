@@ -9,8 +9,9 @@ import 'package:musical_note_calculator/extensions/app_localizations_extension.d
 class MetronomePage extends StatefulWidget {
   final double bpm;
   final String note;
+  final String interval;
 
-  MetronomePage({required this.bpm, required this.note});
+  MetronomePage({required this.bpm, required this.note, required this.interval});
 
   @override
   _MetronomePageState createState() => _MetronomePageState();
@@ -21,6 +22,7 @@ class _MetronomePageState extends State<MetronomePage> {
   bool isPlaying = false;
   late Duration interval;
   late String note;
+  late String interval_time = widget.interval;
   Timer? metronomeTimer;
 
   // 音源のパス
@@ -183,7 +185,11 @@ class _MetronomePageState extends State<MetronomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // BPMと間隔（音符の長さ）を表示
             Text(AppLocalizations.of(context)!.bpm + ': ${widget.bpm}', style: TextStyle(fontSize: 24)),
+            SizedBox(height: 20),
+            // 音符の名前とその間隔（ミリ秒）を表示
+            Text(getLocalizedText(note,context) + ':  $interval_time ', style: TextStyle(fontSize: 20)),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: toggleMetronome,
@@ -210,5 +216,48 @@ class _MetronomePageState extends State<MetronomePage> {
         color: titleTextStyle?.color, // 戻るアイコンの色をタイトルの色に設定
       ),
     );
+  }
+
+  String getLocalizedText(String key, BuildContext context) {
+    switch (key) {
+      case 'maxima':
+        return AppLocalizations.of(context)!.maxima;
+      case 'longa':
+        return AppLocalizations.of(context)!.longa;
+      case 'double_whole_note':
+        return AppLocalizations.of(context)!.double_whole_note;
+      case 'whole_note':
+        return AppLocalizations.of(context)!.whole_note;
+      case 'half_note':
+        return AppLocalizations.of(context)!.half_note;
+      case 'fourBeatsThreeConsecutive':
+        return AppLocalizations.of(context)!.fourBeatsThreeConsecutive;
+      case 'dotted_half_note':
+        return AppLocalizations.of(context)!.dotted_half_note;
+      case 'quarter_note':
+        return AppLocalizations.of(context)!.quarter_note;
+      case 'dotted_quarter_note':
+        return AppLocalizations.of(context)!.dotted_quarter_note;
+      case 'eighth_note':
+        return AppLocalizations.of(context)!.eighth_note;
+      case 'dotted_eighth_note':
+        return AppLocalizations.of(context)!.dotted_eighth_note;
+      case 'twoBeatsTriplet':
+        return AppLocalizations.of(context)!.twoBeatsTriplet;
+      case 'sixteenth_note':
+        return AppLocalizations.of(context)!.sixteenth_note;
+      case 'dotted_sixteenth_note':
+        return AppLocalizations.of(context)!.dotted_sixteenth_note;
+      case 'oneBeatTriplet':
+        return AppLocalizations.of(context)!.oneBeatTriplet;
+      case 'oneBeatQuintuplet':
+        return AppLocalizations.of(context)!.oneBeatQuintuplet;
+      case 'oneBeatSextuplet':
+        return AppLocalizations.of(context)!.oneBeatSextuplet;
+      case 'thirty_second_note':
+        return AppLocalizations.of(context)!.thirty_second_note;
+      default:
+        return 'Unknown key: $key'; // もしキーが見つからなければ、エラーメッセージを返す
+    }
   }
 }
