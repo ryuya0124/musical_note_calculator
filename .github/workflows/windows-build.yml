@@ -35,11 +35,8 @@ jobs:
     - name: Build Windows app (release)
       run: flutter build windows --release
 
-    - name: Rename Windows executable
-      run: mv build/windows/runner/Release/musical_note_calculator.exe build/windows/runner/Release/musical_note_calculator
-
     - name: Upload Windows executable as artifact
       uses: actions/upload-artifact@v3
       with:
         name: musical-note-calculator-executable
-        path: build/windows/runner/Release/musical_note_calculator
+        path: build/windows/runner/Release/musical_note_calculator.exe
