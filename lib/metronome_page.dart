@@ -18,7 +18,8 @@ class MetronomePage extends StatefulWidget {
 }
 
 class _MetronomePageState extends State<MetronomePage> {
-  late AudioPlayer audioPlayer, audioPlayerSub;
+  late AudioCache audioCache;
+  late AudioPlayer audioPlayer;
   bool isPlaying = false;
   late Duration interval;
   late String note;
@@ -26,23 +27,28 @@ class _MetronomePageState extends State<MetronomePage> {
   Timer? metronomeTimer;
 
   // 音源のパス
-  //final String strongTick = 'metronome_tick_strong.wav';
-  final String strongTick = 'metronome_tick_weak.wav';
+  final String strongTick = 'metronome_tick_strong.wav';
   final String weakTick = 'metronome_tick_weak.wav';
 
   @override
   void initState() {
     super.initState();
+    audioCache = AudioCache(prefix: 'assets/');  // プリロードのためのAudioCache
     audioPlayer = AudioPlayer();
-    audioPlayerSub = AudioPlayer();
     note = widget.note;
     interval = Duration(microseconds: ( (60000 * 1000) / widget.bpm).round());
+    preloadSounds();  // 音源のプリロード
+  }
+
+  // 音源のプリロード
+  void preloadSounds() async {
+    await audioCache.load(strongTick);
+    await audioCache.load(weakTick);
   }
 
   @override
   void dispose() {
     audioPlayer.dispose();
-    audioPlayerSub.dispose();
     metronomeTimer?.cancel();
     super.dispose();
   }
@@ -50,22 +56,17 @@ class _MetronomePageState extends State<MetronomePage> {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.inactive:
-        //非アクティブになったときの処理
         stopMetronome();
         break;
       case AppLifecycleState.paused:
-        //停止されたときの処理
         stopMetronome();
         break;
       case AppLifecycleState.resumed:
-        //再開されたときの処理
         break;
       case AppLifecycleState.detached:
-        //破棄されたときの処理
         stopMetronome();
         break;
       case AppLifecycleState.hidden:
-        // アプリがバックグラウンドに完全に移行したときの処理
         stopMetronome();
         break;
     }
@@ -73,44 +74,44 @@ class _MetronomePageState extends State<MetronomePage> {
 
   Duration _calculateNoteInterval(String note) {
     switch (note) {
-      case 'maxima':  // マキシマ
+      case 'maxima':
         return Duration(microseconds: (interval.inMicroseconds * 32).round());
-      case 'longa':  // ロンガ
+      case 'longa':
         return Duration(microseconds: (interval.inMicroseconds * 16).round());
-      case 'double_whole_note':  // 倍全音符
+      case 'double_whole_note':
         return Duration(microseconds: (interval.inMicroseconds * 8).round());
-      case 'whole_note':  // 全音符
+      case 'whole_note':
         return Duration(microseconds: (interval.inMicroseconds * 4).round());
-      case 'dotted_half_note':  // 付点2分音符
+      case 'dotted_half_note':
         return Duration(microseconds: (interval.inMicroseconds * 2.5).round());
-      case 'half_note':  // 2分音符
+      case 'half_note':
         return Duration(microseconds: (interval.inMicroseconds * 2).round());
-      case 'fourBeatsThreeConsecutive':  // 4拍3連
+      case 'fourBeatsThreeConsecutive':
         return Duration(microseconds: (interval.inMicroseconds * 4 / 3).round());
-      case 'dotted_quarter_note':  // 付点4分音符
+      case 'dotted_quarter_note':
         return Duration(microseconds: (interval.inMicroseconds * 1.5).round());
-      case 'quarter_note':  // 4分音符
-        return interval;  // 基準となる4分音符の長さ
-      case 'dotted_eighth_note':  // 付点8分音符
+      case 'quarter_note':
+        return interval;
+      case 'dotted_eighth_note':
         return Duration(microseconds: (interval.inMicroseconds / 2 + interval.inMicroseconds / 4).round());
-      case 'twoBeatsTriplet':  // 2拍3連
+      case 'twoBeatsTriplet':
         return Duration(microseconds: (interval.inMicroseconds * 2 / 3).round());
-      case 'eighth_note':  // 8分音符
+      case 'eighth_note':
         return Duration(microseconds: (interval.inMicroseconds / 2).round());
-      case 'dotted_sixteenth_note':  // 付点16分音符
+      case 'dotted_sixteenth_note':
         return Duration(microseconds: (interval.inMicroseconds / 4 + interval.inMicroseconds / 8).round());
-      case 'oneBeatTriplet':  // 1拍3連
+      case 'oneBeatTriplet':
         return Duration(microseconds: (interval.inMicroseconds * 1 / 3).round());
-      case 'sixteenth_note':  // 16分音符
+      case 'sixteenth_note':
         return Duration(microseconds: (interval.inMicroseconds / 4).round());
-      case 'oneBeatQuintuplet':  // 1拍5連
+      case 'oneBeatQuintuplet':
         return Duration(microseconds: (interval.inMicroseconds * 1 / 5).round());
-      case 'oneBeatSextuplet':  // 1拍6連
+      case 'oneBeatSextuplet':
         return Duration(microseconds: (interval.inMicroseconds * 1 / 6).round());
-      case 'thirty_second_note':  // 32分音符
+      case 'thirty_second_note':
         return Duration(microseconds: (interval.inMicroseconds / 8).round());
       default:
-        return interval;  // 定義されていない音符の場合、元の値を返す
+        return interval;
     }
   }
 
@@ -122,11 +123,8 @@ class _MetronomePageState extends State<MetronomePage> {
     }
   }
 
-  bool isAudioPlayerPlaying = false; // audioPlayerの再生状態を追跡
-  bool isAudioPlayerSubPlaying = false; // audioPlayerSubの再生状態を追跡
-
   void startMetronome() {
-    if (isPlaying) return; // すでに再生中なら何もしない
+    if (isPlaying) return;
 
     setState(() {
       isPlaying = true;
@@ -134,85 +132,46 @@ class _MetronomePageState extends State<MetronomePage> {
 
     int counter = 0;
     Duration noteInterval = _calculateNoteInterval(note);
-    double audioDuration = 13.0 * 1000; // 音源の再生時間（us単位）
+    Duration adjustedNoteInterval = noteInterval - Duration(microseconds: 13000); // 例: 13msの調整
 
-    // 音源の再生時間を引いた待機時間を計算
-    Duration adjustedNoteInterval = noteInterval - Duration(microseconds: audioDuration.toInt());
-
-    // どちらのオーディオプレイヤーを使うか決めるフラグ
-    bool useMainPlayer = true;
-
-    // 音源の再生時間に合わせてタイマーを調整
     metronomeTimer = Timer.periodic(adjustedNoteInterval, (timer) async {
       if (!isPlaying) {
         timer.cancel();
         return;
       }
 
-      // 再生中でない場合にのみ再生を行う
-      if (useMainPlayer && isAudioPlayerPlaying) return; // audioPlayerが再生中
-      if (!useMainPlayer && isAudioPlayerSubPlaying) return; // audioPlayerSubが再生中
-
-      // 使用するオーディオプレイヤーを選択
-      var player = useMainPlayer ? audioPlayer : audioPlayerSub;
-
-      // 強拍と弱拍を切り替え
       String tickSound = (counter == 0) ? strongTick : weakTick;
 
-      // 再生中フラグを設定
-      if (useMainPlayer) {
-        isAudioPlayerPlaying = true;
-      } else {
-        isAudioPlayerSubPlaying = true;
-      }
+      // 音声ファイルを再生
+      await audioPlayer.play(AssetSource(tickSound));
 
-      // 非同期で音源を再生
-      await player.play(AssetSource(tickSound));
-
-      // 再生完了後、再生中フラグを戻す
-      if (useMainPlayer) {
-        isAudioPlayerPlaying = false;
-      } else {
-        isAudioPlayerSubPlaying = false;
-      }
-
-      // 次の拍に進む
-      counter = (counter + 1) % 4; // 拍を繰り返す（4拍単位でリセット）
-
-      // 次回の音源再生のために使用するプレイヤーを切り替え
-      useMainPlayer = !useMainPlayer;
+      counter = (counter + 1) % 4;
     });
   }
+
 
   void stopMetronome() {
-    if (!isPlaying) return; // すでに停止中なら何もしない
+    if (!isPlaying) return;
     metronomeTimer?.cancel();
     audioPlayer.stop();
-    audioPlayerSub.stop();
     setState(() {
       isPlaying = false;
-      isAudioPlayerPlaying = false; // 停止時にフラグをリセット
-      isAudioPlayerSubPlaying = false; // 停止時にフラグをリセット
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
-    // AppBarの背景色と文字色を取得
     final appBarColor = Theme.of(context).primaryColor;
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
 
     return Scaffold(
-      appBar: buildAppBar(context, appBarColor, titleTextStyle), // AppBarをビルド
+      appBar: buildAppBar(context, appBarColor, titleTextStyle),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // BPMと間隔（音符の長さ）を表示
             Text(AppLocalizations.of(context)!.bpm + ': ${widget.bpm}', style: TextStyle(fontSize: 24)),
             SizedBox(height: 20),
-            // 音符の名前とその間隔（ミリ秒）を表示
             Text(getLocalizedText(note,context) + ':  $interval_time ', style: TextStyle(fontSize: 20)),
             SizedBox(height: 20),
             ElevatedButton(
@@ -227,17 +186,17 @@ class _MetronomePageState extends State<MetronomePage> {
 
   AppBar buildAppBar(BuildContext context, Color appBarColor, TextStyle? titleTextStyle) {
     return AppBar(
-      backgroundColor: appBarColor, // AppBarの背景色を設定
+      backgroundColor: appBarColor,
       title: Text(
         AppLocalizations.of(context)!.metronome + ' - ' + AppLocalizations.of(context)!.getTranslation(widget.note),
-        style: titleTextStyle, // タイトルのスタイルを設定
+        style: titleTextStyle,
       ),
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
         onPressed: () {
-          Navigator.pop(context); // 戻るボタン
+          Navigator.pop(context);
         },
-        color: titleTextStyle?.color, // 戻るアイコンの色をタイトルの色に設定
+        color: titleTextStyle?.color,
       ),
     );
   }
@@ -281,7 +240,7 @@ class _MetronomePageState extends State<MetronomePage> {
       case 'thirty_second_note':
         return AppLocalizations.of(context)!.thirty_second_note;
       default:
-        return 'Unknown key: $key'; // もしキーが見つからなければ、エラーメッセージを返す
+        return 'Unknown key: $key';
     }
   }
 }
