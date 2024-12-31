@@ -1,0 +1,42 @@
+name: Windows Build
+
+on:
+  workflow_dispatch:  # 手動でトリガーできるようにする
+
+jobs:
+  build:
+    runs-on: windows-latest  # Windows環境でビルド
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3  # リポジトリをチェックアウト
+
+    - name: Cache Flutter SDK
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.pub-cache
+          ~/.flutter
+        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-flutter-
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.27.1'  # 必要に応じてFlutterのバージョンを指定
+
+    - name: Install dependencies
+      run: flutter pub get  # 依存関係をインストール
+
+    - name: Build Windows app (release)
+      run: flutter build windows --release  # Windowsアプリのリリースビルド
+
+    - name: Rename Windows executable
+      run: mv build/windows/runner/Release/musical_note_calculator.exe build/windows/runner/Release/musical_note_calculator  # 実行ファイル名を変更
+
+    - name: Upload Windows executable as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: musical-note-calculator-executable
+        path: build/windows/runner/Release/musical_note_calculator  # 変更後の実行ファイルをアップロード
