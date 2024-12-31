@@ -28,6 +28,9 @@ jobs:
 
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
+      
+    - name: Generate localization files
+      run: flutter gen-l10n  # ローカライズファイルを生成
 
     - name: Build iOS app (debug)
       run: flutter build ipa --debug  # iOSアプリのリリースビルド
