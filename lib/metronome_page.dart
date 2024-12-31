@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
-class MetronomePage extends StatefulWidget {
+class MetronomePage extends StatefulWidget with WidgetsBindingObserver {
   final double bpm;
   final String note;
   final String interval;
@@ -20,7 +20,7 @@ class MetronomePage extends StatefulWidget {
   _MetronomePageState createState() => _MetronomePageState();
 }
 
-class _MetronomePageState extends State<MetronomePage> {
+class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserver {
   late AudioPlayer audioPlayer;
   bool isPlaying = false;
   late Duration interval;
@@ -55,7 +55,7 @@ class _MetronomePageState extends State<MetronomePage> {
 
     await audioPlayer.setSource(DeviceFileSource(file.path)); // setSourceを追加
     await audioPlayer.play(DeviceFileSource(file.path));
-    await audioPlayer.setReleaseMode(ReleaseMode.stop);
+    await audioPlayer.seek(Duration.zero);
   }
 
   @override
@@ -66,7 +66,6 @@ class _MetronomePageState extends State<MetronomePage> {
     preloadSounds();
     note = widget.note;
     interval = Duration(microseconds: ( (60000 * 1000) / widget.bpm).round());
-    preloadSounds();  // 音源のプリロード
   }
 
   @override
@@ -79,62 +78,24 @@ class _MetronomePageState extends State<MetronomePage> {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.inactive:
+        audioPlayer.stop();
         stopMetronome();
         break;
       case AppLifecycleState.paused:
+        audioPlayer.stop();
         stopMetronome();
         break;
       case AppLifecycleState.resumed:
+        audioPlayer.stop();
         break;
       case AppLifecycleState.detached:
+        audioPlayer.stop();
         stopMetronome();
         break;
       case AppLifecycleState.hidden:
+        audioPlayer.stop();
         stopMetronome();
         break;
-    }
-  }
-
-  Duration _calculateNoteInterval(String note) {
-    switch (note) {
-      case 'maxima':
-        return Duration(microseconds: (interval.inMicroseconds * 32).round());
-      case 'longa':
-        return Duration(microseconds: (interval.inMicroseconds * 16).round());
-      case 'double_whole_note':
-        return Duration(microseconds: (interval.inMicroseconds * 8).round());
-      case 'whole_note':
-        return Duration(microseconds: (interval.inMicroseconds * 4).round());
-      case 'dotted_half_note':
-        return Duration(microseconds: (interval.inMicroseconds * 2.5).round());
-      case 'half_note':
-        return Duration(microseconds: (interval.inMicroseconds * 2).round());
-      case 'fourBeatsThreeConsecutive':
-        return Duration(microseconds: (interval.inMicroseconds * 4 / 3).round());
-      case 'dotted_quarter_note':
-        return Duration(microseconds: (interval.inMicroseconds * 1.5).round());
-      case 'quarter_note':
-        return interval;
-      case 'dotted_eighth_note':
-        return Duration(microseconds: (interval.inMicroseconds / 2 + interval.inMicroseconds / 4).round());
-      case 'twoBeatsTriplet':
-        return Duration(microseconds: (interval.inMicroseconds * 2 / 3).round());
-      case 'eighth_note':
-        return Duration(microseconds: (interval.inMicroseconds / 2).round());
-      case 'dotted_sixteenth_note':
-        return Duration(microseconds: (interval.inMicroseconds / 4 + interval.inMicroseconds / 8).round());
-      case 'oneBeatTriplet':
-        return Duration(microseconds: (interval.inMicroseconds * 1 / 3).round());
-      case 'sixteenth_note':
-        return Duration(microseconds: (interval.inMicroseconds / 4).round());
-      case 'oneBeatQuintuplet':
-        return Duration(microseconds: (interval.inMicroseconds * 1 / 5).round());
-      case 'oneBeatSextuplet':
-        return Duration(microseconds: (interval.inMicroseconds * 1 / 6).round());
-      case 'thirty_second_note':
-        return Duration(microseconds: (interval.inMicroseconds / 8).round());
-      default:
-        return interval;
     }
   }
 
@@ -222,6 +183,49 @@ class _MetronomePageState extends State<MetronomePage> {
         color: titleTextStyle?.color,
       ),
     );
+  }
+
+  Duration _calculateNoteInterval(String note) {
+    switch (note) {
+      case 'maxima':
+        return Duration(microseconds: (interval.inMicroseconds * 32).round());
+      case 'longa':
+        return Duration(microseconds: (interval.inMicroseconds * 16).round());
+      case 'double_whole_note':
+        return Duration(microseconds: (interval.inMicroseconds * 8).round());
+      case 'whole_note':
+        return Duration(microseconds: (interval.inMicroseconds * 4).round());
+      case 'dotted_half_note':
+        return Duration(microseconds: (interval.inMicroseconds * 2.5).round());
+      case 'half_note':
+        return Duration(microseconds: (interval.inMicroseconds * 2).round());
+      case 'fourBeatsThreeConsecutive':
+        return Duration(microseconds: (interval.inMicroseconds * 4 / 3).round());
+      case 'dotted_quarter_note':
+        return Duration(microseconds: (interval.inMicroseconds * 1.5).round());
+      case 'quarter_note':
+        return interval;
+      case 'dotted_eighth_note':
+        return Duration(microseconds: (interval.inMicroseconds / 2 + interval.inMicroseconds / 4).round());
+      case 'twoBeatsTriplet':
+        return Duration(microseconds: (interval.inMicroseconds * 2 / 3).round());
+      case 'eighth_note':
+        return Duration(microseconds: (interval.inMicroseconds / 2).round());
+      case 'dotted_sixteenth_note':
+        return Duration(microseconds: (interval.inMicroseconds / 4 + interval.inMicroseconds / 8).round());
+      case 'oneBeatTriplet':
+        return Duration(microseconds: (interval.inMicroseconds * 1 / 3).round());
+      case 'sixteenth_note':
+        return Duration(microseconds: (interval.inMicroseconds / 4).round());
+      case 'oneBeatQuintuplet':
+        return Duration(microseconds: (interval.inMicroseconds * 1 / 5).round());
+      case 'oneBeatSextuplet':
+        return Duration(microseconds: (interval.inMicroseconds * 1 / 6).round());
+      case 'thirty_second_note':
+        return Duration(microseconds: (interval.inMicroseconds / 8).round());
+      default:
+        return interval;
+    }
   }
 
   String getLocalizedText(String key, BuildContext context) {

@@ -34,5 +34,8 @@
   "start": "Start",
   "stop": "Stop",
   "bpm": "BPM",
-  "interval": "Interval"
+  "interval": "Interval",
+  "note_spacing": "Note Spacing",
+  "note_count": "Note Count",
+  "calculator": "Calculator"
 }

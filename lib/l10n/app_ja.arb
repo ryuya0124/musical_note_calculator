@@ -34,5 +34,8 @@
   "start": "開始",
   "stop": "停止",
   "bpm": "BPM",
-  "interval": "間隔"
+  "interval": "間隔",
+  "note_spacing": "音符換算",
+  "note_count": "音符回数",
+  "calculator": "計算機"
 }

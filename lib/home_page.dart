@@ -5,6 +5,8 @@ import 'settings_model.dart';
 import 'metronome_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
+import 'note_page.dart';
+import 'calculator_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -16,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   final FocusNode bpmFocusNode = FocusNode();
   late String selectedUnit;
   List<Map<String, String>> _notes = [];
+  int _selectedIndex = 0;  // 選択されたタブを管理
 
   @override
   void initState() {
@@ -50,12 +53,14 @@ class _HomePageState extends State<HomePage> {
             buildNotesList(enabledNotes, appBarColor),
           ],
         ),
+        bottomNavigationBar: buildBottomNavigationBar(),  // ボトムナビゲーションバー
       ),
     );
   }
 
   PreferredSizeWidget buildAppBar(BuildContext context, Color appBarColor, TextStyle? titleTextStyle) {
     return AppBar(
+      automaticallyImplyLeading: false,
       backgroundColor: appBarColor,
       title: Text(
         AppLocalizations.of(context)!.title,
@@ -201,6 +206,54 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
+    );
+  }
+
+  Widget buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      currentIndex: _selectedIndex,  // 現在選択されているインデックスを設定
+      onTap: (index) {
+        setState(() {
+          _selectedIndex = index;  // タップされたインデックスに変更
+        });
+
+        // 遷移先ページを決定
+        if (index == 1) {  // NotePage のタブ
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => NotePage(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return child;  // アニメーションなし
+              },
+            ),
+          );
+        } else if (index == 2) {  // CalculatorPage のタブ
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => CalculatorPage(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return child;  // アニメーションなし
+              },
+            ),
+          );
+        }
+      },
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.music_note),
+          label: AppLocalizations.of(context)!.note_spacing,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.note),
+          label: AppLocalizations.of(context)!.note_count,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.calculate),
+          label: AppLocalizations.of(context)!.calculator,
+        ),
+      ],
     );
   }
 
