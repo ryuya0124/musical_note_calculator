@@ -25,7 +25,7 @@ jobs:
     - name: Build Flutter web app
       run: flutter build web --release
 
-    - name: Copy build output to WebPage folder
+    - name: Copy build output to docs folder
       run: |
         mkdir -p docs
         cp -r build/web/* docs/
@@ -36,4 +36,4 @@ jobs:
         author_name: "GitHub Actions"
         author_email: "actions@github.com"
         message: "Update WebPage with latest Flutter web build"
-        add: "WebPage/*"
+        add: "docs/*"
