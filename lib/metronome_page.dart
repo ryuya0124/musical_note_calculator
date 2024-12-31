@@ -17,7 +17,7 @@ class MetronomePage extends StatefulWidget {
 }
 
 class _MetronomePageState extends State<MetronomePage> {
-  late AudioPlayer audioPlayer;
+  late AudioPlayer audioPlayer, audioPlayerSub;
   bool isPlaying = false;
   late Duration interval;
   late String note;
@@ -32,6 +32,7 @@ class _MetronomePageState extends State<MetronomePage> {
   void initState() {
     super.initState();
     audioPlayer = AudioPlayer();
+    audioPlayerSub = AudioPlayer();
     note = widget.note;
     interval = Duration(milliseconds: (60000 / widget.bpm).round());
   }
@@ -39,6 +40,7 @@ class _MetronomePageState extends State<MetronomePage> {
   @override
   void dispose() {
     audioPlayer.dispose();
+    audioPlayerSub.dispose();
     metronomeTimer?.cancel();
     super.dispose();
   }
@@ -120,32 +122,50 @@ class _MetronomePageState extends State<MetronomePage> {
 
   void startMetronome() {
     if (isPlaying) return; // すでに再生中なら何もしない
+
     setState(() {
       isPlaying = true;
     });
 
     int counter = 0;
     Duration noteInterval = _calculateNoteInterval(note);
+    double audioDuration = 13.0; // 音源の再生時間（ms単位）
 
-    metronomeTimer = Timer.periodic(noteInterval, (timer) async {
+    // 音源の再生時間を引いた待機時間を計算
+    Duration adjustedNoteInterval = noteInterval - Duration(milliseconds: audioDuration.toInt());
+
+    // どちらのオーディオプレイヤーを使うか決めるフラグ
+    bool useMainPlayer = true;
+
+    // 音源の再生時間に合わせてタイマーを調整
+    metronomeTimer = Timer.periodic(adjustedNoteInterval, (timer) async {
       if (!isPlaying) {
         timer.cancel();
         return;
       }
 
+      // 使用するオーディオプレイヤーを選択
+      var player = useMainPlayer ? audioPlayer : audioPlayerSub;
+
       // 強拍と弱拍を切り替え
       String tickSound = (counter == 0) ? strongTick : weakTick;
-      await audioPlayer.play(AssetSource(tickSound));
 
+      // 非同期で音源を再生
+      await player.play(AssetSource(tickSound));
+
+      // 次の拍に進む
       counter = (counter + 1) % 4; // 拍を繰り返す（4拍単位でリセット）
+
+      // 次回の音源再生のために使用するプレイヤーを切り替え
+      useMainPlayer = !useMainPlayer;
     });
   }
-
 
   void stopMetronome() {
     if (!isPlaying) return; // すでに停止中なら何もしない
     metronomeTimer?.cancel();
     audioPlayer.stop();
+    audioPlayerSub.stop();
     setState(() {
       isPlaying = false;
     });

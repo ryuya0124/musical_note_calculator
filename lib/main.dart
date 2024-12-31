@@ -25,8 +25,8 @@ class MyApp extends StatelessWidget {
         AppLocalizations.delegate, // AppLocalizationsを追加
       ],
       supportedLocales: [
-        Locale('en', ''), // 英語
-        Locale('ja', ''), // 日本語
+        Locale('en', 'US'), // 英語
+        Locale('ja', 'JP'), // 日本語
       ],
       title: '', // 固定のタイトル
       theme: ThemeData(
