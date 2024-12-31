@@ -1,0 +1,39 @@
+name: Flutter Web Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.27.1'
+
+    - name: Install dependencies
+      run: flutter pub get
+      
+    - name: Generate localization files
+      run: flutter gen-l10n  # ローカライズファイルを生成
+
+    - name: Build Flutter web app
+      run: flutter build web --release
+
+    - name: Copy build output to WebPage folder
+      run: |
+        mkdir -p WebPage
+        cp -r build/web/* WebPage/
+
+    - name: Commit and push WebPage folder
+      uses: EndBug/add-and-commit@v9
+      with:
+        author_name: "GitHub Actions"
+        author_email: "actions@github.com"
+        message: "Update WebPage with latest Flutter web build"
+        add: "WebPage/*"
