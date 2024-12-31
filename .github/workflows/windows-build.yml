@@ -1,15 +1,15 @@
 name: Windows Build
 
 on:
-  workflow_dispatch:  # 手動でトリガーできるようにする
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest  # Windows環境でビルド
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3  # リポジトリをチェックアウト
+      uses: actions/checkout@v3
 
     - name: Cache Flutter SDK
       uses: actions/cache@v3
@@ -20,23 +20,26 @@ jobs:
         key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
         restore-keys: |
           ${{ runner.os }}-flutter-
-    
+
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.27.1'  # 必要に応じてFlutterのバージョンを指定
+        flutter-version: '3.27.1'
 
     - name: Install dependencies
-      run: flutter pub get  # 依存関係をインストール
+      run: flutter pub get
+
+    - name: Generate localization files
+      run: flutter gen-l10n  # ローカライズファイルを生成
 
     - name: Build Windows app (release)
-      run: flutter build windows --release  # Windowsアプリのリリースビルド
+      run: flutter build windows --release
 
     - name: Rename Windows executable
-      run: mv build/windows/runner/Release/musical_note_calculator.exe build/windows/runner/Release/musical_note_calculator  # 実行ファイル名を変更
+      run: mv $GITHUB_WORKSPACE/build/windows/runner/Release/musical_note_calculator.exe $GITHUB_WORKSPACE/build/windows/runner/Release/musical_note_calculator
 
     - name: Upload Windows executable as artifact
       uses: actions/upload-artifact@v3
       with:
         name: musical-note-calculator-executable
-        path: build/windows/runner/Release/musical_note_calculator  # 変更後の実行ファイルをアップロード
+        path: $GITHUB_WORKSPACE/build/windows/runner/Release/musical_note_calculator
