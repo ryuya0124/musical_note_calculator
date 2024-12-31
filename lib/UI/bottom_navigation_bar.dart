@@ -18,6 +18,8 @@ class BottomNavigationBarWidget extends StatelessWidget {
       onTap: (index) {
         onTabSelected(index);  // タップされたインデックスをコールバックで渡す
       },
+      selectedItemColor: Theme.of(context).primaryColor, // 選択中の色をテーマカラーに設定
+      unselectedItemColor: Colors.grey, // 未選択時の色
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.music_note),

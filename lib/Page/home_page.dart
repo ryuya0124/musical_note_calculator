@@ -128,6 +128,28 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget buildUnitDropdown(BuildContext context) {
+    return DropdownButton<String>(
+      value: context.watch<SettingsModel>().selectedUnit,
+      items: ['ms', 's', 'µs'].map((String unit) {
+        return DropdownMenuItem<String>(
+          value: unit,
+          child: Text(unit),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          context.read<SettingsModel>().setUnit(value);
+          setState(() {
+            selectedUnit = value;
+          });
+          _calculateNotes();
+        }
+      },
+    );
+  }
+
+// ユニット切り替えセクション
   Widget buildUnitSwitchSection(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(right: 16.0),
@@ -139,24 +161,7 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(width: 10),
-          DropdownButton<String>(
-            value: context.watch<SettingsModel>().selectedUnit,
-            items: ['ms', 's', 'µs'].map((String unit) {
-              return DropdownMenuItem<String>(
-                value: unit,
-                child: Text(unit),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value != null) {
-                context.read<SettingsModel>().setUnit(value);
-                setState(() {
-                  selectedUnit = value;
-                });
-                _calculateNotes();
-              }
-            },
-          ),
+          buildUnitDropdown(context),
         ],
       ),
     );

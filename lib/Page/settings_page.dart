@@ -34,6 +34,52 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  // ユニットのラベル部分を分離
+  Widget buildTimeUnitLabel(BuildContext context, Color appBarColor) {
+    return Text(
+      AppLocalizations.of(context)!.time_unit,
+      style: TextStyle(
+        fontSize: 16,
+        color: appBarColor,
+      ),
+    );
+  }
+
+// ユニット選択のドロップダウンボタン部分を分離
+  Widget buildTimeUnitDropdownButton(BuildContext context, Color appBarColor) {
+    return DropdownButton<String>(
+      value: context.watch<SettingsModel>().selectedUnit,
+      items: ['ms', 's', 'µs'].map((unit) {
+        return DropdownMenuItem<String>(
+          value: unit,
+          child: Text(unit),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          context.read<SettingsModel>().setUnit(value);
+        }
+      },
+      dropdownColor: Colors.white,
+      iconEnabledColor: appBarColor,
+    );
+  }
+
+// ユニット設定セクション全体を組み立て
+  Widget buildTimeUnitDropdownSection(BuildContext context, Color appBarColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildTimeUnitLabel(context, appBarColor),
+        Container(
+          margin: EdgeInsets.only(left: 8.0),
+          child: buildTimeUnitDropdownButton(context, appBarColor),
+        ),
+      ],
+    );
+  }
+
+// 表示設定セクションを構築
   Widget buildDisplaySettingsSection(BuildContext context, Color appBarColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,46 +93,13 @@ class SettingsPage extends StatelessWidget {
           ),
         ),
         SizedBox(height: 20),
-        buildTimeUnitDropdown(context, appBarColor),
+        buildTimeUnitDropdownSection(context, appBarColor),
         SizedBox(height: 20),
-        buildNoteSettingsSection(context, appBarColor),
+        buildNoteSettingsSection(context, appBarColor), // 他のセクションと組み合わせる
       ],
     );
   }
 
-  Widget buildTimeUnitDropdown(BuildContext context, Color appBarColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.time_unit,
-          style: TextStyle(
-            fontSize: 16,
-            color: appBarColor,
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.only(left: 8.0),
-          child: DropdownButton<String>(
-            value: context.watch<SettingsModel>().selectedUnit,
-            items: ['ms', 's', 'µs'].map((unit) {
-              return DropdownMenuItem<String>(
-                value: unit,
-                child: Text(unit),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value != null) {
-                context.read<SettingsModel>().setUnit(value);
-              }
-            },
-            dropdownColor: Colors.white,
-            iconEnabledColor: appBarColor,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget buildNoteSettingsSection(BuildContext context, Color appBarColor) {
     return Column(
