@@ -32,11 +32,11 @@ jobs:
     - name: Generate localization files
       run: flutter gen-l10n  # ローカライズファイルを生成
 
-    - name: Build Android app (debug)
-      run: flutter build apk --debug # Androidアプリのreleaseビルド
+    - name: Build Android app (release)
+      run: flutter build apk --release # Androidアプリのreleaseビルド
 
     - name: Rename APK file
-      run: mv build/app/outputs/flutter-apk/app-debug.apk build/app/outputs/flutter-apk/musical_note_calculator.apk  # APKの名前を変更
+      run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/musical_note_calculator.apk  # APKの名前を変更
 
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v3
