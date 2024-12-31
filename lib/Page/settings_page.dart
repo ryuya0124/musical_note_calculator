@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'settings_model.dart';
+import '../settings_model.dart';
+import '../UI/app_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
 class SettingsPage extends StatelessWidget {
+  final int _selectedIndex = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,9 @@ class SettingsPage extends StatelessWidget {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
 
     return Scaffold(
-      appBar: buildAppBar(context, appBarColor, titleTextStyle),
+      appBar: AppBarWidget(
+          selectedIndex: _selectedIndex
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -26,23 +30,6 @@ class SettingsPage extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  AppBar buildAppBar(BuildContext context, Color appBarColor, TextStyle? titleTextStyle) {
-    return AppBar(
-      backgroundColor: appBarColor,
-      title: Text(
-        AppLocalizations.of(context)!.settings,
-        style: titleTextStyle,
-      ),
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () {
-          Navigator.pop(context); // 戻るボタン
-        },
-        color: titleTextStyle?.color, // 戻るアイコンの色を歯車と同じ色に設定
       ),
     );
   }

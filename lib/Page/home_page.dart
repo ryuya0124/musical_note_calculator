@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'settings_page.dart';
-import 'settings_model.dart';
+import '../UI/app_bar.dart';
+import '../settings_model.dart';
 import 'metronome_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
-import 'note_page.dart';
+import '../UI/bottom_navigation_bar.dart';
 import 'calculator_page.dart';
+import 'note_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -45,7 +46,9 @@ class _HomePageState extends State<HomePage> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        appBar: buildAppBar(context, appBarColor, titleTextStyle),
+        appBar: AppBarWidget(
+          selectedIndex: _selectedIndex,
+        ),
         body: Column(
           children: [
             buildBpmInputSection(),
@@ -53,32 +56,41 @@ class _HomePageState extends State<HomePage> {
             buildNotesList(enabledNotes, appBarColor),
           ],
         ),
-        bottomNavigationBar: buildBottomNavigationBar(),  // ボトムナビゲーションバー
+        bottomNavigationBar: BottomNavigationBarWidget(
+          selectedIndex: _selectedIndex,
+          onTabSelected: _onTabSelected,  // タブが選ばれた時の処理を渡す
+        ),
       ),
     );
   }
 
-  PreferredSizeWidget buildAppBar(BuildContext context, Color appBarColor, TextStyle? titleTextStyle) {
-    return AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: appBarColor,
-      title: Text(
-        AppLocalizations.of(context)!.title,
-        style: titleTextStyle,
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.settings),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SettingsPage()),
-            );
+  void _onTabSelected(int index) {
+    setState(() {
+      _selectedIndex = index;  // タブが選ばれたときにインデックスを更新
+    });
+
+    // 選択されたインデックスに応じてページ遷移
+    if (index == 1) {  // NotePage のタブ
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => NotePage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return child;  // アニメーションなし
           },
-          color: titleTextStyle?.color,
         ),
-      ],
-    );
+      );
+    } else if (index == 2) {  // CalculatorPage のタブ
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => CalculatorPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return child;  // アニメーションなし
+          },
+        ),
+      );
+    }
   }
 
   Widget buildBpmInputSection() {
@@ -206,54 +218,6 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
-    );
-  }
-
-  Widget buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: _selectedIndex,  // 現在選択されているインデックスを設定
-      onTap: (index) {
-        setState(() {
-          _selectedIndex = index;  // タップされたインデックスに変更
-        });
-
-        // 遷移先ページを決定
-        if (index == 1) {  // NotePage のタブ
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => NotePage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return child;  // アニメーションなし
-              },
-            ),
-          );
-        } else if (index == 2) {  // CalculatorPage のタブ
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => CalculatorPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return child;  // アニメーションなし
-              },
-            ),
-          );
-        }
-      },
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.music_note),
-          label: AppLocalizations.of(context)!.note_spacing,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.note),
-          label: AppLocalizations.of(context)!.note_count,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calculate),
-          label: AppLocalizations.of(context)!.calculator,
-        ),
-      ],
     );
   }
 
