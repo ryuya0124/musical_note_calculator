@@ -13,7 +13,6 @@ class NotePage extends StatefulWidget {
   _NotePageState createState() => _NotePageState();
 }
 
-
 class _NotePageState extends State<NotePage> {
   int _selectedIndex = 1;  // 選択されたタブを管理
   final TextEditingController bpmController = TextEditingController();
@@ -228,7 +227,8 @@ class _NotePageState extends State<NotePage> {
       return;
     }
 
-    final quarterNoteLengthMs = 1000 / bpm;
+    final oneSecond = Duration(milliseconds: 1000);
+    final quarterNoteLengthMs = 60000.0 / bpm;
     final conversionFactor = selectedUnit == 's'
         ? 1 / 1000.0
         : selectedUnit == 'µs'
@@ -237,24 +237,24 @@ class _NotePageState extends State<NotePage> {
 
     setState(() {
       _notes = [
-        {'name': 'maxima', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 32), conversionFactor)},
-        {'name': 'longa', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 16), conversionFactor)},
-        {'name': 'double_whole_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 8), conversionFactor)},
-        {'name': 'whole_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 4), conversionFactor)},
-        {'name': 'dotted_half_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 2, isDotted: true), conversionFactor)},
-        {'name': 'half_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 2), conversionFactor)},
-        {'name': 'fourBeatsThreeConsecutive', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 4 / 3.0), conversionFactor)},
-        {'name': 'dotted_quarter_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1, isDotted: true), conversionFactor)},
-        {'name': 'quarter_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1), conversionFactor)},
-        {'name': 'dotted_eighth_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1 / 2.0, isDotted: true), conversionFactor)},
-        {'name': 'twoBeatsTriplet', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1 / 1.5), conversionFactor)},
-        {'name': 'eighth_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1 / 2.0), conversionFactor)},
-        {'name': 'dotted_sixteenth_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1 / 4.0, isDotted: true), conversionFactor)},
-        {'name': 'oneBeatTriplet', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1 / 3.0), conversionFactor)},
-        {'name': 'sixteenth_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1 / 4.0), conversionFactor)},
-        {'name': 'oneBeatQuintuplet', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1 / 5.0), conversionFactor)},
-        {'name': 'oneBeatSextuplet', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1 / 6.0), conversionFactor)},
-        {'name': 'thirty_second_note', 'duration': _formatDuration(1000 / _calculateNoteLength(quarterNoteLengthMs, 1 / 8.0), conversionFactor)},
+        {'name': 'maxima', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 32), conversionFactor)},
+        {'name': 'longa', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 16), conversionFactor)},
+        {'name': 'double_whole_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 8), conversionFactor)},
+        {'name': 'whole_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 4), conversionFactor)},
+        {'name': 'dotted_half_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 2, isDotted: true), conversionFactor)},
+        {'name': 'half_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 2), conversionFactor)},
+        {'name': 'fourBeatsThreeConsecutive', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 4 / 3.0), conversionFactor)},
+        {'name': 'dotted_quarter_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1, isDotted: true), conversionFactor)},
+        {'name': 'quarter_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1), conversionFactor)},
+        {'name': 'dotted_eighth_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 2.0, isDotted: true), conversionFactor)},
+        {'name': 'twoBeatsTriplet', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 1.5), conversionFactor)},
+        {'name': 'eighth_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 2.0), conversionFactor)},
+        {'name': 'dotted_sixteenth_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 4.0, isDotted: true), conversionFactor)},
+        {'name': 'oneBeatTriplet', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 3.0), conversionFactor)},
+        {'name': 'sixteenth_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 4.0), conversionFactor)},
+        {'name': 'oneBeatQuintuplet', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 5.0), conversionFactor)},
+        {'name': 'oneBeatSextuplet', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 6.0), conversionFactor)},
+        {'name': 'thirty_second_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 8.0), conversionFactor)},
       ];
     });
   }

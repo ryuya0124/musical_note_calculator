@@ -1,6 +1,6 @@
 {
   "@@locale":"ja",
-  "title":"音符計算機",
+  "title":"音価計算機",
   "metronome": "メトロノーム",
   "ratethisapp": "このアプリをレビューする",
   "privacypolicy": "プライバシーポリシー",
@@ -18,9 +18,9 @@
   "twoBeatsTriplet": "2拍3連",
   "sixteenth_note": "16分音符",
   "dotted_sixteenth_note": "付点16分音符",
-  "oneBeatTriplet": "1拍3連",
+  "oneBeatTriplet": "1拍3連 (12分音符)",
   "oneBeatQuintuplet": "1拍5連",
-  "oneBeatSextuplet": "1拍6連",
+  "oneBeatSextuplet": "1拍6連 (24分音符)",
   "thirty_second_note": "32分音符",
   "settings": "設定",
   "display_settings": "表示設定",
@@ -29,13 +29,13 @@
   "author": "作成者: りゅうや",
   "view_on_github": "GitHubで見る",
   "bpm_input": "BPMを入力",
-  "bpm_instruction": "BPMを入力すると音符が計算されます",
-  "calculate_notes": "音符を計算して表示します",
+  "bpm_instruction": "BPMを入力すると音価が計算されます",
+  "calculate_notes": "音価を計算して表示します",
   "start": "開始",
   "stop": "停止",
   "bpm": "BPM",
   "interval": "間隔",
-  "note_spacing": "音符換算",
+  "note_spacing": "音価計算",
   "note_count": "音符回数",
-  "calculator": "計算機"
+  "calculator": "音価換算"
 }
