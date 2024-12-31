@@ -39,4 +39,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: musical-note-calculator-executable
-        path: build/windows/runner/Release/musical_note_calculator.exe
+        path: build\windows\x64\runner\Release\musical_note_calculator.exe
