@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController bpmController = TextEditingController();
+  final FocusNode bpmFocusNode = FocusNode();
   late String selectedUnit;
   List<Map<String, String>> _notes = [];
 
@@ -20,13 +21,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     selectedUnit = context.read<SettingsModel>().selectedUnit;
-
     bpmController.addListener(_calculateNotes);
   }
 
   @override
   void dispose() {
     bpmController.dispose();
+    bpmFocusNode.dispose();
     super.dispose();
   }
 
@@ -36,19 +37,23 @@ class _HomePageState extends State<HomePage> {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
 
-    return Scaffold(
-      appBar: buildAppBar(context, appBarColor, titleTextStyle),
-      body: Column(
-        children: [
-          buildBpmInputSection(),
-          buildUnitSwitchSection(context),
-          buildNotesList(enabledNotes, appBarColor),
-        ],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: buildAppBar(context, appBarColor, titleTextStyle),
+        body: Column(
+          children: [
+            buildBpmInputSection(),
+            buildUnitSwitchSection(context),
+            buildNotesList(enabledNotes, appBarColor),
+          ],
+        ),
       ),
     );
   }
 
-  // AppBarウィジェットを作成するメソッド
   PreferredSizeWidget buildAppBar(BuildContext context, Color appBarColor, TextStyle? titleTextStyle) {
     return AppBar(
       backgroundColor: appBarColor,
@@ -71,30 +76,46 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // BPM入力セクション
   Widget buildBpmInputSection() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
+      child: Row(
         children: [
-          TextField(
-            controller: bpmController,
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: AppLocalizations.of(context)!.bpm_input,
+          Expanded(
+            child: TextField(
+              controller: bpmController,
+              focusNode: bpmFocusNode,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.bpm_input,
+              ),
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(width: 8),
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              final currentValue = double.tryParse(bpmController.text) ?? 0;
+              bpmController.text = (currentValue + 1).toStringAsFixed(0);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.remove),
+            onPressed: () {
+              final currentValue = double.tryParse(bpmController.text) ?? 0;
+              bpmController.text = (currentValue - 1).clamp(0, double.infinity).toStringAsFixed(0);
+            },
+          ),
         ],
       ),
     );
   }
 
-  // 単位切り替えセクション
   Widget buildUnitSwitchSection(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 16.0),
+      margin: EdgeInsets.only(right: 16.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
             AppLocalizations.of(context)!.time_unit,
@@ -124,7 +145,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 音符リスト表示セクション
   Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor) {
     return Expanded(
       child: bpmController.text.isEmpty
@@ -145,7 +165,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 音符カード
   Widget buildNoteCard(Map<String, String> note, Color appBarColor, BuildContext context) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -156,7 +175,7 @@ class _HomePageState extends State<HomePage> {
       child: ListTile(
         contentPadding: EdgeInsets.all(16),
         title: Text(
-          AppLocalizations.of(context)!.getTranslation(note['name']!), // 翻訳を取得
+          AppLocalizations.of(context)!.getTranslation(note['name']!),
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
