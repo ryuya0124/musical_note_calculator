@@ -163,7 +163,7 @@ class _MetronomePageState extends State<MetronomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('BPM: ${widget.bpm}', style: TextStyle(fontSize: 24)),
+            Text(AppLocalizations.of(context)!.bpm + ': ${widget.bpm}', style: TextStyle(fontSize: 24)),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: toggleMetronome,
@@ -191,6 +191,4 @@ class _MetronomePageState extends State<MetronomePage> {
       ),
     );
   }
-
-
 }

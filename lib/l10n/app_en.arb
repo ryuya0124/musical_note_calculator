@@ -32,5 +32,6 @@
   "bpm_instruction": "Enter BPM and the notes will be calculated.",
   "calculate_notes": "Calculating and displaying notes.",
   "start": "Start",
-  "stop": "Stop"
+  "stop": "Stop",
+  "bpm": "BPM"
 }

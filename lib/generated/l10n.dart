@@ -39,6 +39,7 @@ class S {
     });
   }
 
+
   static S of(BuildContext context) {
     final instance = S.maybeOf(context);
     assert(instance != null,

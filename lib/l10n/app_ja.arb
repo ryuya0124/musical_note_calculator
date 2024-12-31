@@ -32,5 +32,6 @@
   "bpm_instruction": "BPMを入力すると音符が計算されます",
   "calculate_notes": "音符を計算して表示します",
   "start": "開始",
-  "stop": "停止"
+  "stop": "停止",
+  "bpm": "BPM"
 }

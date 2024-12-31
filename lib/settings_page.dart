@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'settings_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
 class SettingsPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     final appBarColor = Theme.of(context).primaryColor;
@@ -112,14 +114,15 @@ class SettingsPage extends StatelessWidget {
           ),
         ),
         SizedBox(height: 20),
-        ...context.watch<SettingsModel>().enabledNotes.keys.map((note) {
+        ...context.watch<SettingsModel>().enabledNotes.keys.map((noteKey) {
           return Container(
             margin: EdgeInsets.only(left: 8.0),
             child: SwitchListTile(
-              title: Text(note),
-              value: context.watch<SettingsModel>().enabledNotes[note]!,
+              // 言語ファイルから翻訳を取得
+              title: Text(AppLocalizations.of(context)!.getTranslation(noteKey)),
+              value: context.watch<SettingsModel>().enabledNotes[noteKey]!,
               onChanged: (bool value) {
-                context.read<SettingsModel>().toggleNoteEnabled(note);
+                context.read<SettingsModel>().toggleNoteEnabled(noteKey);
               },
               activeColor: appBarColor,
             ),
