@@ -36,10 +36,10 @@ jobs:
       run: flutter build windows --release
 
     - name: Rename Windows executable
-      run: mv $GITHUB_WORKSPACE/build/windows/runner/Release/musical_note_calculator.exe $GITHUB_WORKSPACE/build/windows/runner/Release/musical_note_calculator
+      run: mv build/windows/runner/Release/musical_note_calculator.exe build/windows/runner/Release/musical_note_calculator
 
     - name: Upload Windows executable as artifact
       uses: actions/upload-artifact@v3
       with:
         name: musical-note-calculator-executable
-        path: $GITHUB_WORKSPACE/build/windows/runner/Release/musical_note_calculator
+        path: build/windows/runner/Release/musical_note_calculator
