@@ -27,8 +27,8 @@ jobs:
 
     - name: Copy build output to WebPage folder
       run: |
-        mkdir -p WebPage
-        cp -r build/web/* WebPage/
+        mkdir -p docs
+        cp -r build/web/* docs/
 
     - name: Commit and push WebPage folder
       uses: EndBug/add-and-commit@v9
