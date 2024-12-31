@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import 'note_page.dart';
+import 'settings_page.dart';
 import 'settings_model.dart';
 import 'home_page.dart';
 
@@ -105,9 +106,57 @@ class _CalculatorPageState extends State<CalculatorPage> {
         body: Column(
           children: [
             buildBpmInputSection(),
+            buildNotesList(enabledNotes, appBarColor),
           ],
         ),
         bottomNavigationBar: buildBottomNavigationBar(),  // ボトムナビゲーションバー
+      ),
+    );
+  }
+
+  Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor) {
+    return Expanded(
+      child: bpmController.text.isEmpty
+          ? Center(child: Text(AppLocalizations.of(context)!.bpm_instruction))
+          : _notes.isNotEmpty
+          ? ListView.builder(
+        itemCount: _notes.length,
+        itemBuilder: (context, index) {
+          final note = _notes[index];
+          if (enabledNotes[note['name']] == true) {
+            return buildNoteCard(note, appBarColor, context);
+          } else {
+            return Container();
+          }
+        },
+      )
+          : Center(child: Text(AppLocalizations.of(context)!.calculate_notes )),
+    );
+  }
+
+  Widget buildNoteCard(Map<String, String> note, Color appBarColor, BuildContext context) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ListTile(
+        contentPadding: EdgeInsets.all(16),
+        title: Text(
+          AppLocalizations.of(context)!.getTranslation(note['name']!),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        trailing: Text(
+          note['duration']!,
+          style: TextStyle(
+            color: appBarColor,
+            fontSize: 16,
+          ),
+        ),
       ),
     );
   }
@@ -120,6 +169,18 @@ class _CalculatorPageState extends State<CalculatorPage> {
         AppLocalizations.of(context)!.calculator,
         style: titleTextStyle,
       ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.settings),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SettingsPage()),
+            );
+          },
+          color: titleTextStyle?.color,
+        ),
+      ],
     );
   }
 
