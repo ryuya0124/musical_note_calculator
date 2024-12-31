@@ -34,7 +34,7 @@ class _MetronomePageState extends State<MetronomePage> {
     audioPlayer = AudioPlayer();
     audioPlayerSub = AudioPlayer();
     note = widget.note;
-    interval = Duration(milliseconds: (60000 / widget.bpm).round());
+    interval = Duration(microseconds: (60000 / widget.bpm).round());
   }
 
   @override
@@ -72,41 +72,41 @@ class _MetronomePageState extends State<MetronomePage> {
   Duration _calculateNoteInterval(String note) {
     switch (note) {
       case 'maxima':  // マキシマ
-        return Duration(milliseconds: (interval.inMilliseconds * 32).round());
+        return Duration(microseconds: (interval.inMilliseconds * 32 * 1000).round());
       case 'longa':  // ロンガ
-        return Duration(milliseconds: (interval.inMilliseconds * 16).round());
+        return Duration(microseconds: (interval.inMilliseconds * 16 * 1000).round());
       case 'double_whole_note':  // 倍全音符
-        return Duration(milliseconds: (interval.inMilliseconds * 8).round());
+        return Duration(microseconds: (interval.inMilliseconds * 8 * 1000).round());
       case 'whole_note':  // 全音符
-        return Duration(milliseconds: (interval.inMilliseconds * 4).round());
+        return Duration(microseconds: (interval.inMilliseconds * 4 * 1000).round());
       case 'dotted_half_note':  // 付点2分音符
-        return Duration(milliseconds: (interval.inMilliseconds * 2.5).round());
+        return Duration(microseconds: (interval.inMilliseconds * 2.5 * 1000).round());
       case 'half_note':  // 2分音符
-        return Duration(milliseconds: (interval.inMilliseconds * 2).round());
+        return Duration(microseconds: (interval.inMilliseconds * 2 * 1000).round());
       case 'fourBeatsThreeConsecutive':  // 4拍3連
-        return Duration(milliseconds: (interval.inMilliseconds * 4 / 3).round());
+        return Duration(microseconds: (interval.inMilliseconds * 4 / 3 * 1000).round());
       case 'dotted_quarter_note':  // 付点4分音符
-        return Duration(milliseconds: (interval.inMilliseconds * 1.5).round());
+        return Duration(microseconds: (interval.inMilliseconds * 1.5 * 1000).round());
       case 'quarter_note':  // 4分音符
         return interval;  // 基準となる4分音符の長さ
       case 'dotted_eighth_note':  // 付点8分音符
-        return Duration(milliseconds: (interval.inMilliseconds / 2 + interval.inMilliseconds / 4).round());
+        return Duration(microseconds: (interval.inMilliseconds / 2 + interval.inMilliseconds / 4 * 1000).round());
       case 'twoBeatsTriplet':  // 2拍3連
-        return Duration(milliseconds: (interval.inMilliseconds * 2 / 3).round());
+        return Duration(microseconds: (interval.inMilliseconds * 2 / 3 * 1000).round());
       case 'eighth_note':  // 8分音符
-        return Duration(milliseconds: (interval.inMilliseconds / 2).round());
+        return Duration(microseconds: (interval.inMilliseconds / 2 * 1000).round());
       case 'dotted_sixteenth_note':  // 付点16分音符
-        return Duration(milliseconds: (interval.inMilliseconds / 4 + interval.inMilliseconds / 8).round());
+        return Duration(microseconds: (interval.inMilliseconds / 4 + interval.inMilliseconds / 8 * 1000).round());
       case 'oneBeatTriplet':  // 1拍3連
-        return Duration(milliseconds: (interval.inMilliseconds * 1 / 3).round());
+        return Duration(microseconds: (interval.inMilliseconds * 1 / 3 * 1000).round());
       case 'sixteenth_note':  // 16分音符
-        return Duration(milliseconds: (interval.inMilliseconds / 4).round());
+        return Duration(microseconds: (interval.inMilliseconds / 4 * 1000).round());
       case 'oneBeatQuintuplet':  // 1拍5連
-        return Duration(milliseconds: (interval.inMilliseconds * 1 / 5).round());
+        return Duration(microseconds: (interval.inMilliseconds * 1 / 5 * 1000).round());
       case 'oneBeatSextuplet':  // 1拍6連
-        return Duration(milliseconds: (interval.inMilliseconds * 1 / 6).round());
+        return Duration(microseconds: (interval.inMilliseconds * 1 / 6 * 1000).round());
       case 'thirty_second_note':  // 32分音符
-        return Duration(milliseconds: (interval.inMilliseconds / 8).round());
+        return Duration(microseconds: (interval.inMilliseconds / 8 * 1000).round());
       default:
         return interval;  // 定義されていない音符の場合、元の値を返す
     }
@@ -132,7 +132,7 @@ class _MetronomePageState extends State<MetronomePage> {
     double audioDuration = 13.0; // 音源の再生時間（ms単位）
 
     // 音源の再生時間を引いた待機時間を計算
-    Duration adjustedNoteInterval = noteInterval - Duration(milliseconds: audioDuration.toInt());
+    Duration adjustedNoteInterval = noteInterval - Duration(microseconds: (audioDuration * 1000).toInt());
 
     // どちらのオーディオプレイヤーを使うか決めるフラグ
     bool useMainPlayer = true;
