@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Page/note_page.dart';  // NotePage のインポート
-import '../Page/calculator_page.dart';  // CalculatorPage のインポート
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BottomNavigationBarWidget extends StatelessWidget {
   final int selectedIndex;
@@ -22,15 +21,15 @@ class BottomNavigationBarWidget extends StatelessWidget {
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.music_note),
-          label: '音符間隔',  // 必要に応じてローカライズする
+          label: AppLocalizations.of(context)!.note_spacing,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.note),
-          label: '音符回数',
+          label: AppLocalizations.of(context)!.note_count,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.calculate),
-          label: '計算機',
+          label: AppLocalizations.of(context)!.calculator,
         ),
       ],
     );
