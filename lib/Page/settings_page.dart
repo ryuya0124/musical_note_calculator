@@ -100,7 +100,6 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-
   Widget buildNoteSettingsSection(BuildContext context, Color appBarColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

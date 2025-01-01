@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
   late String selectedUnit;
@@ -26,6 +26,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     selectedUnit = context.read<SettingsModel>().selectedUnit;
     bpmController.addListener(_calculateNotes);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
@@ -35,10 +36,22 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // アプリがバックグラウンドから戻ったタイミングを検出
+    if (state == AppLifecycleState.resumed) {
+      // 画面が戻ったタイミングで設定を更新
+      setState(() {
+        selectedUnit = context.read<SettingsModel>().selectedUnit; // 必要な更新処理を行う
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final appBarColor = Theme.of(context).primaryColor;
-    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
 
     return GestureDetector(
@@ -130,7 +143,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildUnitDropdown(BuildContext context) {
     return DropdownButton<String>(
-      value: context.watch<SettingsModel>().selectedUnit,
+      value: selectedUnit,
       items: ['ms', 's', 'µs'].map((String unit) {
         return DropdownMenuItem<String>(
           value: unit,
