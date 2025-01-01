@@ -18,7 +18,7 @@ class CalculatorPage extends StatefulWidget {
 class _CalculatorPageState extends State<CalculatorPage> {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
-  List<Map<String, String>> _notes = [];
+  Map<String, List<Map<String, String>>> _notes = {};
 
   @override
   void initState() {
@@ -38,7 +38,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
     final bpmInput = bpmController.text;
     if (bpmInput.isEmpty) {
       setState(() {
-        _notes = [];
+        _notes = {};
       });
       return;
     }
@@ -46,20 +46,68 @@ class _CalculatorPageState extends State<CalculatorPage> {
     final bpm = double.tryParse(bpmInput);
     if (bpm == null || bpm <= 0) {
       setState(() {
-        _notes = [];
+        _notes = {};
       });
       return;
     }
+
     setState(() {
-      _notes = [
-        {'note': '32分', 'bpm': '${bpm / 4}'},
-        {'note': '24分', 'bpm': '${bpm / 3}'},
-        {'note': '16分', 'bpm': '${bpm / 2}'},
-        {'note': '12分', 'bpm': '${bpm / 1.5}'},
-        {'note': '8分', 'bpm': '$bpm'},
-        {'note': '4分', 'bpm': '${bpm * 2}'},
-        {'note': '2分', 'bpm': '${bpm * 4}'},
-      ];
+      _notes = {
+        '32分音符': [
+          {'note': '32分', 'bpm': '${bpm / 4}'}, // 32分音符を基準にして
+          {'note': '24分', 'bpm': '${bpm / 3}'}, // 32分音符を基準にして
+          {'note': '16分', 'bpm': '${bpm / 2}'}, // 32分音符を基準にして
+          {'note': '12分', 'bpm': '${bpm / 1.5}'}, // 32分音符を基準にして
+          {'note': '8分', 'bpm': '$bpm'}, // 32分音符を基準にして
+          {'note': '4分', 'bpm': '${bpm * 2}'}, // 32分音符を基準にして
+          {'note': '2分', 'bpm': '${bpm * 4}'}, // 32分音符を基準にして
+        ],
+        '24分音符': [
+          {'note': '32分', 'bpm': '${bpm / 4 * 3}'}, // 24分音符を基準にして
+          {'note': '24分', 'bpm': '$bpm'}, // 24分音符を基準にして
+          {'note': '16分', 'bpm': '${bpm * 1.5}'}, // 24分音符を基準にして
+          {'note': '12分', 'bpm': '${bpm * 2}'}, // 24分音符を基準にして
+          {'note': '8分', 'bpm': '${bpm * 3}'}, // 24分音符を基準にして
+          {'note': '4分', 'bpm': '${bpm * 6}'}, // 24分音符を基準にして
+          {'note': '2分', 'bpm': '${bpm * 12}'}, // 24分音符を基準にして
+        ],
+        '16分音符': [
+          {'note': '32分', 'bpm': '${bpm / 4 * 2}'}, // 16分音符を基準にして
+          {'note': '24分', 'bpm': '${bpm / 3 * 2}'}, // 16分音符を基準にして
+          {'note': '16分', 'bpm': '$bpm'}, // 16分音符を基準にして
+          {'note': '12分', 'bpm': '${bpm * 1.5}'}, // 16分音符を基準にして
+          {'note': '8分', 'bpm': '${bpm * 2}'}, // 16分音符を基準にして
+          {'note': '4分', 'bpm': '${bpm * 4}'}, // 16分音符を基準にして
+          {'note': '2分', 'bpm': '${bpm * 8}'}, // 16分音符を基準にして
+        ],
+        '12分音符': [
+          {'note': '32分', 'bpm': '${bpm / 4 * 3}'}, // 12分音符を基準にして
+          {'note': '24分', 'bpm': '${bpm / 3 * 4}'}, // 12分音符を基準にして
+          {'note': '16分', 'bpm': '${bpm / 2 * 3}'}, // 12分音符を基準にして
+          {'note': '12分', 'bpm': '$bpm'}, // 12分音符を基準にして
+          {'note': '8分', 'bpm': '${bpm * 1.5}'}, // 12分音符を基準にして
+          {'note': '4分', 'bpm': '${bpm * 3}'}, // 12分音符を基準にして
+          {'note': '2分', 'bpm': '${bpm * 6}'}, // 12分音符を基準にして
+        ],
+        '8分音符': [
+          {'note': '32分', 'bpm': '${bpm / 4 * 4}'}, // 8分音符を基準にして
+          {'note': '24分', 'bpm': '${bpm / 3 * 6}'}, // 8分音符を基準にして
+          {'note': '16分', 'bpm': '${bpm / 2 * 4}'}, // 8分音符を基準にして
+          {'note': '12分', 'bpm': '${bpm / 1.5 * 3}'}, // 8分音符を基準にして
+          {'note': '8分', 'bpm': '$bpm'}, // 8分音符を基準にして
+          {'note': '4分', 'bpm': '${bpm * 2}'}, // 8分音符を基準にして
+          {'note': '2分', 'bpm': '${bpm * 4}'}, // 8分音符を基準にして
+        ],
+        '2分音符': [
+          {'note': '32分', 'bpm': '${bpm / 4 * 8}'}, // 2分音符を基準にして
+          {'note': '24分', 'bpm': '${bpm / 3 * 12}'}, // 2分音符を基準にして
+          {'note': '16分', 'bpm': '${bpm / 2 * 8}'}, // 2分音符を基準にして
+          {'note': '12分', 'bpm': '${bpm / 1.5 * 6}'}, // 2分音符を基準にして
+          {'note': '8分', 'bpm': '${bpm / 1 * 4}'}, // 2分音符を基準にして
+          {'note': '4分', 'bpm': '${bpm * 2}'}, // 2分音符を基準にして
+          {'note': '2分', 'bpm': '$bpm'}, // 2分音符を基準にして
+        ],
+      };
     });
   }
 
@@ -120,22 +168,43 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-  // BPMに対応する音符のリストを表示
   Widget buildNotesList(Color appBarColor) {
     return Expanded(
       child: bpmController.text.isEmpty
           ? Center(child: Text('BPMを入力してください'))
           : _notes.isNotEmpty
           ? ListView.builder(
-        itemCount: _notes.length,
+        itemCount: _notes.keys.length,
         itemBuilder: (context, index) {
-          final note = _notes[index];
-          return buildNoteCard(note, appBarColor);
+          final key = _notes.keys.elementAt(index);
+          final noteList = _notes[key];
+          return buildNoteGroup(key, noteList!, appBarColor);
         },
       )
           : Center(child: Text('音符を計算してください')),
     );
   }
+
+  Widget buildNoteGroup(String key, List<Map<String, String>> notes, Color appBarColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Text(
+            '$key 基準',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: appBarColor,
+            ),
+          ),
+        ),
+        ...notes.map((note) => buildNoteCard(note, appBarColor)).toList(),
+      ],
+    );
+  }
+
 
   // 音符カードを表示
   Widget buildNoteCard(Map<String, dynamic> note, Color appBarColor) {
