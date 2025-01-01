@@ -47,6 +47,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   @override
   void dispose() {
     metronome.stop();
+    metronome.destroy();
     super.dispose();
   }
 
@@ -54,14 +55,27 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.inactive:
+        stopMetronome();
         break;
+
       case AppLifecycleState.paused:
+        stopMetronome();
         break;
+
       case AppLifecycleState.resumed:
+        if (isPlaying) {
+          stopMetronome();
+        } else {
+          startMetronome();
+        }
         break;
+
       case AppLifecycleState.detached:
+        dispose();
         break;
+
       case AppLifecycleState.hidden:
+        stopMetronome();
         break;
     }
   }
