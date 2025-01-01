@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import '../UI/app_bar.dart';
+import '../settings_model.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
+import '../UI/bottom_navigation_bar.dart';
+import 'note_page.dart';
+import 'home_page.dart';
 
 class CalculatorPage extends StatefulWidget {
   @override
@@ -7,6 +14,8 @@ class CalculatorPage extends StatefulWidget {
 
 class _CalculatorPageState extends State<CalculatorPage> {
   final TextEditingController bpmController = TextEditingController();
+  final FocusNode bpmFocusNode = FocusNode();
+  int _selectedIndex = 2;  // 選択されたタブを管理
   Map<String, List<Map<String, String>>> _notes = {};
   Map<String, bool> _isExpanded = {
     '32分音符': false,
@@ -27,7 +36,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
   @override
   void dispose() {
     bpmController.dispose();
-    //bpmFocusNode.dispose();
+    bpmFocusNode.dispose();
     super.dispose();
   }
 
@@ -151,18 +160,12 @@ class _CalculatorPageState extends State<CalculatorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('音符計算機')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+      appBar: AppBarWidget(
+        selectedIndex: _selectedIndex,
+      ),
+      body: Column(
           children: [
-            TextField(
-              controller: bpmController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'BPMを入力'),
-              onChanged: (text) => _calculateNotes(),
-            ),
-            SizedBox(height: 20),
+            buildBpmInputSection(),
             Expanded(
               child: ListView(
                 children: _notes.keys.map((key) {
@@ -171,8 +174,75 @@ class _CalculatorPageState extends State<CalculatorPage> {
               ),
             ),
           ],
-        ),
+      ),
+      bottomNavigationBar: BottomNavigationBarWidget(
+        selectedIndex: _selectedIndex,
+        onTabSelected: _onTabSelected,  // タブが選ばれた時の処理を渡す
       ),
     );
+  }
+
+  Widget buildBpmInputSection() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: bpmController,
+              focusNode: bpmFocusNode,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.bpm_input,
+              ),
+            ),
+          ),
+          SizedBox(width: 8),
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              final currentValue = double.tryParse(bpmController.text) ?? 0;
+              bpmController.text = (currentValue + 1).toStringAsFixed(0);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.remove),
+            onPressed: () {
+              final currentValue = double.tryParse(bpmController.text) ?? 0;
+              bpmController.text = (currentValue - 1).clamp(0, double.infinity).toStringAsFixed(0);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onTabSelected(int index) {
+    setState(() {
+      _selectedIndex = index;  // タブが選ばれたときにインデックスを更新
+    });
+
+    // 選択されたインデックスに応じてページ遷移
+    if (index == 0) {  // NotePage のタブ
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return child;  // アニメーションなし
+          },
+        ),
+      );
+    } else if (index == 1) {  // CalculatorPage のタブ
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => NotePage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return child;  // アニメーションなし
+          },
+        ),
+      );
+    }
   }
 }

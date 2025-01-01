@@ -29,11 +29,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
   }
 
-
-
-
-
-
   @override
   void dispose() {
     bpmController.dispose();
