@@ -1,14 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../UI/app_bar.dart';
-import '../settings_model.dart';
-import 'metronome_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
-import '../UI/bottom_navigation_bar.dart';
-import 'calculator_page.dart';
-import 'note_page.dart';
 
 class CalculatorPage extends StatefulWidget {
   @override
@@ -17,8 +7,16 @@ class CalculatorPage extends StatefulWidget {
 
 class _CalculatorPageState extends State<CalculatorPage> {
   final TextEditingController bpmController = TextEditingController();
-  final FocusNode bpmFocusNode = FocusNode();
   Map<String, List<Map<String, String>>> _notes = {};
+  Map<String, bool> _isExpanded = {
+    '32分音符': false,
+    '24分音符': false,
+    '16分音符': false,
+    '12分音符': false,
+    '8分音符': false,
+    '2分音符': false,
+  };
+
 
   @override
   void initState() {
@@ -29,7 +27,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
   @override
   void dispose() {
     bpmController.dispose();
-    bpmFocusNode.dispose();
+    //bpmFocusNode.dispose();
     super.dispose();
   }
 
@@ -111,121 +109,68 @@ class _CalculatorPageState extends State<CalculatorPage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final appBarColor = Theme.of(context).primaryColor;
+  // カード内で音符の計算結果を表示
+  Widget _buildNoteCard(String note, String bpm) {
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.symmetric(vertical: 5),
+      child: ListTile(
+        title: Text('$note - BPM: $bpm'),
+      ),
+    );
+  }
 
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Calculator Page'),
-        ),
-        body: Column(
+  // 折りたたみボタン用のウィジェットを作成
+  Widget _buildNoteGroup(String title, List<Map<String, String>> notes) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10.0), // ここで余白を追加
+      child: Card(
+        child: ExpansionTile(
+          title: Text(title),
+          trailing: Icon(_isExpanded[title]! ? Icons.expand_less : Icons.expand_more),
+          onExpansionChanged: (bool expanded) {
+            setState(() {
+              _isExpanded[title] = expanded;
+            });
+          },
           children: [
-            buildBpmInputSection(),
-            buildNotesList(appBarColor),
+            Padding(
+              padding: const EdgeInsets.all(8.0), // ExpansionTile内にpaddingを追加
+              child: Column(
+                children: notes.map((note) {
+                  return _buildNoteCard(note['note']!, note['bpm']!);
+                }).toList(),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget buildBpmInputSection() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('音符計算機')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
               controller: bpmController,
-              focusNode: bpmFocusNode,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.bpm_input,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'BPMを入力'),
+              onChanged: (text) => _calculateNotes(),
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: ListView(
+                children: _notes.keys.map((key) {
+                  return _buildNoteGroup(key, _notes[key]!);
+                }).toList(),
               ),
             ),
-          ),
-          SizedBox(width: 8),
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              final currentValue = double.tryParse(bpmController.text) ?? 0;
-              bpmController.text = (currentValue + 1).toStringAsFixed(0);
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.remove),
-            onPressed: () {
-              final currentValue = double.tryParse(bpmController.text) ?? 0;
-              bpmController.text = (currentValue - 1).clamp(0, double.infinity).toStringAsFixed(0);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildNotesList(Color appBarColor) {
-    return Expanded(
-      child: bpmController.text.isEmpty
-          ? Center(child: Text('BPMを入力してください'))
-          : _notes.isNotEmpty
-          ? ListView.builder(
-        itemCount: _notes.keys.length,
-        itemBuilder: (context, index) {
-          final key = _notes.keys.elementAt(index);
-          final noteList = _notes[key];
-          return buildNoteGroup(key, noteList!, appBarColor);
-        },
-      )
-          : Center(child: Text('音符を計算してください')),
-    );
-  }
-
-  Widget buildNoteGroup(String key, List<Map<String, String>> notes, Color appBarColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          child: Text(
-            '$key 基準',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: appBarColor,
-            ),
-          ),
-        ),
-        ...notes.map((note) => buildNoteCard(note, appBarColor)).toList(),
-      ],
-    );
-  }
-
-
-  // 音符カードを表示
-  Widget buildNoteCard(Map<String, dynamic> note, Color appBarColor) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.all(16),
-        title: Text(
-          '${note['bpm']} BPM の ${note['note']}',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        trailing: Icon(
-          Icons.music_note,
-          color: appBarColor,
+          ],
         ),
       ),
     );
