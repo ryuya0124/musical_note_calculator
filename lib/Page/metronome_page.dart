@@ -182,7 +182,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
                 const SizedBox(height: 20),
                 // 実質BPM表示
                 Text(
-                  '実質BPM ${convertNoteDurationToBPM(widget.bpm, note)} の 4分音符',
+                  '実質BPM ${convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(2)} の 4分音符',
                   style: const TextStyle(fontSize: 20),
                 ),
                 const SizedBox(height: 20),
