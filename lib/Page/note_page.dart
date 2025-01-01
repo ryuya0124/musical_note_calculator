@@ -38,7 +38,6 @@ class _NotePageState extends State<NotePage> {
   @override
   Widget build(BuildContext context) {
     final appBarColor = Theme.of(context).primaryColor;
-    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
 
     return GestureDetector(

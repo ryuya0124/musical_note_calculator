@@ -1,8 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
+import 'package:metronome/metronome.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;
@@ -21,10 +20,8 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   late Duration interval;
   late String note;
   late String intervalTime = widget.interval;
-  Timer? metronomeTimer;
-  
-  final audioPlayerWeak = AudioPlayer();
-  final audioPlayerStrong = AudioPlayer();
+  final metronome = Metronome();
+  late double bpm = widget.bpm;
 
   // 音源のパス
   final String strongTick = 'metronome_tick_strong.wav';
@@ -33,23 +30,23 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   @override
   void initState() {
     super.initState();
-    audioPlayerWeak.setPlaybackRate(1.0);
-    //audioPlayerWeak.setPlayerMode(PlayerMode.lowLatency);
-    audioPlayerWeak.setSource(AssetSource(weakTick));
-    
-    audioPlayerStrong.setPlaybackRate(1.0);
-    //audioPlayerStrong.setPlayerMode(PlayerMode.lowLatency);
-    audioPlayerStrong.setSource(AssetSource(weakTick));
-
     note = widget.note;
+    bpm = convertNoteDurationToBPM(bpm,note);
+
+    metronome.init('assets/${weakTick}',
+      bpm: bpm.toInt(),
+      volume: 100,
+      //When set to true, the music of other apps will stop when the metronome is played.
+      enableSession: false,
+      enableTickCallback: true,
+    );
+
     interval = Duration(microseconds: ( (60000 * 1000) / widget.bpm).round());
   }
 
   @override
   void dispose() {
-    audioPlayerWeak.dispose();
-    audioPlayerStrong.dispose();
-    metronomeTimer?.cancel();
+    metronome.stop();
     super.dispose();
   }
 
@@ -79,58 +76,15 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
 
   void startMetronome() {
     if (isPlaying) return;
-
+    metronome.play(convertNoteDurationToBPM(widget.bpm,note).toInt());
     setState(() {
       isPlaying = true;
     });
-
-    int counter = 0;
-    Duration noteInterval = _calculateNoteInterval(note);
-    Duration adjustedNoteInterval;
-
-    if(counter != 0){
-      //adjustedNoteInterval= Duration(microseconds: 427000); // 例: 13msの調整
-      adjustedNoteInterval = noteInterval - Duration(microseconds: 13000);
-    } else {
-      adjustedNoteInterval = noteInterval - Duration(microseconds: 13000); // 例: 13msの調整
-    }
-
-    metronomeTimer = Timer.periodic(adjustedNoteInterval, (timer) async {
-      if (!isPlaying) {
-        timer.cancel();
-        return;
-      }
-
-      // 音声ファイルを再生
-      if (counter == 0) {
-        _playStrong();
-      } else {
-        _playWeak();
-      }
-
-      counter = (counter + 1) % 4;
-    });
-  }
-
-  void _playWeak() async {
-    if (audioPlayerWeak.state == PlayerState.playing) {
-      audioPlayerWeak.stop;  // stop()が完了する前にresume()が呼ばれないようawaitする
-    }
-    audioPlayerWeak.play(AssetSource(weakTick));
-  }
-
-  void _playStrong() async {
-    if (audioPlayerStrong.state == PlayerState.playing) {
-      audioPlayerStrong.stop;  // stop()が完了する前にresume()が呼ばれないようawaitする
-    }
-    audioPlayerWeak.play(AssetSource(weakTick));
   }
 
   void stopMetronome() {
     if (!isPlaying) return;
-    metronomeTimer?.cancel();
-    audioPlayerWeak.stop();
-    audioPlayerStrong.stop();
+    metronome.stop();
 
     setState(() {
       isPlaying = false;
@@ -151,6 +105,8 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
             Text(AppLocalizations.of(context)!.bpm + ': ${widget.bpm}', style: TextStyle(fontSize: 24)),
             SizedBox(height: 20),
             Text(getLocalizedText(note,context) + ':  $intervalTime ', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 20),
+            Text('実質BPM ${convertNoteDurationToBPM(widget.bpm,note)}  の 4分音符', style: TextStyle(fontSize: 20)),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: toggleMetronome,
@@ -179,46 +135,48 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
     );
   }
 
-  Duration _calculateNoteInterval(String note) {
+  //ホームページの*と/を反対に
+  //付点はbpm * 音符の数字 / 2 / 3
+  double convertNoteDurationToBPM(double bpm, String note) {
     switch (note) {
       case 'maxima':
-        return Duration(microseconds: (interval.inMicroseconds * 32).round());
+        return bpm / 32;
       case 'longa':
-        return Duration(microseconds: (interval.inMicroseconds * 16).round());
+        return bpm / 16;
       case 'double_whole_note':
-        return Duration(microseconds: (interval.inMicroseconds * 8).round());
+        return bpm / 8;
       case 'whole_note':
-        return Duration(microseconds: (interval.inMicroseconds * 4).round());
+        return bpm / 4;
       case 'dotted_half_note':
-        return Duration(microseconds: (interval.inMicroseconds * 2.5).round());
+        return bpm / 3;
       case 'half_note':
-        return Duration(microseconds: (interval.inMicroseconds * 2).round());
+        return bpm / 2;
       case 'fourBeatsThreeConsecutive':
-        return Duration(microseconds: (interval.inMicroseconds * 4 / 3).round());
+        return bpm / 4 * 3;
       case 'dotted_quarter_note':
-        return Duration(microseconds: (interval.inMicroseconds * 1.5).round());
+        return bpm * 4 / 2 / 3;
       case 'quarter_note':
-        return interval;
+        return bpm;
       case 'dotted_eighth_note':
-        return Duration(microseconds: (interval.inMicroseconds / 2 + interval.inMicroseconds / 4).round());
+        return bpm * 8 / 2 / 3;
       case 'twoBeatsTriplet':
-        return Duration(microseconds: (interval.inMicroseconds * 2 / 3).round());
+        return bpm * 1.5;
       case 'eighth_note':
-        return Duration(microseconds: (interval.inMicroseconds / 2).round());
+        return bpm * 2;
       case 'dotted_sixteenth_note':
-        return Duration(microseconds: (interval.inMicroseconds / 4 + interval.inMicroseconds / 8).round());
+        return bpm * 16 / 2 / 3;
       case 'oneBeatTriplet':
-        return Duration(microseconds: (interval.inMicroseconds * 1 / 3).round());
+        return bpm * 3;
       case 'sixteenth_note':
-        return Duration(microseconds: (interval.inMicroseconds / 4).round());
+        return bpm * 4;
       case 'oneBeatQuintuplet':
-        return Duration(microseconds: (interval.inMicroseconds * 1 / 5).round());
+        return bpm * 5;
       case 'oneBeatSextuplet':
-        return Duration(microseconds: (interval.inMicroseconds * 1 / 6).round());
+        return bpm * 6;
       case 'thirty_second_note':
-        return Duration(microseconds: (interval.inMicroseconds / 8).round());
+        return bpm * 8;
       default:
-        return interval;
+        return bpm; // Default to quarter note if unknown input
     }
   }
 
