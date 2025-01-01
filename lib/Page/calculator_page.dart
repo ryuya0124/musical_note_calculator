@@ -95,7 +95,6 @@ class _CalculatorPageState extends State<CalculatorPage> {
   @override
   Widget build(BuildContext context) {
     final appBarColor = Theme.of(context).primaryColor;
-    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
 
     return GestureDetector(

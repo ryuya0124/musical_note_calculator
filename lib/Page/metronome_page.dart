@@ -1,100 +1,70 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/widgets.dart'; // WidgetsBindingObserverを使うために必要
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
-import 'package:flutter/services.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 
-class MetronomePage extends StatefulWidget with WidgetsBindingObserver {
+class MetronomePage extends StatefulWidget {
   final double bpm;
   final String note;
   final String interval;
 
-  MetronomePage({required this.bpm, required this.note, required this.interval});
+  const MetronomePage({required this.bpm, required this.note, required this.interval});
 
   @override
   _MetronomePageState createState() => _MetronomePageState();
 }
 
 class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserver {
-  late AudioPlayer audioPlayer;
+
   bool isPlaying = false;
   late Duration interval;
   late String note;
-  late String interval_time = widget.interval;
+  late String intervalTime = widget.interval;
   Timer? metronomeTimer;
+  
+  final audioPlayerWeak = AudioPlayer();
+  final audioPlayerStrong = AudioPlayer();
 
   // 音源のパス
-  final String strongTick = 'metronome_tick_weak.wav';
+  final String strongTick = 'metronome_tick_strong.wav';
   final String weakTick = 'metronome_tick_weak.wav';
-
-  Map<String, String> audioCacheMap = {};
-
-  Future<void> preloadSounds() async {
-    List<String> sounds = ['metronome_tick_strong.wav', 'metronome_tick_weak.wav'];
-    for (var sound in sounds) {
-      final byteData = await rootBundle.load('assets/$sound');
-      final tempFile = File('${(await getTemporaryDirectory()).path}/$sound');
-      await tempFile.writeAsBytes(byteData.buffer.asUint8List());
-      audioCacheMap[sound] = tempFile.path; // ファイルパスをキャッシュ
-    }
-  }
-
-  Future<void> playSound(String assetPath) async {
-    final directory = await getTemporaryDirectory();
-    final file = File('${directory.path}/$assetPath');
-
-    if (!file.existsSync()) {
-      final data = await rootBundle.load(assetPath);
-      await file.writeAsBytes(data.buffer.asUint8List());
-    }
-
-    await audioPlayer.setSource(DeviceFileSource(file.path)); // setSourceを追加
-    await audioPlayer.play(DeviceFileSource(file.path));
-    await audioPlayer.seek(Duration.zero);
-  }
 
   @override
   void initState() {
     super.initState();
-    audioPlayer = AudioPlayer();
-    audioPlayer.setPlaybackRate(1.0);
-    preloadSounds();
+    audioPlayerWeak.setPlaybackRate(1.0);
+    //audioPlayerWeak.setPlayerMode(PlayerMode.lowLatency);
+    audioPlayerWeak.setSource(AssetSource(weakTick));
+    
+    audioPlayerStrong.setPlaybackRate(1.0);
+    //audioPlayerStrong.setPlayerMode(PlayerMode.lowLatency);
+    audioPlayerStrong.setSource(AssetSource(weakTick));
+
     note = widget.note;
     interval = Duration(microseconds: ( (60000 * 1000) / widget.bpm).round());
   }
 
   @override
   void dispose() {
-    audioPlayer.dispose();
+    audioPlayerWeak.dispose();
+    audioPlayerStrong.dispose();
     metronomeTimer?.cancel();
     super.dispose();
   }
 
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.inactive:
-        audioPlayer.stop();
-        stopMetronome();
         break;
       case AppLifecycleState.paused:
-        audioPlayer.stop();
-        stopMetronome();
         break;
       case AppLifecycleState.resumed:
-        audioPlayer.stop();
         break;
       case AppLifecycleState.detached:
-        audioPlayer.stop();
-        stopMetronome();
         break;
       case AppLifecycleState.hidden:
-        audioPlayer.stop();
-        stopMetronome();
         break;
     }
   }
@@ -116,7 +86,14 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
 
     int counter = 0;
     Duration noteInterval = _calculateNoteInterval(note);
-    Duration adjustedNoteInterval = noteInterval - Duration(microseconds: 13000); // 例: 13msの調整
+    Duration adjustedNoteInterval;
+
+    if(counter != 0){
+      //adjustedNoteInterval= Duration(microseconds: 427000); // 例: 13msの調整
+      adjustedNoteInterval = noteInterval - Duration(microseconds: 13000);
+    } else {
+      adjustedNoteInterval = noteInterval - Duration(microseconds: 13000); // 例: 13msの調整
+    }
 
     metronomeTimer = Timer.periodic(adjustedNoteInterval, (timer) async {
       if (!isPlaying) {
@@ -124,20 +101,37 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
         return;
       }
 
-      String tickSound = (counter == 0) ? strongTick : weakTick;
-
       // 音声ファイルを再生
-      playSound(tickSound);
+      if (counter == 0) {
+        _playStrong();
+      } else {
+        _playWeak();
+      }
 
       counter = (counter + 1) % 4;
     });
   }
 
+  void _playWeak() async {
+    if (audioPlayerWeak.state == PlayerState.playing) {
+      audioPlayerWeak.stop;  // stop()が完了する前にresume()が呼ばれないようawaitする
+    }
+    audioPlayerWeak.play(AssetSource(weakTick));
+  }
+
+  void _playStrong() async {
+    if (audioPlayerStrong.state == PlayerState.playing) {
+      audioPlayerStrong.stop;  // stop()が完了する前にresume()が呼ばれないようawaitする
+    }
+    audioPlayerWeak.play(AssetSource(weakTick));
+  }
 
   void stopMetronome() {
     if (!isPlaying) return;
     metronomeTimer?.cancel();
-    audioPlayer.stop();
+    audioPlayerWeak.stop();
+    audioPlayerStrong.stop();
+
     setState(() {
       isPlaying = false;
     });
@@ -156,7 +150,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
           children: [
             Text(AppLocalizations.of(context)!.bpm + ': ${widget.bpm}', style: TextStyle(fontSize: 24)),
             SizedBox(height: 20),
-            Text(getLocalizedText(note,context) + ':  $interval_time ', style: TextStyle(fontSize: 20)),
+            Text(getLocalizedText(note,context) + ':  $intervalTime ', style: TextStyle(fontSize: 20)),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: toggleMetronome,

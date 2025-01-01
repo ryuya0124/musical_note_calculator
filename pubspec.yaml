@@ -72,8 +72,6 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-    - assets/metronome_tick_strong.wav
-    - assets/metronome_tick_weak.wav
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
