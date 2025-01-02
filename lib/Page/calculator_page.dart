@@ -118,6 +118,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
     });
   }
 
+  double conversionNote(double bpm, double beforeNote, double afterNote, bool dotted){
+    if(dotted){
+      return bpm * (beforeNote / afterNote / 1.5);
+    }else{
+      return bpm * (beforeNote / afterNote);
+    }
+  }
   // カード内で音符の計算結果を表示
   Widget _buildNoteCard(String note, String bpm) {
     return Card(

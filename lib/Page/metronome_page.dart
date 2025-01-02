@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import 'package:metronome/metronome.dart';
+import '../Notes.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;
@@ -281,49 +282,13 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
     );
   }
 
-  //ホームページの*と/を反対に
-  //付点はbpm * 音符の数字 / 2 / 3
+  ///4分音符に換算
   double convertNoteDurationToBPM(double bpm, String note) {
-    switch (note) {
-      case 'maxima':
-        return bpm / 32;
-      case 'longa':
-        return bpm / 16;
-      case 'double_whole_note':
-        return bpm / 8;
-      case 'whole_note':
-        return bpm / 4;
-      case 'dotted_half_note':
-        return bpm / 3;
-      case 'half_note':
-        return bpm / 2;
-      case 'fourBeatsThreeConsecutive':
-        return bpm / 4 * 3;
-      case 'dotted_quarter_note':
-        return bpm * 4 / 2 / 3;
-      case 'quarter_note':
-        return bpm;
-      case 'dotted_eighth_note':
-        return bpm * 8 / 2 / 3;
-      case 'twoBeatsTriplet':
-        return bpm * 1.5;
-      case 'eighth_note':
-        return bpm * 2;
-      case 'dotted_sixteenth_note':
-        return bpm * 16 / 2 / 3;
-      case 'oneBeatTriplet':
-        return bpm * 3;
-      case 'sixteenth_note':
-        return bpm * 4;
-      case 'oneBeatQuintuplet':
-        return bpm * 5;
-      case 'oneBeatSextuplet':
-        return bpm * 6;
-      case 'thirty_second_note':
-        return bpm * 8;
-      default:
-        return bpm; // Default to quarter note if unknown input
-    }
+    // ノートデータを検索
+    final noteData = findNoteData(note);
+
+    // BPMを計算
+    return calculateNoteBPM(bpm, noteData);
   }
 
   String getLocalizedText(String key, BuildContext context) {
