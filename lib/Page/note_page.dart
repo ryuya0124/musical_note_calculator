@@ -191,18 +191,14 @@ class _NotePageState extends State<NotePage> {
       return;
     }
 
-    final oneSecond = Duration(milliseconds: 1000);
-    final conversionFactor = selectedUnit == 's'
-        ? 1 / 1000.0
-        : selectedUnit == 'µs'
-        ? 1000.0
-        : 1.0;
+    double unit = 60;
 
     setState(() {
       _notes = notes.map((note) {
-        // ノートの長さを計算
-        final noteLength = _calculateNoteLength(
+        // ノートの間隔を計算
+        final noteLength = calculateNoteFrequency(
           bpm,
+          unit,
           note.Note,
           isDotted: note.dotted,
         );
@@ -210,21 +206,13 @@ class _NotePageState extends State<NotePage> {
         // フォーマットしてリストに追加
         return {
           'name': note.name,
-          'duration': _formatDuration(oneSecond.inMilliseconds / noteLength, conversionFactor),
+          'duration': _formatDuration(noteLength),
         };
       }).toList();
     });
   }
 
-  double _calculateNoteLength(double bpm, double multiplier, {bool isDotted = false}) {
-    if(isDotted){
-      return bpm * ( 6 / multiplier * 1.5 );
-    } else {
-      return bpm * ( 6 / multiplier );
-    }
-  }
-
-  String _formatDuration(double duration, double conversionFactor) {
-    return '${(duration * conversionFactor).toStringAsFixed(2)} 回';
+  String _formatDuration(double duration) {
+    return '${duration.toStringAsFixed(2)} 回';
   }
 }
