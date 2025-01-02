@@ -292,45 +292,6 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   }
 
   String getLocalizedText(String key, BuildContext context) {
-    switch (key) {
-      case 'maxima':
-        return AppLocalizations.of(context)!.maxima;
-      case 'longa':
-        return AppLocalizations.of(context)!.longa;
-      case 'double_whole_note':
-        return AppLocalizations.of(context)!.double_whole_note;
-      case 'whole_note':
-        return AppLocalizations.of(context)!.whole_note;
-      case 'half_note':
-        return AppLocalizations.of(context)!.half_note;
-      case 'fourBeatsThreeConsecutive':
-        return AppLocalizations.of(context)!.fourBeatsThreeConsecutive;
-      case 'dotted_half_note':
-        return AppLocalizations.of(context)!.dotted_half_note;
-      case 'quarter_note':
-        return AppLocalizations.of(context)!.quarter_note;
-      case 'dotted_quarter_note':
-        return AppLocalizations.of(context)!.dotted_quarter_note;
-      case 'eighth_note':
-        return AppLocalizations.of(context)!.eighth_note;
-      case 'dotted_eighth_note':
-        return AppLocalizations.of(context)!.dotted_eighth_note;
-      case 'twoBeatsTriplet':
-        return AppLocalizations.of(context)!.twoBeatsTriplet;
-      case 'sixteenth_note':
-        return AppLocalizations.of(context)!.sixteenth_note;
-      case 'dotted_sixteenth_note':
-        return AppLocalizations.of(context)!.dotted_sixteenth_note;
-      case 'oneBeatTriplet':
-        return AppLocalizations.of(context)!.oneBeatTriplet;
-      case 'oneBeatQuintuplet':
-        return AppLocalizations.of(context)!.oneBeatQuintuplet;
-      case 'oneBeatSextuplet':
-        return AppLocalizations.of(context)!.oneBeatSextuplet;
-      case 'thirty_second_note':
-        return AppLocalizations.of(context)!.thirty_second_note;
-      default:
-        return 'Unknown key: $key';
-    }
+    return AppLocalizations.of(context)!.get(key) ?? 'Unknown key: $key';
   }
 }

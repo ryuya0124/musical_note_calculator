@@ -18,8 +18,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
   int _selectedIndex = 2;  // 選択されたタブを管理
   Map<String, List<Map<String, String>>> _notes = {};
   Map<String, bool> _isExpanded = {
-    '32分音符': false,
-    '24分音符': false,
+    'thirty_second_note': false,
+    'oneBeatSextuplet': false,
     '16分音符': false,
     '12分音符': false,
     '8分音符': false,
@@ -118,13 +118,6 @@ class _CalculatorPageState extends State<CalculatorPage> {
     });
   }
 
-  double conversionNote(double bpm, double beforeNote, double afterNote, bool dotted){
-    if(dotted){
-      return bpm * (beforeNote / afterNote / 1.5);
-    }else{
-      return bpm * (beforeNote / afterNote);
-    }
-  }
   // カード内で音符の計算結果を表示
   Widget _buildNoteCard(String note, String bpm) {
     return Card(
