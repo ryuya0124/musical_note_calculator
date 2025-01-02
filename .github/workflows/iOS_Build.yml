@@ -33,7 +33,7 @@ jobs:
       run: flutter gen-l10n  # ローカライズファイルを生成
 
     - name: Build iOS app (debug)
-      run: flutter build ipa --debug --no-codesign  # iOSアプリのリリースビルド
+      run: flutter build ipa --debug  # iOSアプリのリリースビルド
 
     - name: Rename IPA file
       run: mv build/ios/ipa/Runner.ipa build/ios/ipa/musical_note_calculator.ipa  # IPAの名前を変更
