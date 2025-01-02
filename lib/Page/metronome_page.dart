@@ -292,6 +292,6 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   }
 
   String getLocalizedText(String key, BuildContext context) {
-    return AppLocalizations.of(context)!.getTranslation(key) ?? 'Unknown key: $key';
+    return AppLocalizations.of(context)!.getTranslation(key);
   }
 }

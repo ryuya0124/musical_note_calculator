@@ -77,7 +77,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
       elevation: 2,
       margin: EdgeInsets.symmetric(vertical: 5),
       child: ListTile(
-        title: Text('$note - BPM: $bpm'),
+        title: Text('${AppLocalizations.of(context)!.getTranslation(note)} - BPM: $bpm'),
       ),
     );
   }
@@ -88,7 +88,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
       padding: EdgeInsets.symmetric(vertical: 10.0), // ここで余白を追加
       child: Card(
         child: ExpansionTile(
-          title: Text(title),
+          title: Text(AppLocalizations.of(context)!.getTranslation(title)),
           trailing: Icon(_isExpanded[title]! ? Icons.expand_less : Icons.expand_more),
           onExpansionChanged: (bool expanded) {
             setState(() {

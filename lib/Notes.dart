@@ -19,7 +19,7 @@ final List<NoteData> notes = [
   NoteData('dotted_quarter_note', 4, true),
   NoteData('quarter_note', 4, false),
   NoteData('dotted_eighth_note', 8, true),
-  NoteData('twoBeatsTriplet', 10, false),
+  NoteData('twoBeatsTriplet', 6, false),
   NoteData('eighth_note', 8, false),
   NoteData('dotted_sixteenth_note', 16, true),
   NoteData('oneBeatTriplet', 12, false),
