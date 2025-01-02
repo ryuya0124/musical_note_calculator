@@ -2,7 +2,13 @@
 
 BPMや音符関連の計算をするアプリ<br>
 
-| ![image1](https://github.com/user-attachments/assets/96fd0d06-fc3d-430b-a02e-f13ad2c1c9d1) | ![image2](https://github.com/user-attachments/assets/1596c8f5-eeb8-45cd-a1fd-42935688498a) |
+| ![image1](https://github.com/user-attachments/assets/1044b4ce-ab2c-4f53-ae85-f30f5cc53e89) | ![image2](https://github.com/user-attachments/assets/393343ff-236a-4e67-8b15-b2fe7fb935d8) |
+| --- | --- |
+
+| ![image3](https://github.com/user-attachments/assets/957122b0-5773-4652-b27c-d6083a99a985)) | ![image4](https://github.com/user-attachments/assets/985dfaee-a90d-426c-a5c7-287c947d48f7)) |
+| --- | --- |
+
+| ![image5](https://github.com/user-attachments/assets/9602d4f8-51a3-4e98-b79d-3fd1302cd203) |  |
 | --- | --- |
 
 # ビルドについて
