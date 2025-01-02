@@ -6,6 +6,7 @@ import 'package:musical_note_calculator/extensions/app_localizations_extension.d
 import '../UI/bottom_navigation_bar.dart';
 import 'note_page.dart';
 import 'home_page.dart';
+import '../Notes.dart';
 
 class CalculatorPage extends StatefulWidget {
   @override
@@ -17,20 +18,17 @@ class _CalculatorPageState extends State<CalculatorPage> {
   final FocusNode bpmFocusNode = FocusNode();
   int _selectedIndex = 2;  // 選択されたタブを管理
   Map<String, List<Map<String, String>>> _notes = {};
-  Map<String, bool> _isExpanded = {
-    'thirty_second_note': false,
-    'oneBeatSextuplet': false,
-    'sixteenth_note': false,
-    'oneBeatTriplet': false,
-    'eighth_note': false,
-    'half_note cc': false,
-  };
+  late Map<String, bool> _isExpanded;
 
 
   @override
   void initState() {
     super.initState();
     bpmController.addListener(_calculateNotes);
+    //ドロップダウンの表示と非表示
+    _isExpanded = {
+      for (var note in notes) note.name: false,
+    };
   }
 
   @override

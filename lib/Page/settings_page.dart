@@ -12,7 +12,6 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appBarColor = Theme.of(context).primaryColor;
-    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
 
     return Scaffold(
       appBar: AppBarWidget(
@@ -126,7 +125,7 @@ class SettingsPage extends StatelessWidget {
               activeColor: appBarColor,
             ),
           );
-        }).toList(),
+        })
       ],
     );
   }
@@ -176,7 +175,6 @@ class SettingsPage extends StatelessWidget {
     try {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
-      print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to open the URL: $e')),
       );
