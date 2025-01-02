@@ -37,7 +37,7 @@ NoteData findNoteData(String name) {
   );
 }
 
-/// ノートを4分音符に換算した場合のBPMを計算する関数
+/// ノートをn分音符に換算した場合のBPMを計算する関数
 double calculateNoteBPM(double bpm, NoteData note, double afterNote) {
   if (note.dotted) {
     return bpm * (note.Note / afterNote) / 1.5;
@@ -52,13 +52,13 @@ double calculateNoteLength(double quarterNoteLength, double noteRatio, {bool isD
   return isDotted ? baseLength * 1.5 : baseLength;
 }
 
-
+/// 指定された時間 / ノーツの長さ (秒単位)
 double calculateNoteFrequency(double bpm, double unit, double note, {bool isDotted = false}) {
   //4分音符基準(計算式的に)
   note = note / 4;
 
   if(isDotted){
-    return bpm / (unit / note) * 1.5;
+    return bpm / (unit / note) / 1.5;
   } else {
     return bpm / (unit / note);
   }
