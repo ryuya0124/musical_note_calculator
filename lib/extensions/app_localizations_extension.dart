@@ -67,5 +67,4 @@ extension AppLocalizationsExtension on AppLocalizations {
         return 'Unknown key: $key';
     }
   }
-
 }

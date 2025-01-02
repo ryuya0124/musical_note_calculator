@@ -8,6 +8,7 @@ import 'package:musical_note_calculator/extensions/app_localizations_extension.d
 import '../UI/bottom_navigation_bar.dart';
 import 'calculator_page.dart';
 import 'note_page.dart';
+import '../Notes.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -264,32 +265,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         : 1.0;
 
     setState(() {
-      _notes = [
-        {'name': 'maxima', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 32), conversionFactor)},
-        {'name': 'longa', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 16), conversionFactor)},
-        {'name': 'double_whole_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 8), conversionFactor)},
-        {'name': 'whole_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 4), conversionFactor)},
-        {'name': 'dotted_half_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 2, isDotted: true), conversionFactor)},
-        {'name': 'half_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 2), conversionFactor)},
-        {'name': 'fourBeatsThreeConsecutive', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 4 / 3.0), conversionFactor)},
-        {'name': 'dotted_quarter_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1, isDotted: true), conversionFactor)},
-        {'name': 'quarter_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1), conversionFactor)},
-        {'name': 'dotted_eighth_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 2.0, isDotted: true), conversionFactor)},
-        {'name': 'twoBeatsTriplet', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 1.5), conversionFactor)},
-        {'name': 'eighth_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 2.0), conversionFactor)},
-        {'name': 'dotted_sixteenth_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 4.0, isDotted: true), conversionFactor)},
-        {'name': 'oneBeatTriplet', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 3.0), conversionFactor)},
-        {'name': 'sixteenth_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 4.0), conversionFactor)},
-        {'name': 'oneBeatQuintuplet', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 5.0), conversionFactor)},
-        {'name': 'oneBeatSextuplet', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 6.0), conversionFactor)},
-        {'name': 'thirty_second_note', 'duration': _formatDuration(_calculateNoteLength(quarterNoteLengthMs, 1 / 8.0), conversionFactor)},
-      ];
+      _notes = notes.map((note) {
+        double duration = calculateNoteLength(quarterNoteLengthMs, note.Note, isDotted: note.dotted);
+        return {
+          'name': note.name,
+          'duration': _formatDuration(duration, conversionFactor),
+        };
+      }).toList();
     });
-  }
-
-  double _calculateNoteLength(double quarterNoteLength, double multiplier, {bool isDotted = false}) {
-    double baseLength = quarterNoteLength * multiplier;
-    return isDotted ? baseLength + (baseLength / 2) : baseLength;
   }
 
   String _formatDuration(double duration, double conversionFactor) {

@@ -288,7 +288,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
     final noteData = findNoteData(note);
 
     // BPMを計算
-    return calculateNoteBPM(bpm, noteData);
+    return calculateNoteBPM(bpm, noteData, 4);
   }
 
   String getLocalizedText(String key, BuildContext context) {

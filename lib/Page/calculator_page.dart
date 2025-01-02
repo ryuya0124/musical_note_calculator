@@ -20,10 +20,10 @@ class _CalculatorPageState extends State<CalculatorPage> {
   Map<String, bool> _isExpanded = {
     'thirty_second_note': false,
     'oneBeatSextuplet': false,
-    '16分音符': false,
-    '12分音符': false,
-    '8分音符': false,
-    '2分音符': false,
+    'sixteenth_note': false,
+    'oneBeatTriplet': false,
+    'eighth_note': false,
+    'half_note cc': false,
   };
 
 
