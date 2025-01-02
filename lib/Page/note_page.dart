@@ -8,6 +8,7 @@ import '../settings_model.dart';
 import 'calculator_page.dart';
 import '../UI/app_bar.dart';
 import '../UI/bottom_navigation_bar.dart';
+import '../Notes.dart';
 
 class NotePage extends StatefulWidget {
   @override
@@ -191,7 +192,6 @@ class _NotePageState extends State<NotePage> {
     }
 
     final oneSecond = Duration(milliseconds: 1000);
-    final quarterNoteLengthMs = 60000.0 / bpm;
     final conversionFactor = selectedUnit == 's'
         ? 1 / 1000.0
         : selectedUnit == 'µs'
@@ -199,32 +199,29 @@ class _NotePageState extends State<NotePage> {
         : 1.0;
 
     setState(() {
-      _notes = [
-        {'name': 'maxima', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 32), conversionFactor)},
-        {'name': 'longa', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 16), conversionFactor)},
-        {'name': 'double_whole_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 8), conversionFactor)},
-        {'name': 'whole_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 4), conversionFactor)},
-        {'name': 'dotted_half_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 2, isDotted: true), conversionFactor)},
-        {'name': 'half_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 2), conversionFactor)},
-        {'name': 'fourBeatsThreeConsecutive', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 4 / 3.0), conversionFactor)},
-        {'name': 'dotted_quarter_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1, isDotted: true), conversionFactor)},
-        {'name': 'quarter_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1), conversionFactor)},
-        {'name': 'dotted_eighth_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 2.0, isDotted: true), conversionFactor)},
-        {'name': 'twoBeatsTriplet', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 1.5), conversionFactor)},
-        {'name': 'eighth_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 2.0), conversionFactor)},
-        {'name': 'dotted_sixteenth_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 4.0, isDotted: true), conversionFactor)},
-        {'name': 'oneBeatTriplet', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 3.0), conversionFactor)},
-        {'name': 'sixteenth_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 4.0), conversionFactor)},
-        {'name': 'oneBeatQuintuplet', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 5.0), conversionFactor)},
-        {'name': 'oneBeatSextuplet', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 6.0), conversionFactor)},
-        {'name': 'thirty_second_note', 'duration': _formatDuration( oneSecond.inMilliseconds / _calculateNoteLength(quarterNoteLengthMs, 1 / 8.0), conversionFactor)},
-      ];
+      _notes = notes.map((note) {
+        // ノートの長さを計算
+        final noteLength = _calculateNoteLength(
+          bpm,
+          note.Note,
+          isDotted: note.dotted,
+        );
+
+        // フォーマットしてリストに追加
+        return {
+          'name': note.name,
+          'duration': _formatDuration(oneSecond.inMilliseconds / noteLength, conversionFactor),
+        };
+      }).toList();
     });
   }
 
-  double _calculateNoteLength(double quarterNoteLength, double multiplier, {bool isDotted = false}) {
-    double baseLength = quarterNoteLength * multiplier;
-    return isDotted ? baseLength + (baseLength / 2) : baseLength;
+  double _calculateNoteLength(double bpm, double multiplier, {bool isDotted = false}) {
+    if(isDotted){
+      return bpm * ( 6 / multiplier * 1.5 );
+    } else {
+      return bpm * ( 6 / multiplier );
+    }
   }
 
   String _formatDuration(double duration, double conversionFactor) {
