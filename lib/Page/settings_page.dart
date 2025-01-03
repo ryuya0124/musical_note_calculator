@@ -33,6 +33,7 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  /// 1ページ目
   // ユニットのラベル部分を分離
   Widget buildTimeUnitLabel(BuildContext context, Color appBarColor) {
     return Text(
@@ -44,7 +45,7 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-// ユニット選択のドロップダウンボタン部分を分離
+  // ユニット選択のドロップダウンボタン部分を分離
   Widget buildTimeUnitDropdownButton(BuildContext context, Color appBarColor) {
     return DropdownButton<String>(
       value: context.watch<SettingsModel>().selectedUnit,
@@ -78,6 +79,52 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  /// 2ページ目
+  // ユニットのラベル部分を分離
+  Widget buildTimeScaleLabel(BuildContext context, Color appBarColor) {
+    return Text(
+      AppLocalizations.of(context)!.timescale,
+      style: TextStyle(
+        fontSize: 16,
+        color: appBarColor,
+      ),
+    );
+  }
+
+  // ユニット選択のドロップダウンボタン部分を分離
+  Widget buildTimeScaleDropdownButton(BuildContext context, Color appBarColor) {
+    return DropdownButton<String>(
+      value: context.watch<SettingsModel>().selectedTimeScale,
+      items: ['1s', '100ms', '10ms'].map((unit) {
+        return DropdownMenuItem<String>(
+          value: unit,
+          child: Text(unit),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          context.read<SettingsModel>().setTimeScale(value);
+        }
+      },
+      dropdownColor: Colors.white,
+      iconEnabledColor: appBarColor,
+    );
+  }
+
+// ユニット設定セクション全体を組み立て
+  Widget buildTimeScaleDropdownSection(BuildContext context, Color appBarColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildTimeScaleLabel(context, appBarColor),
+        Container(
+          margin: EdgeInsets.only(left: 8.0),
+          child: buildTimeScaleDropdownButton(context, appBarColor),
+        ),
+      ],
+    );
+  }
+
 // 表示設定セクションを構築
   Widget buildDisplaySettingsSection(BuildContext context, Color appBarColor) {
     return Column(
@@ -94,7 +141,9 @@ class SettingsPage extends StatelessWidget {
         SizedBox(height: 20),
         buildTimeUnitDropdownSection(context, appBarColor),
         SizedBox(height: 20),
-        buildNoteSettingsSection(context, appBarColor), // 他のセクションと組み合わせる
+        buildTimeScaleDropdownSection(context, appBarColor),
+        SizedBox(height: 20),
+        buildNoteSettingsSection(context, appBarColor),
       ],
     );
   }

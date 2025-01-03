@@ -19,13 +19,13 @@ class _NotePageState extends State<NotePage> {
   int _selectedIndex = 1;  // 選択されたタブを管理
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
-  late String selectedUnit;
+  late String selectedTimeScale;
   List<Map<String, String>> _notes = [];
 
   @override
   void initState() {
     super.initState();
-    selectedUnit = context.read<SettingsModel>().selectedUnit;
+    selectedTimeScale = context.read<SettingsModel>().selectedTimeScale;
     bpmController.addListener(_calculateNotes);
   }
 
@@ -52,6 +52,7 @@ class _NotePageState extends State<NotePage> {
         body: Column(
           children: [
             buildBpmInputSection(),
+            buildUnitSwitchSection(context),
             buildNotesList(enabledNotes, appBarColor),
           ],
         ),
@@ -90,6 +91,45 @@ class _NotePageState extends State<NotePage> {
         ),
       );
     }
+  }
+
+  // ユニット切り替えセクション
+  Widget buildUnitSwitchSection(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(right: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.timescale,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 10),
+          buildUnitDropdown(context),
+        ],
+      ),
+    );
+  }
+
+  Widget buildUnitDropdown(BuildContext context) {
+    return DropdownButton<String>(
+      value: selectedTimeScale,
+      items: ['1s', '100ms', '10ms'].map((String unit) {
+        return DropdownMenuItem<String>(
+          value: unit,
+          child: Text(unit),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          //context.read<SettingsModel>().setTimeScale(value);
+          setState(() {
+            selectedTimeScale = value;
+          });
+          _calculateNotes();
+        }
+      },
+    );
   }
 
   Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor) {
@@ -191,14 +231,21 @@ class _NotePageState extends State<NotePage> {
       return;
     }
 
-    double unit = 60;
+    final conversionFactor = selectedTimeScale == '1s'
+        ? 60.0  // 1秒の場合は60
+        : selectedTimeScale == '100ms'
+        ? 10 * 60 // 1ms
+        : selectedTimeScale == '10ms'
+        ? 100 * 60 // 1µs
+        : 60.0;  // その他の場合は60.0
+
 
     setState(() {
       _notes = notes.map((note) {
         // ノートの間隔を計算
         final noteLength = calculateNoteFrequency(
           bpm,
-          unit,
+          conversionFactor,
           note.Note,
           isDotted: note.dotted,
         );

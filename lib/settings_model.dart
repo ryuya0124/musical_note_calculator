@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsModel extends ChangeNotifier {
   String selectedUnit = 'ms';
+  String selectedTimeScale = '1s';
+
   Map<String, bool> enabledNotes = {
     'maxima': true,
     'longa': true,
@@ -34,6 +36,7 @@ class SettingsModel extends ChangeNotifier {
 
     // 時間単位の保存
     prefs.setString('selectedUnit', selectedUnit);
+    prefs.setString('selectedTimeScale',selectedTimeScale);
 
     // 音符の状態を保存
     List<String> noteKeys = enabledNotes.keys.toList();
@@ -49,6 +52,8 @@ class SettingsModel extends ChangeNotifier {
 
     // 時間単位を読み込む
     selectedUnit = prefs.getString('selectedUnit') ?? 'ms';
+
+    selectedTimeScale = prefs.getString('selectedTimeScale') ?? '1s';
 
     // 音符の状態を読み込む
     List<String>? noteKeys = prefs.getStringList('enabledNotesKeys');
@@ -67,6 +72,13 @@ class SettingsModel extends ChangeNotifier {
   // 時間単位の変更
   void setUnit(String unit) {
     selectedUnit = unit;
+    _saveSettings(); // 設定を保存
+    notifyListeners();
+  }
+
+  // 時間単位の変更(2ページ目)
+  void setTimeScale(String unit) {
+    selectedTimeScale = unit;
     _saveSettings(); // 設定を保存
     notifyListeners();
   }

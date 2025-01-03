@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       }).toList(),
       onChanged: (value) {
         if (value != null) {
-          context.read<SettingsModel>().setUnit(value);
+          //context.read<SettingsModel>().setUnit(value);
           setState(() {
             selectedUnit = value;
           });
@@ -163,7 +163,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-// ユニット切り替えセクション
+  // ユニット切り替えセクション
   Widget buildUnitSwitchSection(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(right: 16.0),

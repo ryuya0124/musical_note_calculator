@@ -53,7 +53,7 @@ double calculateNoteLength(double quarterNoteLength, double noteRatio, {bool isD
 }
 
 /// 指定された時間 / ノーツの長さ (秒単位)
-double calculateNoteFrequency(double bpm, double unit, double note, {bool isDotted = false}) {
+double calculateNoteFrequency(double bpm, num unit, double note, {bool isDotted = false}) {
   //4分音符基準(計算式的に)
   note = note / 4;
   //付点を考慮
