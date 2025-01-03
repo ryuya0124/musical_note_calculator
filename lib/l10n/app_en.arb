@@ -37,5 +37,25 @@
   "interval": "Interval",
   "note_spacing": "Note Spacing",
   "note_count": "Note Count",
-  "calculator": "Note Value Conversion"
+  "calculator": "Note Value Conversion",
+  "warningMessage": "Setting a high BPM may cause a crash.\nThe metronome feature is in beta.\nThe maximum BPM is {maxBpm}.",
+  "@warningMessage": {
+    "description": "BPM",
+    "placeholders": {
+      "maxBpm": {
+        "type": "String",
+        "example": "400"
+      }
+    }
+  },
+  "quarterNoteEquivalent": "Equivalent to a quarter note at BPM {bpm}",
+  "@quarterNoteEquivalent": {
+    "description": "BPM",
+    "placeholders": {
+      "bpm": {
+        "type": "String",
+        "example": "400"
+      }
+    }
+  }
 }

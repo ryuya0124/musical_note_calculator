@@ -37,5 +37,25 @@
   "interval": "間隔",
   "note_spacing": "音価計算",
   "note_count": "音符回数",
-  "calculator": "音価換算"
+  "calculator": "音価換算",
+  "warningMessage": "高速なBPMに設定するとクラッシュする可能性があります。\nメトロノーム機能はベータ版です。\n最大BPMは{maxBpm}です。",
+  "@warningMessage": {
+    "description": "BPM",
+    "placeholders": {
+      "maxBpm": {
+        "type": "String",
+        "example": "400"
+      }
+    }
+  },
+  "quarterNoteEquivalent": "BPM {bpm} の 4分音符相当",
+  "@quarterNoteEquivalent": {
+    "description": "BPM",
+    "placeholders": {
+      "bpm": {
+        "type": "String",
+        "example": "400"
+      }
+    }
+  }
 }

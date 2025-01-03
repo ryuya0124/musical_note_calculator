@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import 'package:metronome/metronome.dart';
 import '../Notes.dart';
+import 'package:intl/intl.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;
@@ -35,7 +36,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   // 音源のパス
   final String strongTick = 'metronome_tick_strong.wav';
   final String weakTick = 'metronome_tick_weak.wav';
-  final double maxBpm = 400;
+  final double maxBpm = 500;
 
   @override
   void initState() {
@@ -47,6 +48,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
 
     //速すぎると壊れるので速度制限
     if(bpm >= maxBpm) bpm = maxBpm;
+
 
     metronome.init('assets/${weakTick}',
       bpm: bpm.toInt(),
@@ -183,7 +185,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
                 const SizedBox(height: 20),
                 // 実質BPM表示
                 Text(
-                  '実質BPM ${convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(2)} の 4分音符',
+                  AppLocalizations.of(context)!.quarterNoteEquivalent(convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(2)),
                   style: const TextStyle(fontSize: 20),
                 ),
                 const SizedBox(height: 20),
@@ -213,8 +215,6 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
       ),
     );
   }
-
-
 // 注釈セクションを関数で定義
   Widget buildWarningSection(BuildContext context) {
     return Padding(
@@ -232,7 +232,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                '高速なBPMに設定するとクラッシュする可能性があります。\nメトロノーム機能はベータ版です。\n最大BPMは$maxBpmです。',
+                AppLocalizations.of(context)!.warningMessage(maxBpm.toStringAsFixed(2)),
                 style: TextStyle(color: Colors.red, fontSize: 14),
               ),
             ),
