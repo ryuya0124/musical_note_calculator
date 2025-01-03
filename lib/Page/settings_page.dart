@@ -5,6 +5,7 @@ import '../settings_model.dart';
 import '../UI/app_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 
 class SettingsPage extends StatelessWidget {
   final int _selectedIndex = 10;

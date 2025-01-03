@@ -9,6 +9,7 @@ import '../UI/bottom_navigation_bar.dart';
 import 'calculator_page.dart';
 import 'note_page.dart';
 import '../Notes.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 
 class HomePage extends StatefulWidget {
   @override

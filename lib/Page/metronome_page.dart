@@ -4,6 +4,7 @@ import 'package:musical_note_calculator/extensions/app_localizations_extension.d
 import 'package:metronome/metronome.dart';
 import '../Notes.dart';
 import 'package:intl/intl.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;

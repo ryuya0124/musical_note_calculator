@@ -9,6 +9,7 @@ import 'calculator_page.dart';
 import '../UI/app_bar.dart';
 import '../UI/bottom_navigation_bar.dart';
 import '../Notes.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 
 class NotePage extends StatefulWidget {
   @override
