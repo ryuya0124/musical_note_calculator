@@ -6,20 +6,25 @@ class BottomNavigationBarWidget extends StatelessWidget {
   final Function(int) onTabSelected;
 
   const BottomNavigationBarWidget({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.onTabSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return BottomNavigationBar(
-      currentIndex: selectedIndex,  // 現在選択されているインデックスを設定
+      currentIndex: selectedIndex, // 現在選択されているインデックスを設定
       onTap: (index) {
-        onTabSelected(index);  // タップされたインデックスをコールバックで渡す
+        onTabSelected(index); // タップされたインデックスをコールバックで渡す
       },
-      selectedItemColor: Theme.of(context).primaryColor, // 選択中の色をテーマカラーに設定
-      unselectedItemColor: Colors.grey, // 未選択時の色
+      selectedItemColor: colorScheme.primary, // 選択中のアイテムの色
+        unselectedItemColor: colorScheme.onSurface.withValues( // 非選択時の色を調整
+          alpha: (0.6 * 255), // 透明度を 0.6 に設定
+        ), // 未選択時の色を onSurface に変更
+      backgroundColor: colorScheme.surface, // 背景色
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.music_note),
@@ -36,4 +41,6 @@ class BottomNavigationBarWidget extends StatelessWidget {
       ],
     );
   }
+
+
 }
