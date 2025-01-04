@@ -6,6 +6,7 @@ import 'metronome_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../UI/bottom_navigation_bar.dart';
+import '../UI/bpm_input_section.dart';
 import 'calculator_page.dart';
 import 'note_page.dart';
 import '../Notes.dart';
@@ -66,7 +67,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
         body: Column(
           children: [
-            buildBpmInputSection(context),
+            BpmInputSection(
+              bpmController: bpmController,
+              bpmFocusNode: bpmFocusNode,
+            ),
             buildUnitSwitchSection(context),
             buildNotesList(enabledNotes, appBarColor),
           ],
@@ -106,54 +110,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
       );
     }
-  }
-
-  Widget buildBpmInputSection(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: bpmController,
-              focusNode: bpmFocusNode,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.bpm_input,
-                labelStyle: TextStyle(color: colorScheme.onSurface),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: colorScheme.primary),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.5)),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 8),
-          IconButton(
-            icon: Icon(Icons.add),
-            color: colorScheme.primary,
-            onPressed: () {
-              final currentValue = double.tryParse(bpmController.text) ?? 0;
-              bpmController.text = (currentValue + 1).toStringAsFixed(0);
-            },
-            splashColor: colorScheme.primary.withOpacity(0.2),
-          ),
-          IconButton(
-            icon: Icon(Icons.remove),
-            color: colorScheme.primary,
-            onPressed: () {
-              final currentValue = double.tryParse(bpmController.text) ?? 0;
-              bpmController.text = (currentValue - 1).clamp(0, double.infinity).toStringAsFixed(0);
-            },
-            splashColor: colorScheme.primary.withOpacity(0.2),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget buildUnitDropdown(BuildContext context) {
