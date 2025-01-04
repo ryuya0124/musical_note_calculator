@@ -52,7 +52,7 @@ class _NotePageState extends State<NotePage> {
         ),
         body: Column(
           children: [
-            buildBpmInputSection(),
+            buildBpmInputSection(context),
             buildUnitSwitchSection(context),
             buildNotesList(enabledNotes, appBarColor),
           ],
@@ -113,25 +113,37 @@ class _NotePageState extends State<NotePage> {
   }
 
   Widget buildUnitDropdown(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return DropdownButton<String>(
       value: selectedTimeScale,
       items: ['1s', '100ms', '10ms'].map((String unit) {
         return DropdownMenuItem<String>(
           value: unit,
-          child: Text(unit),
+          child: Text(
+            unit,
+            style: TextStyle(color: colorScheme.onSurface),
+          ),
         );
       }).toList(),
       onChanged: (value) {
         if (value != null) {
-          //context.read<SettingsModel>().setTimeScale(value);
           setState(() {
             selectedTimeScale = value;
           });
           _calculateNotes();
         }
       },
+      dropdownColor: colorScheme.surface, // ドロップダウンメニューの背景色
+      iconEnabledColor: colorScheme.primary, // ドロップダウンアイコンの色
+      style: TextStyle(color: colorScheme.onSurface), // 選択項目のテキスト色
+      underline: Container(
+        height: 2,
+        color: colorScheme.primary, // 下線の色
+      ),
     );
   }
+
 
   Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor) {
     return Expanded(
@@ -154,12 +166,15 @@ class _NotePageState extends State<NotePage> {
   }
 
   Widget buildNoteCard(Map<String, String> note, Color appBarColor, BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
+      color: colorScheme.surface, // カードの背景色（明るいテーマではsurface）
       child: ListTile(
         contentPadding: EdgeInsets.all(16),
         title: Text(
@@ -167,12 +182,13 @@ class _NotePageState extends State<NotePage> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
+            color: colorScheme.onSurface, // タイトルのテキスト色
           ),
         ),
         trailing: Text(
           note['duration']!,
           style: TextStyle(
-            color: appBarColor,
+            color: colorScheme.primary, // 重要な情報にはprimaryカラーを使用
             fontSize: 16,
           ),
         ),
@@ -180,7 +196,9 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
-  Widget buildBpmInputSection() {
+  Widget buildBpmInputSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -192,23 +210,34 @@ class _NotePageState extends State<NotePage> {
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.bpm_input,
+                labelStyle: TextStyle(color: colorScheme.onSurface),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colorScheme.primary),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.5)),
+                ),
               ),
             ),
           ),
           SizedBox(width: 8),
           IconButton(
             icon: Icon(Icons.add),
+            color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
               bpmController.text = (currentValue + 1).toStringAsFixed(0);
             },
+            splashColor: colorScheme.primary.withOpacity(0.2),
           ),
           IconButton(
             icon: Icon(Icons.remove),
+            color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
               bpmController.text = (currentValue - 1).clamp(0, double.infinity).toStringAsFixed(0);
             },
+            splashColor: colorScheme.primary.withOpacity(0.2),
           ),
         ],
       ),

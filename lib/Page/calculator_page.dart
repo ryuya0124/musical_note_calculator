@@ -73,39 +73,59 @@ class _CalculatorPageState extends State<CalculatorPage> {
   }
 
   // カード内で音符の計算結果を表示
-  Widget _buildNoteCard(String note, String bpm) {
+  Widget _buildNoteCard(String note, String bpm, BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       elevation: 2,
       margin: EdgeInsets.symmetric(vertical: 5),
+      color: colorScheme.surface, // カード背景色をテーマに適応
       child: ListTile(
-        title: Text('${AppLocalizations.of(context)!.getTranslation(note)} - BPM: $bpm'),
+        title: Text(
+          '${AppLocalizations.of(context)!.getTranslation(note)} - BPM: $bpm',
+          style: TextStyle(color: colorScheme.onSurface), // テキスト色をテーマに適応
+        ),
       ),
     );
   }
 
-  // 折りたたみボタン用のウィジェットを作成
-  Widget _buildNoteGroup(String title, List<Map<String, String>> notes) {
+// 折りたたみボタン用のウィジェットを作成
+  Widget _buildNoteGroup(String title, List<Map<String, String>> notes, BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10.0), // ここで余白を追加
       child: Card(
-        child: ExpansionTile(
-          title: Text(AppLocalizations.of(context)!.getTranslation(title)),
-          trailing: Icon(_isExpanded[title]! ? Icons.expand_less : Icons.expand_more),
-          onExpansionChanged: (bool expanded) {
-            setState(() {
-              _isExpanded[title] = expanded;
-            });
-          },
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0), // ExpansionTile内にpaddingを追加
-              child: Column(
-                children: notes.map((note) {
-                  return _buildNoteCard(note['note']!, note['bpm']!);
-                }).toList(),
-              ),
+        color: colorScheme.surface, // カード背景色をテーマに適応
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            dividerColor: colorScheme.outline, // Divider の色をテーマに合わせる
+            iconTheme: IconThemeData(color: colorScheme.primary), // アイコンの色
+          ),
+          child: ExpansionTile(
+            title: Text(
+              AppLocalizations.of(context)!.getTranslation(title),
+              style: TextStyle(color: colorScheme.onSurface), // タイトルの色をテーマに適応
             ),
-          ],
+            trailing: Icon(
+              _isExpanded[title]! ? Icons.expand_less : Icons.expand_more,
+            ),
+            onExpansionChanged: (bool expanded) {
+              setState(() {
+                _isExpanded[title] = expanded;
+              });
+            },
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0), // ExpansionTile内にpaddingを追加
+                child: Column(
+                  children: notes.map((note) {
+                    return _buildNoteCard(note['note']!, note['bpm']!, context);
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -119,11 +139,11 @@ class _CalculatorPageState extends State<CalculatorPage> {
       ),
       body: Column(
           children: [
-            buildBpmInputSection(),
+            buildBpmInputSection(context),
             Expanded(
               child: ListView(
                 children: _notes.keys.map((key) {
-                  return _buildNoteGroup(key, _notes[key]!);
+                  return _buildNoteGroup(key, _notes[key]!, context);
                 }).toList(),
               ),
             ),
@@ -136,7 +156,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-  Widget buildBpmInputSection() {
+  Widget buildBpmInputSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -148,23 +170,34 @@ class _CalculatorPageState extends State<CalculatorPage> {
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.bpm_input,
+                labelStyle: TextStyle(color: colorScheme.onSurface),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colorScheme.primary),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.5)),
+                ),
               ),
             ),
           ),
           SizedBox(width: 8),
           IconButton(
             icon: Icon(Icons.add),
+            color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
               bpmController.text = (currentValue + 1).toStringAsFixed(0);
             },
+            splashColor: colorScheme.primary.withOpacity(0.2),
           ),
           IconButton(
             icon: Icon(Icons.remove),
+            color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
               bpmController.text = (currentValue - 1).clamp(0, double.infinity).toStringAsFixed(0);
             },
+            splashColor: colorScheme.primary.withOpacity(0.2),
           ),
         ],
       ),
