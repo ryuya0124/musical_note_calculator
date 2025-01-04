@@ -5,28 +5,25 @@ import '../settings_model.dart';
 import '../UI/app_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
-import 'package:dynamic_color/dynamic_color.dart';
 
 class SettingsPage extends StatelessWidget {
   final int _selectedIndex = 10;
 
   @override
   Widget build(BuildContext context) {
-    final appBarColor = Theme.of(context).primaryColor;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBarWidget(
-          selectedIndex: _selectedIndex
-      ),
+      appBar: AppBarWidget(selectedIndex: _selectedIndex),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildDisplaySettingsSection(context, appBarColor),
+              buildDisplaySettingsSection(context, colorScheme),
               SizedBox(height: 40),
-              buildAuthorSection(context, appBarColor),
+              buildAuthorSection(context, colorScheme),
             ],
           ),
         ),
@@ -34,100 +31,75 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  /// 1ページ目
-  // ユニットのラベル部分を分離
-  Widget buildTimeUnitLabel(BuildContext context, Color appBarColor) {
-    return Text(
-      AppLocalizations.of(context)!.time_unit,
-      style: TextStyle(
-        fontSize: 16,
-        color: appBarColor,
-      ),
-    );
-  }
-
-  // ユニット選択のドロップダウンボタン部分を分離
-  Widget buildTimeUnitDropdownButton(BuildContext context, Color appBarColor) {
-    return DropdownButton<String>(
-      value: context.watch<SettingsModel>().selectedUnit,
-      items: ['ms', 's', 'µs'].map((unit) {
-        return DropdownMenuItem<String>(
-          value: unit,
-          child: Text(unit),
-        );
-      }).toList(),
-      onChanged: (value) {
-        if (value != null) {
-          context.read<SettingsModel>().setUnit(value);
-        }
-      },
-      dropdownColor: Colors.white,
-      iconEnabledColor: appBarColor,
-    );
-  }
-
-// ユニット設定セクション全体を組み立て
-  Widget buildTimeUnitDropdownSection(BuildContext context, Color appBarColor) {
+  Widget buildTimeUnitDropdownSection(BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildTimeUnitLabel(context, appBarColor),
+        Text(
+          AppLocalizations.of(context)!.time_unit,
+          style: TextStyle(
+            fontSize: 16,
+            color: colorScheme.primary,
+          ),
+        ),
         Container(
           margin: EdgeInsets.only(left: 8.0),
-          child: buildTimeUnitDropdownButton(context, appBarColor),
+          child: DropdownButton<String>(
+            value: context.watch<SettingsModel>().selectedUnit,
+            items: ['ms', 's', 'µs'].map((unit) {
+              return DropdownMenuItem<String>(
+                value: unit,
+                child: Text(unit),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                context.read<SettingsModel>().setUnit(value);
+              }
+            },
+            dropdownColor: colorScheme.surface,
+            iconEnabledColor: colorScheme.primary,
+          ),
         ),
       ],
     );
   }
 
-  /// 2ページ目
-  // ユニットのラベル部分を分離
-  Widget buildTimeScaleLabel(BuildContext context, Color appBarColor) {
-    return Text(
-      AppLocalizations.of(context)!.timescale,
-      style: TextStyle(
-        fontSize: 16,
-        color: appBarColor,
-      ),
-    );
-  }
-
-  // ユニット選択のドロップダウンボタン部分を分離
-  Widget buildTimeScaleDropdownButton(BuildContext context, Color appBarColor) {
-    return DropdownButton<String>(
-      value: context.watch<SettingsModel>().selectedTimeScale,
-      items: ['1s', '100ms', '10ms'].map((unit) {
-        return DropdownMenuItem<String>(
-          value: unit,
-          child: Text(unit),
-        );
-      }).toList(),
-      onChanged: (value) {
-        if (value != null) {
-          context.read<SettingsModel>().setTimeScale(value);
-        }
-      },
-      dropdownColor: Colors.white,
-      iconEnabledColor: appBarColor,
-    );
-  }
-
-// ユニット設定セクション全体を組み立て
-  Widget buildTimeScaleDropdownSection(BuildContext context, Color appBarColor) {
+  Widget buildTimeScaleDropdownSection(BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildTimeScaleLabel(context, appBarColor),
+        Text(
+          AppLocalizations.of(context)!.timescale,
+          style: TextStyle(
+            fontSize: 16,
+            color: colorScheme.primary,
+          ),
+        ),
         Container(
           margin: EdgeInsets.only(left: 8.0),
-          child: buildTimeScaleDropdownButton(context, appBarColor),
+          child: DropdownButton<String>(
+            value: context.watch<SettingsModel>().selectedTimeScale,
+            items: ['1s', '100ms', '10ms'].map((unit) {
+              return DropdownMenuItem<String>(
+                value: unit,
+                child: Text(unit),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                context.read<SettingsModel>().setTimeScale(value);
+              }
+            },
+            dropdownColor: colorScheme.surface,
+            iconEnabledColor: colorScheme.primary,
+          ),
         ),
       ],
     );
   }
 
-// 表示設定セクションを構築
-  Widget buildDisplaySettingsSection(BuildContext context, Color appBarColor) {
+  Widget buildDisplaySettingsSection(BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -136,20 +108,20 @@ class SettingsPage extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: appBarColor,
+            color: colorScheme.primary,
           ),
         ),
         SizedBox(height: 20),
-        buildTimeUnitDropdownSection(context, appBarColor),
+        buildTimeUnitDropdownSection(context, colorScheme),
         SizedBox(height: 20),
-        buildTimeScaleDropdownSection(context, appBarColor),
+        buildTimeScaleDropdownSection(context, colorScheme),
         SizedBox(height: 20),
-        buildNoteSettingsSection(context, appBarColor),
+        buildNoteSettingsSection(context, colorScheme),
       ],
     );
   }
 
-  Widget buildNoteSettingsSection(BuildContext context, Color appBarColor) {
+  Widget buildNoteSettingsSection(BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -158,7 +130,7 @@ class SettingsPage extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: appBarColor,
+            color: colorScheme.primary,
           ),
         ),
         SizedBox(height: 20),
@@ -166,13 +138,12 @@ class SettingsPage extends StatelessWidget {
           return Container(
             margin: EdgeInsets.only(left: 8.0),
             child: SwitchListTile(
-              // 言語ファイルから翻訳を取得
               title: Text(AppLocalizations.of(context)!.getTranslation(noteKey)),
               value: context.watch<SettingsModel>().enabledNotes[noteKey]!,
               onChanged: (bool value) {
                 context.read<SettingsModel>().toggleNoteEnabled(noteKey);
               },
-              activeColor: appBarColor,
+              activeColor: colorScheme.primary,
             ),
           );
         })
@@ -180,7 +151,7 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget buildAuthorSection(BuildContext context, Color appBarColor) {
+  Widget buildAuthorSection(BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -188,7 +159,7 @@ class SettingsPage extends StatelessWidget {
           AppLocalizations.of(context)!.author,
           style: TextStyle(
             fontSize: 16,
-            color: appBarColor,
+            color: colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -196,12 +167,18 @@ class SettingsPage extends StatelessWidget {
         Row(
           children: [
             IconButton(
-              icon: Image.asset('assets/github-mark.png', height: 30),
+              icon: Image.asset(
+                Theme.of(context).brightness == Brightness.light
+                    ? 'assets/github-mark.png'
+                    : 'assets/github-mark-white.png',
+                height: 30,
+              ),
               onPressed: () {
                 moveGithub(context);
               },
-              color: appBarColor,
+              color: Theme.of(context).colorScheme.primary,
             ),
+
             TextButton(
               onPressed: () {
                 moveGithub(context);
@@ -210,7 +187,7 @@ class SettingsPage extends StatelessWidget {
                 AppLocalizations.of(context)!.view_on_github,
                 style: TextStyle(
                   fontSize: 16,
-                  color: appBarColor,
+                  color: colorScheme.primary,
                 ),
               ),
             ),

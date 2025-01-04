@@ -7,7 +7,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
   const AppBarWidget({
     Key? key,
-    required this.selectedIndex
+    required this.selectedIndex,
   }) : super(key: key);
 
   @override
@@ -18,26 +18,33 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     List<String> tabNames = [
       AppLocalizations.of(context)!.note_spacing,
       AppLocalizations.of(context)!.note_count,
-      AppLocalizations.of(context)!.calculator];
+      AppLocalizations.of(context)!.calculator
+    ];
 
-    final appBarColor = Theme.of(context).primaryColor;
-    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    //設定画面以外
+    // 設定画面以外
     if (selectedIndex != 10) {
       return AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: appBarColor,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         title: Row(
           children: [
             Text(
               AppLocalizations.of(context)!.title,
-              style: titleTextStyle,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: colorScheme.onPrimary),
             ),
             SizedBox(width: 8), // タイトルとタブ名の間隔を調整
             Text(
-              tabNames[selectedIndex],  // 現在のタブ名を表示
-              style: titleTextStyle?.copyWith(fontSize: 18, fontWeight: FontWeight.normal),
+              tabNames[selectedIndex], // 現在のタブ名を表示
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colorScheme.onPrimary,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ],
         ),
@@ -50,28 +57,31 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                 MaterialPageRoute(builder: (context) => SettingsPage()),
               );
             },
-            color: titleTextStyle?.color,
+            color: colorScheme.onPrimary,
           ),
         ],
       );
 
-    //設定画面
+      // 設定画面
     } else {
       return AppBar(
-        backgroundColor: appBarColor,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         title: Text(
           AppLocalizations.of(context)!.settings,
-          style: titleTextStyle,
+          style: Theme.of(context)
+              .textTheme
+              .titleLarge
+              ?.copyWith(color: colorScheme.onPrimary),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context); // 戻るボタン
           },
-          color: titleTextStyle?.color, // 戻るアイコンの色を歯車と同じ色に設定
+          color: colorScheme.onPrimary, // 戻るアイコンの色を設定
         ),
       );
     }
-
   }
 }
