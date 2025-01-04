@@ -7,6 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../UI/bottom_navigation_bar.dart';
 import '../UI/bpm_input_section.dart';
+import '../UI/unit_dropdown.dart';
 import 'calculator_page.dart';
 import 'note_page.dart';
 import '../Notes.dart';
@@ -22,7 +23,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final FocusNode bpmFocusNode = FocusNode();
   late String selectedUnit;
   List<Map<String, String>> _notes = [];
+  //単位選択
+  List<String> units = ['s', 'ms', 'µs'];
+
   int _selectedIndex = 0;  // 選択されたタブを管理
+
+  void _handleUnitChange(String newUnit) {
+    setState(() {
+      selectedUnit = newUnit;
+    });
+    _calculateNotes();
+  }
 
   @override
   void initState() {
@@ -112,38 +123,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  Widget buildUnitDropdown(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return DropdownButton<String>(
-      value: selectedUnit,
-      items: ['ms', 's', 'µs'].map((String unit) {
-        return DropdownMenuItem<String>(
-          value: unit,
-          child: Text(
-            unit,
-            style: TextStyle(color: colorScheme.onSurface),
-          ),
-        );
-      }).toList(),
-      onChanged: (value) {
-        if (value != null) {
-          setState(() {
-            selectedUnit = value;
-          });
-          _calculateNotes();
-        }
-      },
-      dropdownColor: colorScheme.surface, // ドロップダウンメニューの背景色
-      iconEnabledColor: colorScheme.primary, // ドロップダウンアイコンの色
-      style: TextStyle(color: colorScheme.onSurface), // 選択項目のテキスト色
-      underline: Container(
-        height: 2,
-        color: colorScheme.primary, // 下線の色
-      ),
-    );
-  }
-
   // ユニット切り替えセクション
   Widget buildUnitSwitchSection(BuildContext context) {
     return Container(
@@ -156,7 +135,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(width: 10),
-          buildUnitDropdown(context),
+          UnitDropdown(
+            selectedUnit: selectedUnit,
+            units: units,
+            onChanged: _handleUnitChange, // 選択時のコールバックを設定
+          ),
         ],
       ),
     );

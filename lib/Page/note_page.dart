@@ -9,6 +9,7 @@ import 'calculator_page.dart';
 import '../UI/app_bar.dart';
 import '../UI/bottom_navigation_bar.dart';
 import '../UI/bpm_input_section.dart';
+import '../UI/unit_dropdown.dart';
 import '../Notes.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 
@@ -23,6 +24,15 @@ class _NotePageState extends State<NotePage> {
   final FocusNode bpmFocusNode = FocusNode();
   late String selectedTimeScale;
   List<Map<String, String>> _notes = [];
+  //単位選択
+  List<String> units = ['1s', '100ms', '10ms'];
+
+  void _handleUnitChange(String newUnit) {
+    setState(() {
+      selectedTimeScale = newUnit;
+    });
+    _calculateNotes();
+  }
 
   @override
   void initState() {
@@ -110,44 +120,15 @@ class _NotePageState extends State<NotePage> {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(width: 10),
-          buildUnitDropdown(context),
+          UnitDropdown(
+            selectedUnit: selectedTimeScale,
+            units: units,
+            onChanged: _handleUnitChange, // 選択時のコールバックを設定
+          ),
         ],
       ),
     );
   }
-
-  Widget buildUnitDropdown(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return DropdownButton<String>(
-      value: selectedTimeScale,
-      items: ['1s', '100ms', '10ms'].map((String unit) {
-        return DropdownMenuItem<String>(
-          value: unit,
-          child: Text(
-            unit,
-            style: TextStyle(color: colorScheme.onSurface),
-          ),
-        );
-      }).toList(),
-      onChanged: (value) {
-        if (value != null) {
-          setState(() {
-            selectedTimeScale = value;
-          });
-          _calculateNotes();
-        }
-      },
-      dropdownColor: colorScheme.surface, // ドロップダウンメニューの背景色
-      iconEnabledColor: colorScheme.primary, // ドロップダウンアイコンの色
-      style: TextStyle(color: colorScheme.onSurface), // 選択項目のテキスト色
-      underline: Container(
-        height: 2,
-        color: colorScheme.primary, // 下線の色
-      ),
-    );
-  }
-
 
   Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor) {
     return Expanded(
