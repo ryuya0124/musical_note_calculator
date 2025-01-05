@@ -32,7 +32,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   // 最後に状態を更新した時間を保持
   int lastUpdatedTime = 0;
 
-  String getMetronomeIcon(BuildContext context,  [bool isLeft = true]) {
+  String getMetronomeIcon(BuildContext context, bool isLeft) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     if (isLeft) {
       return isDarkMode ? 'assets/metronome-left-white.png' : 'assets/metronome-left.png';
@@ -46,6 +46,8 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   final String strongTick = 'metronome_tick_strong.wav';
   final String weakTick = 'metronome_tick_weak.wav';
   final double maxBpm = 500;
+
+  bool isLeftIcon = false;
 
   @override
   void initState() {
@@ -68,7 +70,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
     );
 
     // アイコンの状態を管理する変数
-    bool isLeftIcon = true;
+    isLeftIcon = true;
 
     metronome.onListenTick((_) {
       final currentTime = DateTime.now().millisecondsSinceEpoch;
@@ -190,8 +192,8 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 100),
       child: Image.asset(
-        getMetronomeIcon(context),
-        key: ValueKey<String>(getMetronomeIcon(context)),
+        getMetronomeIcon(context,isLeftIcon),
+        key: ValueKey<String>(getMetronomeIcon(context,isLeftIcon)),
         height: screenHeight * 0.3,
         gaplessPlayback: true,
       ),
