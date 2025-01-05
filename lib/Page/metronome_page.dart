@@ -41,7 +41,6 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
     }
   }
 
-
   // 音源のパス
   final String strongTick = 'metronome_tick_strong.wav';
   final String weakTick = 'metronome_tick_weak.wav';

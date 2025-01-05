@@ -143,13 +143,17 @@ class SettingsPage extends StatelessWidget {
               onChanged: (bool value) {
                 context.read<SettingsModel>().toggleNoteEnabled(noteKey);
               },
-              activeColor: colorScheme.primary,
+              activeColor: colorScheme.primary, // スイッチがONのときのスライダー色
+              activeTrackColor: colorScheme.onPrimary, // ON時のトラック色
+              inactiveThumbColor: colorScheme.onSurface.withOpacity(0.6), // OFF時のスライダー色
+              inactiveTrackColor: colorScheme.onSurface.withOpacity(0.3), // OFF時のトラック色
             ),
           );
         })
       ],
     );
   }
+
 
   Widget buildAuthorSection(BuildContext context, ColorScheme colorScheme) {
     return Column(
