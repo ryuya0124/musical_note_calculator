@@ -7,7 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
 class SettingsPage extends StatelessWidget {
-  final int _selectedIndex = 10;
+  final int _selectedIndex = 4;
 
   @override
   Widget build(BuildContext context) {

@@ -5,6 +5,7 @@ import 'package:metronome/metronome.dart';
 import '../Notes.dart';
 import 'package:intl/intl.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import '../UI/app_bar.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;
@@ -19,6 +20,7 @@ class MetronomePage extends StatefulWidget {
 
 class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserver {
 
+  final _selectedIndex = 3;
   bool isPlaying = false;
   late Duration interval;
   late String note;
@@ -146,68 +148,29 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
 
   @override
   Widget build(BuildContext context) {
-    final appBarColor = Theme.of(context).primaryColor;
-    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
-
-    // 画面の高さを取得
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: buildAppBar(context, appBarColor, titleTextStyle),
+      appBar: AppBarWidget(selectedIndex: _selectedIndex),
       body: Center(
-        child: SingleChildScrollView(  // 画面が小さくてもスクロールできるように変更
+        child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),  // 横の余白を調整
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // アイコンのアニメーションを追加
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 100), // アニメーションの速度
-                  child: Image.asset(
-                    metronomeIcon,
-                    key: ValueKey<String>(metronomeIcon),
-                    height: screenHeight * 0.3, // 高さは画面の30%に調整
-                    gaplessPlayback: true,
-                  ),
-                ),
+                buildAnimatedIcon(screenHeight, context),
                 const SizedBox(height: 20),
-                // BPM表示
-                Text(
-                  '${AppLocalizations.of(context)!.bpm}: ${widget.bpm}',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
+                buildBpmDisplay(context),
                 const SizedBox(height: 20),
-                // ノート表示
-                Text(
-                  '${getLocalizedText(note, context)}: $intervalTime',
-                  style: const TextStyle(fontSize: 20, fontStyle: FontStyle.italic),
-                ),
+                buildNoteDisplay(context),
                 const SizedBox(height: 20),
-                // 実質BPM表示
-                Text(
-                  AppLocalizations.of(context)!.quarterNoteEquivalent(convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(2)),
-                  style: const TextStyle(fontSize: 20),
-                ),
+                buildQuarterNoteEquivalent(context),
                 const SizedBox(height: 20),
-                // メトロノームの開始/停止ボタン
-                ElevatedButton(
-                  onPressed: toggleMetronome,
-                  child: Text(
-                    isPlaying
-                        ? AppLocalizations.of(context)!.stop
-                        : AppLocalizations.of(context)!.start,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
-                    textStyle: const TextStyle(fontSize: 18),
-                  ),
-                ),
+                buildToggleButton(context),
                 const SizedBox(height: 20),
-                // ボリュームスライダー
-                volumeBar(),
+                buildVolumeBar(context),
                 const SizedBox(height: 20),
-                // 注釈セクション
                 buildWarningSection(context),
               ],
             ),
@@ -216,25 +179,134 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
       ),
     );
   }
-// 注釈セクションを関数で定義
+
+  Widget buildAnimatedIcon(double screenHeight, BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDarkMode = colorScheme.brightness == Brightness.dark;
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 100),
+      child: ColorFiltered(
+        colorFilter: isDarkMode
+            ? const ColorFilter.matrix([
+          -1,  0,  0,  0, 255, // 赤の反転
+          0, -1,  0,  0, 255, // 緑の反転
+          0,  0, -1,  0, 255, // 青の反転
+          0,  0,  0,  1,   0, // アルファはそのまま
+        ])
+            : const ColorFilter.mode(
+            Colors.transparent, BlendMode.dst), // 反転なし
+        child: Container(
+          decoration: BoxDecoration(
+            color: colorScheme.surface, // 背景色をテーマに合わせる
+            borderRadius: BorderRadius.circular(8), // 角を丸く調整
+          ),
+          padding: const EdgeInsets.all(8.0), // アイコン周りの余白を追加
+          child: Image.asset(
+            metronomeIcon,
+            key: ValueKey<String>(metronomeIcon),
+            height: screenHeight * 0.3,
+            gaplessPlayback: true,
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Widget buildBpmDisplay(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Text(
+      '${AppLocalizations.of(context)!.bpm}: ${widget.bpm}',
+      style: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: colorScheme.onBackground, // 背景に適したテキスト色
+      ),
+    );
+  }
+
+  Widget buildNoteDisplay(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Text(
+      '${getLocalizedText(note, context)}: $intervalTime',
+      style: TextStyle(
+        fontSize: 20,
+        fontStyle: FontStyle.italic,
+        color: colorScheme.onSurfaceVariant, // 補助的な色で調整
+      ),
+    );
+  }
+
+
+  Widget buildQuarterNoteEquivalent(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Text(
+      AppLocalizations.of(context)!.quarterNoteEquivalent(
+        convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(2),
+      ),
+      style: TextStyle(
+        fontSize: 20,
+        color: colorScheme.onBackground, // 背景に適したテキスト色
+      ),
+    );
+  }
+
+
+  Widget buildToggleButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ElevatedButton(
+      onPressed: toggleMetronome,
+      child: Text(
+        isPlaying
+            ? AppLocalizations.of(context)!.stop
+            : AppLocalizations.of(context)!.start,
+      ),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
+        textStyle: const TextStyle(fontSize: 18),
+        backgroundColor: isPlaying
+            ? colorScheme.error // 再生中はエラー色（例: 赤）
+            : colorScheme.primary, // 停止中はプライマリ色（例: 青）
+        foregroundColor: colorScheme.onPrimary, // テキスト色（プライマリ色に対する適切な色）
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0), // ボタンの角を丸く
+        ),
+      ),
+    );
+  }
+
+  // 注釈セクションを関数で定義
   Widget buildWarningSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // 背景色を調整（テーマのエラー色を薄くする）
+    final adjustedBackgroundColor = colorScheme.error.withOpacity(0.1);
+
     return Padding(
       padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
       child: Container(
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.red, width: 2),
+          border: Border.all(color: colorScheme.error, width: 2), // ボーダー色はそのままエラー色
           borderRadius: BorderRadius.circular(8),
-          color: Colors.white,
+          color: adjustedBackgroundColor, // 薄くした背景色
         ),
         child: Row(
           children: [
-            Icon(Icons.warning, color: Colors.red),
+            Icon(Icons.warning, color: colorScheme.error), // アイコン色
             SizedBox(width: 10),
             Expanded(
               child: Text(
                 AppLocalizations.of(context)!.warningMessage(maxBpm.toStringAsFixed(2)),
-                style: TextStyle(color: Colors.red, fontSize: 14),
+                style: TextStyle(
+                  color: colorScheme.onSurface, // 読みやすいテキスト色
+                  fontSize: 14,
+                ),
               ),
             ),
           ],
@@ -243,12 +315,17 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
     );
   }
 
-  Widget volumeBar() {
+  Widget buildVolumeBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       children: [
         Text(
           'Volume: $vol%',
-          style: const TextStyle(fontSize: 20),
+          style: TextStyle(
+            fontSize: 20,
+            color: colorScheme.onSurface, // テーマに基づくテキストカラー
+          ),
         ),
         Slider(
           value: vol.toDouble(),
@@ -259,27 +336,13 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
             setState(() {
               vol = val.toInt();
             });
-            metronome.setVolume(vol);  // 音量を即時に反映させる
+            metronome.setVolume(vol); // 音量を即時に反映させる
           },
+          activeColor: colorScheme.primary, // スライダーのアクティブ部分の色
+          inactiveColor: colorScheme.onSurface.withOpacity(0.3), // スライダーの非アクティブ部分の色
+          thumbColor: colorScheme.primary, // スライダーのサム（つまみ）の色
         ),
       ],
-    );
-  }
-
-  AppBar buildAppBar(BuildContext context, Color appBarColor, TextStyle? titleTextStyle) {
-    return AppBar(
-      backgroundColor: appBarColor,
-      title: Text(
-        AppLocalizations.of(context)!.metronome + ' - ' + AppLocalizations.of(context)!.getTranslation(widget.note),
-        style: titleTextStyle,
-      ),
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        color: titleTextStyle?.color,
-      ),
     );
   }
 

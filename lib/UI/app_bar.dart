@@ -6,9 +6,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final int selectedIndex;
 
   const AppBarWidget({
-    Key? key,
+    super.key,
     required this.selectedIndex,
-  }) : super(key: key);
+  });
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
@@ -18,7 +18,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     List<String> tabNames = [
       AppLocalizations.of(context)!.note_spacing,
       AppLocalizations.of(context)!.note_count,
-      AppLocalizations.of(context)!.calculator
+      AppLocalizations.of(context)!.calculator,
+      AppLocalizations.of(context)!.metronome,
+      AppLocalizations.of(context)!.settings
     ];
 
     final colorScheme = Theme.of(context).colorScheme;
@@ -28,7 +30,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     final tabTextColor = colorScheme.onSurface; // タブ名のテキスト色
 
     // 設定画面以外
-    if (selectedIndex != 10) {
+    if (selectedIndex != 3 && selectedIndex != 4) {
       return AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: colorScheme.onPrimary, // 背景色をテーマの onPrimary に
@@ -66,12 +68,12 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         ],
       );
     } else {
-      // 設定画面
+      // 設定またはメトロノーム画面
       return AppBar(
         backgroundColor: colorScheme.onPrimary, // 背景色をテーマの onPrimary に
         foregroundColor: colorScheme.primary, // アイコンの色をテーマの primary に
         title: Text(
-          AppLocalizations.of(context)!.settings,
+          tabNames[selectedIndex], // 現在のタブ名を表示
           style: Theme.of(context)
               .textTheme
               .titleLarge

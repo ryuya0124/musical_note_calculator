@@ -85,7 +85,7 @@ class _NotePageState extends State<NotePage> {
     });
 
     // 選択されたインデックスに応じてページ遷移
-    if (index == 0) {  // NotePage のタブ
+    if (index == 0) {  // HomePage のタブ
       Navigator.push(
         context,
         PageRouteBuilder(
