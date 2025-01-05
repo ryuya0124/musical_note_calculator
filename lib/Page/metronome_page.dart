@@ -32,9 +32,15 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   // 最後に状態を更新した時間を保持
   int lastUpdatedTime = 0;
 
-  String metronomeIcon = 'assets/metronome-left.png';
-  String metronomeIconRight = 'assets/metronome-right.png';
-  String metronomeIconLeft = 'assets/metronome-left.png';
+  String getMetronomeIcon(BuildContext context,  [bool isLeft = true]) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    if (isLeft) {
+      return isDarkMode ? 'assets/metronome-left-white.png' : 'assets/metronome-left.png';
+    } else {
+      return isDarkMode ? 'assets/metronome-right-white.png' : 'assets/metronome-right.png';
+    }
+  }
+
 
   // 音源のパス
   final String strongTick = 'metronome_tick_strong.wav';
@@ -61,24 +67,24 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
       enableTickCallback: true,
     );
 
-    //アイコン左右切り替え
+    // アイコンの状態を管理する変数
+    bool isLeftIcon = true;
+
     metronome.onListenTick((_) {
       final currentTime = DateTime.now().millisecondsSinceEpoch;
 
-      // 最後の更新から50ms以上経過した場合のみ更新を行う
+      // 最後の更新から150ms以上経過した場合のみ更新を行う
       if (currentTime - lastUpdatedTime >= 150) {
         setState(() {
-          if (metronomeIcon == metronomeIconRight) {
-            metronomeIcon = metronomeIconLeft;
-          } else {
-            metronomeIcon = metronomeIconRight;
-          }
+          // アイコンの状態を切り替え
+          isLeftIcon = !isLeftIcon;
 
           // 最後に更新した時間を記録
           lastUpdatedTime = currentTime;
         });
       }
     });
+
   }
 
   @override
@@ -181,38 +187,16 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
   }
 
   Widget buildAnimatedIcon(double screenHeight, BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDarkMode = colorScheme.brightness == Brightness.dark;
-
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 100),
-      child: ColorFiltered(
-        colorFilter: isDarkMode
-            ? const ColorFilter.matrix([
-          -1,  0,  0,  0, 255, // 赤の反転
-          0, -1,  0,  0, 255, // 緑の反転
-          0,  0, -1,  0, 255, // 青の反転
-          0,  0,  0,  1,   0, // アルファはそのまま
-        ])
-            : const ColorFilter.mode(
-            Colors.transparent, BlendMode.dst), // 反転なし
-        child: Container(
-          decoration: BoxDecoration(
-            color: colorScheme.surface, // 背景色をテーマに合わせる
-            borderRadius: BorderRadius.circular(8), // 角を丸く調整
-          ),
-          padding: const EdgeInsets.all(8.0), // アイコン周りの余白を追加
-          child: Image.asset(
-            metronomeIcon,
-            key: ValueKey<String>(metronomeIcon),
-            height: screenHeight * 0.3,
-            gaplessPlayback: true,
-          ),
-        ),
+      child: Image.asset(
+        getMetronomeIcon(context),
+        key: ValueKey<String>(getMetronomeIcon(context)),
+        height: screenHeight * 0.3,
+        gaplessPlayback: true,
       ),
     );
   }
-
 
   Widget buildBpmDisplay(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
