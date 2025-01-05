@@ -5,8 +5,7 @@ import 'settings_model.dart'; // SettingsModelのインポート
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
-import 'Theme/dark.dart';
-import 'Theme/light.dart';
+import 'Theme/custom_theme.dart';
 import 'Theme/Material_dark.dart';
 import 'Theme/Material_light.dart';
 
@@ -41,10 +40,10 @@ class MyApp extends StatelessWidget {
           title: 'MyApp',
           theme: isDynamicColorAvailable
               ? materialLightTheme(lightDynamic) // ダイナミックカラーが使用可能な場合
-              : lightTheme(), // ダイナミックカラーが使えない場合
+              : ThemeData.from(colorScheme: MaterialTheme.lightScheme()), // カスタムテーマのライトモード
           darkTheme: isDynamicColorAvailable
               ? materialDarkTheme(darkDynamic) // ダイナミックカラーが使用可能な場合
-              : darkTheme(), // ダイナミックカラーが使えない場合
+              : ThemeData.from(colorScheme: MaterialTheme.darkScheme()), // カスタムテーマのダークモード
           debugShowCheckedModeBanner: false,
           home: HomePage(), // HomePageを指定
         );
