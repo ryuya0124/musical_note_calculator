@@ -126,14 +126,17 @@ class SettingsModel extends ChangeNotifier {
 
   // カスタムノートの追加
   void addCustomNote(String name, double value, bool dotted) {
-    customNotes.add(NoteData(name, value, dotted));
+    customNotes.add(NoteData(name, value, dotted)); // カスタムノートを追加
+    enabledNotes[name] = true; // enabledNotesに登録し、デフォルトでtrueに設定
     _saveCustomNotes(); // 保存
     notifyListeners();
   }
 
-  // カスタムノートの削除
+// カスタムノートの削除
   void removeCustomNoteAt(int index) {
-    customNotes.removeAt(index);
+    final noteName = customNotes[index].name; // 削除対象のノート名を取得
+    customNotes.removeAt(index); // カスタムノートリストから削除
+    enabledNotes.remove(noteName); // enabledNotesからも削除
     _saveCustomNotes(); // 保存
     notifyListeners();
   }
