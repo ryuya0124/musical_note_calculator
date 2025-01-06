@@ -63,3 +63,13 @@ double calculateNoteFrequency(double bpm, num unit, double note, {bool isDotted 
     return bpm / (unit / note);
   }
 }
+
+/// Noteリストに音符を追加
+void registerNoteData(String name, double value, bool isDotted) {
+  notes.add(NoteData(name, value, isDotted));
+}
+
+/// Noteリストから音符を削除
+void removeNoteData(String name) {
+  notes.removeWhere((note) => note.name == name);
+}
