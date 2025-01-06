@@ -62,5 +62,6 @@
   "custom_notes": "Custom notes",
   "note_name": "Note name",
   "note_value": "Length of note (number)",
-  "add_note": "Add notes"
+  "add_note": "Add notes",
+  "dotted_note": "Dotted note"
 }

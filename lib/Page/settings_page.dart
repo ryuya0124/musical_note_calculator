@@ -6,9 +6,26 @@ import '../UI/app_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  SettingsPageState createState() => SettingsPageState();
+}
+
+class SettingsPageState extends State<SettingsPage> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController valueController = TextEditingController();
+  bool isDotted = false; // 付点音符フラグ
+
   final int _selectedIndex = 4;
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    valueController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -206,8 +223,6 @@ class SettingsPage extends StatelessWidget {
 
   Widget buildCustomNotesSection(BuildContext context, ColorScheme colorScheme) {
     final settingsModel = context.watch<SettingsModel>();
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController valueController = TextEditingController();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +243,7 @@ class SettingsPage extends StatelessWidget {
           itemBuilder: (context, index) {
             final note = settingsModel.customNotes[index];
             return ListTile(
-              title: Text("${note.name} (${note.note}分音符)"),
+              title: Text("${note.name} (${note.note}分音符${note.dotted ? " (付点)" : ""})"),
               trailing: IconButton(
                 icon: Icon(Icons.delete, color: colorScheme.error),
                 onPressed: () {
@@ -244,28 +259,48 @@ class SettingsPage extends StatelessWidget {
             Expanded(
               child: TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.note_name),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.note_name,
+                ),
               ),
             ),
             SizedBox(width: 10),
             Expanded(
               child: TextField(
                 controller: valueController,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.note_value),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.note_value,
+                ),
                 keyboardType: TextInputType.number,
               ),
             ),
           ],
         ),
         SizedBox(height: 10),
+        Row(
+          children: [
+            Checkbox(
+              value: isDotted,
+              onChanged: (bool? value) {
+                setState(() {
+                  isDotted = value ?? false;
+                });
+              },
+            ),
+            Text(AppLocalizations.of(context)!.dotted_note), // 付点音符ラベル
+          ],
+        ),
         ElevatedButton(
           onPressed: () {
             String name = nameController.text.trim();
             double? value = double.tryParse(valueController.text.trim());
             if (name.isNotEmpty && value != null) {
-              context.read<SettingsModel>().addCustomNote(name, value);
+              context.read<SettingsModel>().addCustomNote(name, value, isDotted);
               nameController.clear();
               valueController.clear();
+              setState(() {
+                isDotted = false; // チェックボックスをリセット
+              });
             }
           },
           child: Text(AppLocalizations.of(context)!.add_note),

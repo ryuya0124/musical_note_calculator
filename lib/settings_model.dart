@@ -125,8 +125,8 @@ class SettingsModel extends ChangeNotifier {
   }
 
   // カスタムノートの追加
-  void addCustomNote(String name, double value) {
-    customNotes.add(NoteData(name, value, false));
+  void addCustomNote(String name, double value, bool dotted) {
+    customNotes.add(NoteData(name, value, dotted));
     _saveCustomNotes(); // 保存
     notifyListeners();
   }
