@@ -33,10 +33,21 @@ jobs:
       run: flutter gen-l10n  # ローカライズファイルを生成
 
     - name: Build iOS app (debug)
-      run: flutter build ipa --debug  # iOSアプリのリリースビルド
+      run: flutter build ios --release --no-codesign  # iOSアプリのリリースビルド
+
+    - name: Create Payload folder and move app
+      run: |
+        mkdir -p build/ios/ipa/Payload
+        mv build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+
+    - name: Zip Payload folder to create IPA
+      run: |
+        cd build/ios/ipa
+        zip -r Runner.ipa Payload
 
     - name: Rename IPA file
-      run: mv build/ios/ipa/Runner.ipa build/ios/ipa/musical_note_calculator.ipa  # IPAの名前を変更
+      run: |
+        mv build/ios/ipa/Runner.ipa build/ios/ipa/musical_note_calculator.ipa
 
     - name: Upload IPA as artifact
       uses: actions/upload-artifact@v3
