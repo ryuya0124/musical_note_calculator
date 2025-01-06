@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import 'package:metronome/metronome.dart';
-import '../Notes.dart';
-import 'package:intl/intl.dart';
-import 'package:dynamic_color/dynamic_color.dart';
+import '../notes.dart';
 import '../UI/app_bar.dart';
 
 class MetronomePage extends StatefulWidget {
@@ -12,13 +10,13 @@ class MetronomePage extends StatefulWidget {
   final String note;
   final String interval;
 
-  const MetronomePage({required this.bpm, required this.note, required this.interval});
+  const MetronomePage({super.key, required this.bpm, required this.note, required this.interval});
 
   @override
-  _MetronomePageState createState() => _MetronomePageState();
+  MetronomePageState createState() => MetronomePageState();
 }
 
-class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserver {
+class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserver {
 
   final _selectedIndex = 3;
   bool isPlaying = false;
@@ -60,7 +58,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
     if(bpm >= maxBpm) bpm = maxBpm;
 
 
-    metronome.init('assets/${weakTick}',
+    metronome.init('assets/$weakTick',
       bpm: bpm.toInt(),
       volume: 100,
       //When set to true, the music of other apps will stop when the metronome is played.
@@ -207,7 +205,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
       style: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.bold,
-        color: colorScheme.onBackground, // 背景に適したテキスト色
+        color: colorScheme.onSurface, // 背景に適したテキスト色
       ),
     );
   }
@@ -235,7 +233,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
       ),
       style: TextStyle(
         fontSize: 20,
-        color: colorScheme.onBackground, // 背景に適したテキスト色
+        color: colorScheme.onSurface, // 背景に適したテキスト色
       ),
     );
   }
@@ -246,11 +244,6 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
 
     return ElevatedButton(
       onPressed: toggleMetronome,
-      child: Text(
-        isPlaying
-            ? AppLocalizations.of(context)!.stop
-            : AppLocalizations.of(context)!.start,
-      ),
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
         textStyle: const TextStyle(fontSize: 18),
@@ -262,6 +255,11 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
           borderRadius: BorderRadius.circular(8.0), // ボタンの角を丸く
         ),
       ),
+      child: Text(
+        isPlaying
+            ? AppLocalizations.of(context)!.stop
+            : AppLocalizations.of(context)!.start,
+      ),
     );
   }
 
@@ -270,7 +268,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
     final colorScheme = Theme.of(context).colorScheme;
 
     // 背景色を調整（テーマのエラー色を薄くする）
-    final adjustedBackgroundColor = colorScheme.error.withOpacity(0.1);
+    final adjustedBackgroundColor = colorScheme.error.withValues(alpha: 0.1);
 
     return Padding(
       padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
@@ -324,7 +322,7 @@ class _MetronomePageState extends State<MetronomePage> with WidgetsBindingObserv
             metronome.setVolume(vol); // 音量を即時に反映させる
           },
           activeColor: colorScheme.primary, // スライダーのアクティブ部分の色
-          inactiveColor: colorScheme.onSurface.withOpacity(0.3), // スライダーの非アクティブ部分の色
+          inactiveColor: colorScheme.onSurface.withValues(alpha: 0.3), // スライダーの非アクティブ部分の色
           thumbColor: colorScheme.primary, // スライダーのサム（つまみ）の色
         ),
       ],

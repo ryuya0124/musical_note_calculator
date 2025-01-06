@@ -6,8 +6,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'Theme/custom_theme.dart';
-import 'Theme/Material_dark.dart';
-import 'Theme/Material_light.dart';
+import 'Theme/materialDark.dart';
+import 'Theme/materialLight.dart';
 
 void main() {
   runApp(
@@ -19,6 +19,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(

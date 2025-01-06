@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import '../UI/app_bar.dart';
-import '../settings_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../UI/bottom_navigation_bar.dart';
 import 'note_page.dart';
 import 'home_page.dart';
-import '../Notes.dart';
-import 'package:dynamic_color/dynamic_color.dart';
+import '../notes.dart';
 import '../UI/bpm_input_section.dart';
 
 class CalculatorPage extends StatefulWidget {
+  const CalculatorPage({super.key});
   @override
-  _CalculatorPageState createState() => _CalculatorPageState();
+  CalculatorPageState createState() => CalculatorPageState();
 }
 
-class _CalculatorPageState extends State<CalculatorPage> {
+class CalculatorPageState extends State<CalculatorPage> {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
   int _selectedIndex = 2;  // 選択されたタブを管理
@@ -63,7 +62,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
       for (var baseNote in notes) {
         _notes[baseNote.name] = notes.map((targetNote) {
-          double targetBPM = calculateNoteBPM(bpm, baseNote, targetNote.Note);
+          double targetBPM = calculateNoteBPM(bpm, baseNote, targetNote.note);
           return {
             'note': targetNote.name,
             'bpm': '$targetBPM',

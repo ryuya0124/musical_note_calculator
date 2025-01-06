@@ -5,7 +5,7 @@ class BpmInputSection extends StatelessWidget {
   final TextEditingController bpmController;
   final FocusNode bpmFocusNode;
 
-  BpmInputSection({required this.bpmController, required this.bpmFocusNode});
+  const BpmInputSection({super.key, required this.bpmController, required this.bpmFocusNode});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class BpmInputSection extends StatelessWidget {
                   borderSide: BorderSide(color: colorScheme.primary),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.5)),
+                  borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.5)),
                 ),
               ),
             ),
@@ -40,7 +40,7 @@ class BpmInputSection extends StatelessWidget {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
               bpmController.text = (currentValue + 1).toStringAsFixed(0);
             },
-            splashColor: colorScheme.primary.withOpacity(0.2),
+            splashColor: colorScheme.primary.withValues(alpha: 0.2),
           ),
           IconButton(
             icon: Icon(Icons.remove),
@@ -49,7 +49,7 @@ class BpmInputSection extends StatelessWidget {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
               bpmController.text = (currentValue - 1).clamp(0, double.infinity).toStringAsFixed(0);
             },
-            splashColor: colorScheme.primary.withOpacity(0.2),
+            splashColor: colorScheme.primary.withValues(alpha: 0.2),
           ),
         ],
       ),

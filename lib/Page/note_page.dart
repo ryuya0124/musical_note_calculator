@@ -10,15 +10,15 @@ import '../UI/app_bar.dart';
 import '../UI/bottom_navigation_bar.dart';
 import '../UI/bpm_input_section.dart';
 import '../UI/unit_dropdown.dart';
-import '../Notes.dart';
-import 'package:dynamic_color/dynamic_color.dart';
+import '../notes.dart';
 
 class NotePage extends StatefulWidget {
+  const NotePage({super.key});
   @override
-  _NotePageState createState() => _NotePageState();
+  NotePageState createState() => NotePageState();
 }
 
-class _NotePageState extends State<NotePage> {
+class NotePageState extends State<NotePage> {
   int _selectedIndex = 1;  // 選択されたタブを管理
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
@@ -213,7 +213,7 @@ class _NotePageState extends State<NotePage> {
         final noteLength = calculateNoteFrequency(
           bpm,
           conversionFactor,
-          note.Note,
+          note.note,
           isDotted: note.dotted,
         );
 

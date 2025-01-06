@@ -1,10 +1,10 @@
 // ノートデータのクラス定義
 class NoteData {
   final String name;       // ノートの名前
-  final double Note; // 元のノートの比率
+  final double note; // 元のノートの比率
   final bool dotted;       // ドット付きかどうか
 
-  NoteData(this.name, this.Note, this.dotted);
+  NoteData(this.name, this.note, this.dotted);
 }
 
 // データ: 各ノートの定義
@@ -40,9 +40,9 @@ NoteData findNoteData(String name) {
 /// ノートをn分音符に換算した場合のBPMを計算する関数
 double calculateNoteBPM(double bpm, NoteData note, double afterNote) {
   if (note.dotted) {
-    return bpm * (note.Note / afterNote) / 1.5;
+    return bpm * (note.note / afterNote) / 1.5;
   } else {
-    return bpm * (note.Note / afterNote);
+    return bpm * (note.note / afterNote);
   }
 }
 

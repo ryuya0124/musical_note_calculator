@@ -10,15 +10,15 @@ import '../UI/bpm_input_section.dart';
 import '../UI/unit_dropdown.dart';
 import 'calculator_page.dart';
 import 'note_page.dart';
-import '../Notes.dart';
-import 'package:dynamic_color/dynamic_color.dart';
+import '../notes.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
   late String selectedUnit;
@@ -234,7 +234,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     setState(() {
       _notes = notes.map((note) {
-        double duration = calculateNoteLength(quarterNoteLengthMs, note.Note, isDotted: note.dotted);
+        double duration = calculateNoteLength(quarterNoteLengthMs, note.note, isDotted: note.dotted);
         return {
           'name': note.name,
           'duration': _formatDuration(duration, conversionFactor),

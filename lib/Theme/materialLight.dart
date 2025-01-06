@@ -45,9 +45,9 @@ ThemeData materialLightTheme(ColorScheme lightColorScheme) {
 
     // テキストフィールドのテーマ
     inputDecorationTheme: InputDecorationTheme(
-      fillColor: lightColorScheme.background,
+      fillColor: lightColorScheme.surface,
       focusColor: lightColorScheme.primary,
-      labelStyle: TextStyle(color: lightColorScheme.onBackground),
+      labelStyle: TextStyle(color: lightColorScheme.onSurface),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: lightColorScheme.primary),
       ),
@@ -64,20 +64,20 @@ ThemeData materialLightTheme(ColorScheme lightColorScheme) {
 
     // スイッチやチェックボックスのテーマ
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all(lightColorScheme.primary),
-      trackColor: MaterialStateProperty.all(lightColorScheme.primaryContainer),
+      thumbColor: WidgetStateProperty.all(lightColorScheme.primary),
+      trackColor: WidgetStateProperty.all(lightColorScheme.primaryContainer),
     ),
 
     // テキストのテーマ
     textTheme: TextTheme(
-      bodyLarge: TextStyle(color: lightColorScheme.onBackground),
+      bodyLarge: TextStyle(color: lightColorScheme.onSurface),
       titleLarge: TextStyle(color: lightColorScheme.primary),
       headlineSmall: TextStyle(color: lightColorScheme.onSurface),
     ),
 
     // アイコンのテーマ
     iconTheme: IconThemeData(
-      color: lightColorScheme.onBackground,
+      color: lightColorScheme.onSurface,
     ),
     primaryIconTheme: IconThemeData(
       color: lightColorScheme.onPrimary,

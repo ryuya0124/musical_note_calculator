@@ -7,6 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
 class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
   final int _selectedIndex = 4;
 
   @override
@@ -145,8 +146,8 @@ class SettingsPage extends StatelessWidget {
               },
               activeColor: colorScheme.primary, // スイッチがONのときのスライダー色
               activeTrackColor: colorScheme.onPrimary, // ON時のトラック色
-              inactiveThumbColor: colorScheme.onSurface.withOpacity(0.6), // OFF時のスライダー色
-              inactiveTrackColor: colorScheme.onSurface.withOpacity(0.3), // OFF時のトラック色
+              inactiveThumbColor: colorScheme.onSurface.withValues(alpha: 0.6), // OFF時のスライダー色
+              inactiveTrackColor: colorScheme.onSurface.withValues(alpha: 0.3), // OFF時のトラック色
             ),
           );
         })
@@ -206,9 +207,11 @@ class SettingsPage extends StatelessWidget {
     try {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to open the URL: $e')),
-      );
+      if (context.mounted) { // BuildContext が有効か確認
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to open the URL: $e')),
+        );
+      }
     }
   }
 }

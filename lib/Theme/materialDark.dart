@@ -4,7 +4,7 @@ ThemeData materialDarkTheme(ColorScheme darkColorScheme) {
   return ThemeData(
     colorScheme: darkColorScheme,
     useMaterial3: true,
-    scaffoldBackgroundColor: darkColorScheme.background,
+    scaffoldBackgroundColor: darkColorScheme.surface,
 
     // アプリバーのテーマ
     appBarTheme: AppBarTheme(
@@ -46,9 +46,9 @@ ThemeData materialDarkTheme(ColorScheme darkColorScheme) {
 
     // テキストフィールドのテーマ
     inputDecorationTheme: InputDecorationTheme(
-      fillColor: darkColorScheme.background,
+      fillColor: darkColorScheme.surface,
       focusColor: darkColorScheme.primary,
-      labelStyle: TextStyle(color: darkColorScheme.onBackground),
+      labelStyle: TextStyle(color: darkColorScheme.onSurface),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: darkColorScheme.primary),
       ),
@@ -65,20 +65,20 @@ ThemeData materialDarkTheme(ColorScheme darkColorScheme) {
 
     // スイッチやチェックボックスのテーマ
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all(darkColorScheme.primary),
-      trackColor: MaterialStateProperty.all(darkColorScheme.primaryContainer),
+      thumbColor: WidgetStateProperty.all(darkColorScheme.primary),
+      trackColor: WidgetStateProperty.all(darkColorScheme.primaryContainer),
     ),
 
     // テキストのテーマ
     textTheme: TextTheme(
-      bodyLarge: TextStyle(color: darkColorScheme.onBackground),
+      bodyLarge: TextStyle(color: darkColorScheme.onSurface),
       titleLarge: TextStyle(color: darkColorScheme.primary),
       headlineSmall: TextStyle(color: darkColorScheme.onSurface),
     ),
 
     // アイコンのテーマ
     iconTheme: IconThemeData(
-      color: darkColorScheme.onBackground,
+      color: darkColorScheme.onSurface,
     ),
     primaryIconTheme: IconThemeData(
       color: darkColorScheme.onPrimary,
