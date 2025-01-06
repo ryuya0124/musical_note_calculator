@@ -58,5 +58,9 @@
         "example": "400"
       }
     }
-  }
+  },
+  "custom_notes": "カスタム音符",
+  "note_name": "音符名",
+  "note_value": "音符の長さ(数値)",
+  "add_note": "音符を追加"
 }

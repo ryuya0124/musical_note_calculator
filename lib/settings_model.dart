@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'notes.dart';
 
 class SettingsModel extends ChangeNotifier {
   String selectedUnit = 'ms';
   String selectedTimeScale = '1s';
+
+  // カスタムノートのリストを保持
+  List<NoteData> customNotes = [];
 
   Map<String, bool> enabledNotes = {
     'maxima': true,
@@ -30,6 +34,17 @@ class SettingsModel extends ChangeNotifier {
     _loadSettings();
   }
 
+  // カスタムノートの保存
+  Future<void> _saveCustomNotes() async {
+    final prefs = await SharedPreferences.getInstance();
+    // カスタムノートを保存
+    List<String> customNoteNames = customNotes.map((note) => note.name).toList();
+    List<String> customNoteValues = customNotes.map((note) => note.note.toString()).toList();
+
+    prefs.setStringList('customNoteNames', customNoteNames);
+    prefs.setStringList('customNoteValues', customNoteValues);
+  }
+
   // 設定をSharedPreferencesに保存
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -49,6 +64,18 @@ class SettingsModel extends ChangeNotifier {
   // SharedPreferencesから設定を読み込む
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // カスタムノートの読み込み
+    List<String>? customNoteNames = prefs.getStringList('customNoteNames');
+    List<String>? customNoteValues = prefs.getStringList('customNoteValues');
+
+    if (customNoteNames != null && customNoteValues != null) {
+      customNotes = [];
+      for (int i = 0; i < customNoteNames.length; i++) {
+        double noteValue = double.tryParse(customNoteValues[i]) ?? 4;
+        customNotes.add(NoteData(customNoteNames[i], noteValue, true));
+      }
+    }
 
     // 時間単位を読み込む
     selectedUnit = prefs.getString('selectedUnit') ?? 'ms';
@@ -94,6 +121,20 @@ class SettingsModel extends ChangeNotifier {
   void setEnabledNotes(Map<String, bool> newEnabledNotes) {
     enabledNotes = newEnabledNotes;
     _saveSettings(); // 設定を保存
+    notifyListeners();
+  }
+
+  // カスタムノートの追加
+  void addCustomNote(String name, double value) {
+    customNotes.add(NoteData(name, value, false));
+    _saveCustomNotes(); // 保存
+    notifyListeners();
+  }
+
+  // カスタムノートの削除
+  void removeCustomNoteAt(int index) {
+    customNotes.removeAt(index);
+    _saveCustomNotes(); // 保存
     notifyListeners();
   }
 }
