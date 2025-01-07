@@ -58,9 +58,4 @@
 - 一部カードが表示されない不具合があります。
 
 ## プロジェクト概要
-このプロジェクトは、Flutterを使用して開発されています。以下のリソースが初めての方に役立ちます。  
-
-- [Flutterアプリ開発入門（公式ラボ）](https://docs.flutter.dev/get-started/codelab)  
-- [Flutter Cookbook: 便利なサンプル集](https://docs.flutter.dev/cookbook)  
-
-詳しい開発ガイドやAPIリファレンスについては、[公式ドキュメント](https://docs.flutter.dev/)をご覧ください。
+このプロジェクトは、Flutterを使用して開発されています。
