@@ -174,6 +174,109 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget buildCustomNotesSection(BuildContext context, ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildTitleSection(context, colorScheme),
+        SizedBox(height: 10),
+        buildCustomNotesList(context, colorScheme),
+        SizedBox(height: 20),
+        buildNoteInputSection(context, colorScheme),
+      ],
+    );
+  }
+
+  Widget buildTitleSection(BuildContext context, ColorScheme colorScheme) {
+    return Text(
+      AppLocalizations.of(context)!.custom_notes,
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: colorScheme.primary,
+      ),
+    );
+  }
+
+  Widget buildCustomNotesList(BuildContext context, ColorScheme colorScheme) {
+    final settingsModel = context.watch<SettingsModel>();
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: settingsModel.customNotes.length,
+      itemBuilder: (context, index) {
+        final note = settingsModel.customNotes[index];
+        return ListTile(
+          title: Text("${note.name} (${note.note}分音符${note.dotted ? " (付点)" : ""})"),
+          trailing: IconButton(
+            icon: Icon(Icons.delete, color: colorScheme.error),
+            onPressed: () {
+              context.read<SettingsModel>().removeCustomNoteAt(index);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildNoteInputSection(BuildContext context, ColorScheme colorScheme) {
+    final nameController = TextEditingController();
+    final valueController = TextEditingController();
+    bool isDotted = false;
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.note_name,
+                ),
+              ),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: valueController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.note_value,
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        Row(
+          children: [
+            Checkbox(
+              value: isDotted,
+              onChanged: (bool? value) {
+                isDotted = value ?? false;
+              },
+            ),
+            Text(AppLocalizations.of(context)!.dotted_note),
+          ],
+        ),
+        ElevatedButton(
+          onPressed: () {
+            String name = nameController.text.trim();
+            double? value = double.tryParse(valueController.text.trim());
+            if (name.isNotEmpty && value != null) {
+              context.read<SettingsModel>().addCustomNote(name, value, isDotted);
+              nameController.clear();
+              valueController.clear();
+              isDotted = false;
+            }
+          },
+          child: Text(AppLocalizations.of(context)!.add_note),
+        ),
+      ],
+    );
+  }
 
   Widget buildAuthorSection(BuildContext context, ColorScheme colorScheme) {
     return Column(
@@ -216,94 +319,6 @@ class SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ],
-        ),
-      ],
-    );
-  }
-
-  Widget buildCustomNotesSection(BuildContext context, ColorScheme colorScheme) {
-    final settingsModel = context.watch<SettingsModel>();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.custom_notes,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
-        ),
-        SizedBox(height: 10),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: settingsModel.customNotes.length,
-          itemBuilder: (context, index) {
-            final note = settingsModel.customNotes[index];
-            return ListTile(
-              title: Text("${note.name} (${note.note}分音符${note.dotted ? " (付点)" : ""})"),
-              trailing: IconButton(
-                icon: Icon(Icons.delete, color: colorScheme.error),
-                onPressed: () {
-                  context.read<SettingsModel>().removeCustomNoteAt(index);
-                },
-              ),
-            );
-          },
-        ),
-        SizedBox(height: 20),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.note_name,
-                ),
-              ),
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                controller: valueController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.note_value,
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        Row(
-          children: [
-            Checkbox(
-              value: isDotted,
-              onChanged: (bool? value) {
-                setState(() {
-                  isDotted = value ?? false;
-                });
-              },
-            ),
-            Text(AppLocalizations.of(context)!.dotted_note), // 付点音符ラベル
-          ],
-        ),
-        ElevatedButton(
-          onPressed: () {
-            String name = nameController.text.trim();
-            double? value = double.tryParse(valueController.text.trim());
-            if (name.isNotEmpty && value != null) {
-              context.read<SettingsModel>().addCustomNote(name, value, isDotted);
-              nameController.clear();
-              valueController.clear();
-              setState(() {
-                isDotted = false; // チェックボックスをリセット
-              });
-            }
-          },
-          child: Text(AppLocalizations.of(context)!.add_note),
         ),
       ],
     );

@@ -59,7 +59,6 @@ class SettingsModel extends ChangeNotifier {
     prefs.setString('selectedTimeScale', selectedTimeScale);
   }
 
-
   // SharedPreferencesから設定を読み込む
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();

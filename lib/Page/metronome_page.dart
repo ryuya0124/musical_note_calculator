@@ -49,6 +49,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     note = widget.note;
     bpm = convertNoteDurationToBPM(bpm,note);
 
@@ -90,11 +91,12 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
   void dispose() {
     metronome.stop();
     metronome.destroy();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state)  async  {
     switch (state) {
       case AppLifecycleState.inactive:
         stopMetronome();
