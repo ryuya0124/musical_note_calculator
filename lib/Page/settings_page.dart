@@ -17,7 +17,7 @@ class SettingsPage extends StatefulWidget {
 class SettingsPageState extends State<SettingsPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
-  double decimalValue = 2; // 初期値を設定
+  late int decimalValue;
   late TextEditingController controller = TextEditingController();
   bool isDotted = false; // 付点音符フラグ
 
@@ -31,6 +31,7 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
   super.initState();
+  decimalValue = context.read<SettingsModel>().numDecimal;
   controller = TextEditingController(text: decimalValue.toStringAsFixed(0));
   }
 
@@ -132,8 +133,9 @@ class SettingsPageState extends State<SettingsPage> {
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
-                        decimalValue = double.tryParse(value) ?? 0;
+                        decimalValue = int.tryParse(value) ?? 0;
                       });
+                      context.read<SettingsModel>().setNumDecimal(decimalValue);
                     },
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
@@ -150,6 +152,7 @@ class SettingsPageState extends State<SettingsPage> {
                       decimalValue++;
                       controller.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
                     });
+                    context.read<SettingsModel>().setNumDecimal(decimalValue);
                   },
                 ),
                 SizedBox(width: 8), // プラス・マイナスボタン間のスペース
@@ -162,6 +165,7 @@ class SettingsPageState extends State<SettingsPage> {
                         controller.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
                       }
                     });
+                    context.read<SettingsModel>().setNumDecimal(decimalValue);
                   },
                 ),
               ],

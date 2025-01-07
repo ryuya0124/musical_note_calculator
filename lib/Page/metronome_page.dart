@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import 'package:metronome/metronome.dart';
+import 'package:provider/provider.dart';
 import '../notes.dart';
 import '../UI/app_bar.dart';
+import '../settings_model.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;
@@ -25,6 +27,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
   late String intervalTime = widget.interval;
   final metronome = Metronome();
   late double bpm = widget.bpm;
+  late int decimalValue;
   int vol = 100;
 
   // 最後に状態を更新した時間を保持
@@ -52,6 +55,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
     WidgetsBinding.instance.addObserver(this);
     note = widget.note;
     bpm = convertNoteDurationToBPM(bpm,note);
+    decimalValue = context.read<SettingsModel>().numDecimal;
 
     interval = Duration(microseconds: ( (60000 * 1000) / widget.bpm).round());
 
@@ -231,7 +235,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
 
     return Text(
       AppLocalizations.of(context)!.quarterNoteEquivalent(
-        convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(2),
+        convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(decimalValue),
       ),
       style: TextStyle(
         fontSize: 20,

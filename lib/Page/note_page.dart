@@ -23,6 +23,7 @@ class NotePageState extends State<NotePage> {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
   late String selectedTimeScale;
+  late int decimalValue;
   List<Map<String, String>> _notes = [];
   //単位選択
   List<String> units = ['1s', '100ms', '10ms'];
@@ -39,6 +40,7 @@ class NotePageState extends State<NotePage> {
     super.initState();
     selectedTimeScale = context.read<SettingsModel>().selectedTimeScale;
     bpmController.addListener(_calculateNotes);
+    decimalValue = context.read<SettingsModel>().numDecimal;
   }
 
   @override
@@ -227,6 +229,6 @@ class NotePageState extends State<NotePage> {
   }
 
   String _formatDuration(double duration) {
-    return '${duration.toStringAsFixed(2)} 回';
+    return '${duration.toStringAsFixed(decimalValue)} 回';
   }
 }

@@ -5,6 +5,8 @@ import 'notes.dart';
 class SettingsModel extends ChangeNotifier {
   String selectedUnit = 'ms';
   String selectedTimeScale = '1s';
+  //小数の桁数設定
+  int numDecimal = 2;
 
   // カスタムノートのリストを保持
   List<NoteData> customNotes = [];
@@ -35,7 +37,7 @@ class SettingsModel extends ChangeNotifier {
   }
 
   // カスタムノートと設定を保存
-  Future<void>  _saveSettings() async {
+  Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
 
     // カスタムノートの保存
@@ -57,6 +59,9 @@ class SettingsModel extends ChangeNotifier {
     // 時間単位の保存
     prefs.setString('selectedUnit', selectedUnit);
     prefs.setString('selectedTimeScale', selectedTimeScale);
+
+    //小数の桁数の保存
+    prefs.setInt('numDecimal', numDecimal);
   }
 
   // SharedPreferencesから設定を読み込む
@@ -94,6 +99,9 @@ class SettingsModel extends ChangeNotifier {
       }
     }
 
+    //小数の桁数を読み込む
+    numDecimal = prefs.getInt('numDecimal') ?? 2;
+
     notifyListeners();
   }
 
@@ -107,6 +115,13 @@ class SettingsModel extends ChangeNotifier {
   // 時間単位の変更(2ページ目)
   void setTimeScale(String unit) {
     selectedTimeScale = unit;
+    _saveSettings(); // 設定を保存
+    notifyListeners();
+  }
+
+  // 小数の桁数の変更
+  void setNumDecimal(int num) {
+    numDecimal = num;
     _saveSettings(); // 設定を保存
     notifyListeners();
   }

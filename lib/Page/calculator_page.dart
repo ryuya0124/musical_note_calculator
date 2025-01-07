@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../UI/app_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
@@ -7,6 +8,7 @@ import 'note_page.dart';
 import 'home_page.dart';
 import '../notes.dart';
 import '../UI/bpm_input_section.dart';
+import '../settings_model.dart';
 
 class CalculatorPage extends StatefulWidget {
   const CalculatorPage({super.key});
@@ -17,6 +19,7 @@ class CalculatorPage extends StatefulWidget {
 class CalculatorPageState extends State<CalculatorPage> {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
+  late int decimalValue;
   int _selectedIndex = 2;  // 選択されたタブを管理
   Map<String, List<Map<String, String>>> _notes = {};
   late Map<String, bool> _isExpanded;
@@ -26,6 +29,7 @@ class CalculatorPageState extends State<CalculatorPage> {
   void initState() {
     super.initState();
     bpmController.addListener(_calculateNotes);
+    decimalValue = context.read<SettingsModel>().numDecimal;
     //ドロップダウンの表示と非表示
     _isExpanded = {
       for (var note in notes) note.name: false,
@@ -65,7 +69,7 @@ class CalculatorPageState extends State<CalculatorPage> {
           double targetBPM = calculateNoteBPM(bpm, baseNote, targetNote.note);
           return {
             'note': targetNote.name,
-            'bpm': '$targetBPM',
+            'bpm': targetBPM.toStringAsFixed(decimalValue),
           };
         }).toList();
       }
