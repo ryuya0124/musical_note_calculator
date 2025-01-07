@@ -40,7 +40,7 @@
 ### 手動ビルド手順
 1. 言語ファイルを生成する。
 
-`flutter gen-l10n`
+`flutter gen-l10n` <br>
 2. 必要なパッケージを取得する。
 
 `flutter pub get`
