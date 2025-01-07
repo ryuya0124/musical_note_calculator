@@ -5,13 +5,13 @@
 このアプリは、音楽制作や演奏時に便利なBPM（テンポ）や音符の長さに関する計算を行うツールです。
 
 ## アプリ画面例
-| 音符計算画面 | 音符換算画面 |
+| 音符計算画面 | 音符回数画面 |
 | --- | --- |
-| ![音符計算画面](https://github.com/user-attachments/assets/1044b4ce-ab2c-4f53-ae85-f30f5cc53e89) | ![音符換算結果](https://github.com/user-attachments/assets/393343ff-236a-4e67-8b15-b2fe7fb935d8) |
+| ![音符計算画面](https://github.com/user-attachments/assets/1044b4ce-ab2c-4f53-ae85-f30f5cc53e89) | ![音符回数画面](https://github.com/user-attachments/assets/393343ff-236a-4e67-8b15-b2fe7fb935d8) |
 
-| 設定画面 | ガイド |
+| 音符換算画面 | ガイド |
 | --- | --- |
-| ![設定画面](https://github.com/user-attachments/assets/957122b0-5773-4652-b27c-d6083a99a985) | ![ガイド](https://github.com/user-attachments/assets/985dfaee-a90d-426c-a5c7-287c947d48f7) |
+| ![音符換算画面](https://github.com/user-attachments/assets/957122b0-5773-4652-b27c-d6083a99a985) | ![ガイド](https://github.com/user-attachments/assets/985dfaee-a90d-426c-a5c7-287c947d48f7) |
 
 | カスタム計算モード |  |
 | --- | --- |
