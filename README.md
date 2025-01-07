@@ -5,9 +5,9 @@
 このアプリは、音楽制作や演奏時に便利なBPM（テンポ）や音符の長さに関する計算を行うツールです。
 
 ## アプリ画面例
-| メイン画面 | 計算結果の詳細表示 |
+| 音符計算画面 | 音符換算画面 |
 | --- | --- |
-| ![メイン画面](https://github.com/user-attachments/assets/1044b4ce-ab2c-4f53-ae85-f30f5cc53e89) | ![計算結果](https://github.com/user-attachments/assets/393343ff-236a-4e67-8b15-b2fe7fb935d8) |
+| ![音符計算画面](https://github.com/user-attachments/assets/1044b4ce-ab2c-4f53-ae85-f30f5cc53e89) | ![音符換算結果](https://github.com/user-attachments/assets/393343ff-236a-4e67-8b15-b2fe7fb935d8) |
 
 | 設定画面 | ガイド |
 | --- | --- |
