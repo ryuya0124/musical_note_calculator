@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../settings_model.dart';
 import '../UI/app_bar.dart';
+import '../UI/unit_dropdown.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
@@ -19,6 +20,11 @@ class SettingsPageState extends State<SettingsPage> {
   bool isDotted = false; // 付点音符フラグ
 
   final int _selectedIndex = 4;
+
+  //単位選択
+  List<String> units = ['s', 'ms', 'µs'];
+  //単位選択
+  List<String> timeScaleUnits = ['1s', '100ms', '10ms'];
 
   @override
   void dispose() {
@@ -60,27 +66,17 @@ class SettingsPageState extends State<SettingsPage> {
             color: colorScheme.primary,
           ),
         ),
-        Container(
-          margin: EdgeInsets.only(left: 8.0),
-          child: DropdownButton<String>(
-            value: context.watch<SettingsModel>().selectedUnit,
-            items: ['ms', 's', 'µs'].map((unit) {
-              return DropdownMenuItem<String>(
-                value: unit,
-                child: Text(unit),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value != null) {
-                context.read<SettingsModel>().setUnit(value);
-              }
-            },
-            dropdownColor: colorScheme.surface,
-            iconEnabledColor: colorScheme.primary,
-          ),
+        UnitDropdown(
+          selectedUnit: context.watch<SettingsModel>().selectedUnit,
+          units: units,
+          onChanged: _handleUnitChange, // 選択時のコールバックを設定
         ),
       ],
     );
+  }
+
+  _handleUnitChange(String value){
+    context.read<SettingsModel>().setUnit(value);
   }
 
   Widget buildTimeScaleDropdownSection(BuildContext context, ColorScheme colorScheme) {
@@ -94,27 +90,17 @@ class SettingsPageState extends State<SettingsPage> {
             color: colorScheme.primary,
           ),
         ),
-        Container(
-          margin: EdgeInsets.only(left: 8.0),
-          child: DropdownButton<String>(
-            value: context.watch<SettingsModel>().selectedTimeScale,
-            items: ['1s', '100ms', '10ms'].map((unit) {
-              return DropdownMenuItem<String>(
-                value: unit,
-                child: Text(unit),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value != null) {
-                context.read<SettingsModel>().setTimeScale(value);
-              }
-            },
-            dropdownColor: colorScheme.surface,
-            iconEnabledColor: colorScheme.primary,
-          ),
+        UnitDropdown(
+          selectedUnit: context.watch<SettingsModel>().selectedTimeScale,
+          units: timeScaleUnits,
+          onChanged: _handleTimeScaleUnitChange, // 選択時のコールバックを設定
         ),
       ],
     );
+  }
+
+  _handleTimeScaleUnitChange(String value){
+    context.read<SettingsModel>().setTimeScale(value);
   }
 
   Widget buildDisplaySettingsSection(BuildContext context, ColorScheme colorScheme) {
