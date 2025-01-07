@@ -19,7 +19,6 @@ class CalculatorPage extends StatefulWidget {
 class CalculatorPageState extends State<CalculatorPage> {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
-  late int decimalValue;
   int _selectedIndex = 2;  // 選択されたタブを管理
   Map<String, List<Map<String, String>>> _notes = {};
   late Map<String, bool> _isExpanded;
@@ -29,7 +28,6 @@ class CalculatorPageState extends State<CalculatorPage> {
   void initState() {
     super.initState();
     bpmController.addListener(_calculateNotes);
-    decimalValue = context.read<SettingsModel>().numDecimal;
     //ドロップダウンの表示と非表示
     _isExpanded = {
       for (var note in notes) note.name: false,
@@ -69,7 +67,7 @@ class CalculatorPageState extends State<CalculatorPage> {
           double targetBPM = calculateNoteBPM(bpm, baseNote, targetNote.note);
           return {
             'note': targetNote.name,
-            'bpm': targetBPM.toStringAsFixed(decimalValue),
+            'bpm': targetBPM.toStringAsFixed(context.read<SettingsModel>().numDecimal),
           };
         }).toList();
       }

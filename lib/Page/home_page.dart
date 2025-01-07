@@ -22,7 +22,6 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
   late String selectedUnit;
-  late int decimalValue;
   List<Map<String, String>> _notes = [];
   //単位選択
   List<String> units = ['s', 'ms', 'µs'];
@@ -41,7 +40,6 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     selectedUnit = context.read<SettingsModel>().selectedUnit;
     bpmController.addListener(_calculateNotes);
-    decimalValue = context.read<SettingsModel>().numDecimal;
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -249,6 +247,6 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   String _formatDuration(double duration, double conversionFactor) {
-    return '${(duration * conversionFactor).toStringAsFixed(decimalValue)} $selectedUnit';
+    return '${(duration * conversionFactor).toStringAsFixed(context.read<SettingsModel>().numDecimal)} $selectedUnit';
   }
 }

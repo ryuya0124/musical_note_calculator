@@ -27,7 +27,6 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
   late String intervalTime = widget.interval;
   final metronome = Metronome();
   late double bpm = widget.bpm;
-  late int decimalValue;
   int vol = 100;
 
   // 最後に状態を更新した時間を保持
@@ -55,7 +54,6 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
     WidgetsBinding.instance.addObserver(this);
     note = widget.note;
     bpm = convertNoteDurationToBPM(bpm,note);
-    decimalValue = context.read<SettingsModel>().numDecimal;
 
     interval = Duration(microseconds: ( (60000 * 1000) / widget.bpm).round());
 
@@ -235,7 +233,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
 
     return Text(
       AppLocalizations.of(context)!.quarterNoteEquivalent(
-        convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(decimalValue),
+        convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(context.read<SettingsModel>().numDecimal),
       ),
       style: TextStyle(
         fontSize: 20,
