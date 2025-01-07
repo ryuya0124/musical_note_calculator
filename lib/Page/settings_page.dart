@@ -163,8 +163,8 @@ class SettingsPageState extends State<SettingsPage> {
               onChanged: (bool value) {
                 context.read<SettingsModel>().toggleNoteEnabled(noteKey);
               },
-              activeColor: colorScheme.primary, // スイッチがONのときのスライダー色
-              activeTrackColor: colorScheme.onPrimary, // ON時のトラック色
+              activeColor: colorScheme.onPrimary, // スイッチがONのときのスライダー色
+              activeTrackColor: colorScheme.primary, // ON時のトラック色
               inactiveThumbColor: colorScheme.onSurface.withValues(alpha: 0.6), // OFF時のスライダー色
               inactiveTrackColor: colorScheme.onSurface.withValues(alpha: 0.3), // OFF時のトラック色
             ),
