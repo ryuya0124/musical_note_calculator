@@ -9,13 +9,13 @@
 | --- | --- |
 | ![音符計算画面](https://github.com/user-attachments/assets/1044b4ce-ab2c-4f53-ae85-f30f5cc53e89) | ![音符回数画面](https://github.com/user-attachments/assets/393343ff-236a-4e67-8b15-b2fe7fb935d8) |
 
-| 音符換算画面 | ガイド |
+| 音符換算画面 | 設定画面 |
 | --- | --- |
-| ![音符換算画面](https://github.com/user-attachments/assets/957122b0-5773-4652-b27c-d6083a99a985) | ![ガイド](https://github.com/user-attachments/assets/985dfaee-a90d-426c-a5c7-287c947d48f7) |
+| ![音符換算画面](https://github.com/user-attachments/assets/957122b0-5773-4652-b27c-d6083a99a985) | ![設定画面](https://github.com/user-attachments/assets/985dfaee-a90d-426c-a5c7-287c947d48f7) |
 
-| カスタム計算モード |  |
+| メトロノーム画面 |  |
 | --- | --- |
-| ![カスタム計算](https://github.com/user-attachments/assets/9602d4f8-51a3-4e98-b79d-3fd1302cd203) | |
+| ![メトロノーム画面](https://github.com/user-attachments/assets/9602d4f8-51a3-4e98-b79d-3fd1302cd203) | |
 
 ## 主な機能
 - **音符計算ページ**  
