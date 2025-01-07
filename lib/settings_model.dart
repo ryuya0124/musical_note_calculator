@@ -34,24 +34,18 @@ class SettingsModel extends ChangeNotifier {
     _loadSettings();
   }
 
-  // カスタムノートの保存
-  Future<void> _saveCustomNotes() async {
+  // カスタムノートと設定を保存
+  Future<void>  _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    // カスタムノートを保存
+
+    // カスタムノートの保存
     List<String> customNoteNames = customNotes.map((note) => note.name).toList();
     List<String> customNoteValues = customNotes.map((note) => note.note.toString()).toList();
+    List<String> customNoteDotted = customNotes.map((note) => note.dotted.toString()).toList();
 
     prefs.setStringList('customNoteNames', customNoteNames);
     prefs.setStringList('customNoteValues', customNoteValues);
-  }
-
-  // 設定をSharedPreferencesに保存
-  Future<void> _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // 時間単位の保存
-    prefs.setString('selectedUnit', selectedUnit);
-    prefs.setString('selectedTimeScale',selectedTimeScale);
+    prefs.setStringList('customNoteDotted', customNoteDotted);
 
     // 音符の状態を保存
     List<String> noteKeys = enabledNotes.keys.toList();
@@ -59,7 +53,12 @@ class SettingsModel extends ChangeNotifier {
 
     prefs.setStringList('enabledNotesKeys', noteKeys);
     prefs.setStringList('enabledNotesValues', noteValues);
+
+    // 時間単位の保存
+    prefs.setString('selectedUnit', selectedUnit);
+    prefs.setString('selectedTimeScale', selectedTimeScale);
   }
+
 
   // SharedPreferencesから設定を読み込む
   Future<void> _loadSettings() async {
@@ -68,12 +67,15 @@ class SettingsModel extends ChangeNotifier {
     // カスタムノートの読み込み
     List<String>? customNoteNames = prefs.getStringList('customNoteNames');
     List<String>? customNoteValues = prefs.getStringList('customNoteValues');
+    List<String>? customNoteDotted = prefs.getStringList('customNoteDotted');
 
-    if (customNoteNames != null && customNoteValues != null) {
+    if (customNoteNames != null && customNoteValues != null && customNoteDotted != null) {
       customNotes = [];
       for (int i = 0; i < customNoteNames.length; i++) {
         double noteValue = double.tryParse(customNoteValues[i]) ?? 4;
-        customNotes.add(NoteData(customNoteNames[i], noteValue, true));
+        bool noteDotted = stringToBool(customNoteDotted[i]);
+        customNotes.add(NoteData(customNoteNames[i], noteValue, noteDotted));
+        registerNoteData(customNoteNames[i], noteValue, noteDotted);
       }
     }
 
@@ -129,7 +131,7 @@ class SettingsModel extends ChangeNotifier {
     customNotes.add(NoteData(name, value, dotted)); // カスタムノートを追加
     enabledNotes[name] = true; // enabledNotesに登録し、デフォルトでtrueに設定
     registerNoteData(name, value, dotted);
-    _saveCustomNotes(); // 保存
+    _saveSettings(); // 保存
     notifyListeners();
   }
 
@@ -139,7 +141,17 @@ class SettingsModel extends ChangeNotifier {
     customNotes.removeAt(index); // カスタムノートリストから削除
     enabledNotes.remove(noteName); // enabledNotesからも削除
     removeNoteData(noteName);
-    _saveCustomNotes(); // 保存
+    _saveSettings(); // 保存
     notifyListeners();
+  }
+
+  bool stringToBool(String input) {
+    if (input.toLowerCase() == 'true') {
+      return true;
+    } else if (input.toLowerCase() == 'false') {
+      return false;
+    } else {
+      throw ArgumentError('Invalid boolean string: $input');
+    }
   }
 }
