@@ -17,6 +17,8 @@ class SettingsPage extends StatefulWidget {
 class SettingsPageState extends State<SettingsPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
+  double decimalValue = 2; // 初期値を設定
+  late TextEditingController controller = TextEditingController();
   bool isDotted = false; // 付点音符フラグ
 
   final int _selectedIndex = 4;
@@ -25,6 +27,12 @@ class SettingsPageState extends State<SettingsPage> {
   List<String> units = ['s', 'ms', 'µs'];
   //単位選択
   List<String> timeScaleUnits = ['1s', '100ms', '10ms'];
+
+  @override
+  void initState() {
+  super.initState();
+  controller = TextEditingController(text: decimalValue.toStringAsFixed(0));
+  }
 
   @override
   void dispose() {
@@ -47,6 +55,8 @@ class SettingsPageState extends State<SettingsPage> {
             children: [
               buildDisplaySettingsSection(context, colorScheme),
               SizedBox(height: 40),
+              buildNumDecimalsSettingsSection(context, colorScheme),
+              SizedBox(height: 40),
               buildAuthorSection(context, colorScheme),
             ],
           ),
@@ -55,52 +65,22 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget buildTimeUnitDropdownSection(BuildContext context, ColorScheme colorScheme) {
+  Widget buildNumDecimalsSettingsSection(BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.time_unit,
+          AppLocalizations.of(context)!.advanced_settings,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
             color: colorScheme.primary,
           ),
         ),
-        UnitDropdown(
-          selectedUnit: context.watch<SettingsModel>().selectedUnit,
-          units: units,
-          onChanged: _handleUnitChange, // 選択時のコールバックを設定
-        ),
+        SizedBox(height: 20),
+        buildNumDecimals(context, colorScheme),
       ],
     );
-  }
-
-  _handleUnitChange(String value){
-    context.read<SettingsModel>().setUnit(value);
-  }
-
-  Widget buildTimeScaleDropdownSection(BuildContext context, ColorScheme colorScheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.timescale,
-          style: TextStyle(
-            fontSize: 16,
-            color: colorScheme.primary,
-          ),
-        ),
-        UnitDropdown(
-          selectedUnit: context.watch<SettingsModel>().selectedTimeScale,
-          units: timeScaleUnits,
-          onChanged: _handleTimeScaleUnitChange, // 選択時のコールバックを設定
-        ),
-      ],
-    );
-  }
-
-  _handleTimeScaleUnitChange(String value){
-    context.read<SettingsModel>().setTimeScale(value);
   }
 
   Widget buildDisplaySettingsSection(BuildContext context, ColorScheme colorScheme) {
@@ -125,6 +105,117 @@ class SettingsPageState extends State<SettingsPage> {
         buildCustomNotesSection(context, colorScheme), // カスタムノート追加
       ],
     );
+  }
+
+  Widget buildNumDecimals(BuildContext context, ColorScheme colorScheme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,  // 左右の要素を分ける
+      crossAxisAlignment: CrossAxisAlignment.center,  // 縦方向で中央揃え
+      children: [
+        Text(
+          AppLocalizations.of(context)!.decimal_places,
+          style: TextStyle(
+            fontSize: 16,
+          ),
+        ),
+        SizedBox(width: 16), // テキストと入力欄の間にスペースを追加
+        Expanded(  // 残りのスペースを占めて、右寄せにする
+          child: Align(
+            alignment: Alignment.centerRight,  // 右寄せ
+            child: Row(
+              mainAxisSize: MainAxisSize.min,  // 最小サイズに設定
+              children: [
+                Container(
+                  width: 80, // 幅を指定
+                  child: TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        decimalValue = double.tryParse(value) ?? 0;
+                      });
+                    },
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16), // 入力欄とボタン間のスペース
+                IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () {
+                    setState(() {
+                      decimalValue++;
+                      controller.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
+                    });
+                  },
+                ),
+                SizedBox(width: 8), // プラス・マイナスボタン間のスペース
+                IconButton(
+                  icon: Icon(Icons.remove),
+                  onPressed: () {
+                    setState(() {
+                      if (decimalValue > 0) {
+                        decimalValue--;
+                        controller.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildTimeUnitDropdownSection(BuildContext context, ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          AppLocalizations.of(context)!.time_unit,
+          style: TextStyle(
+            fontSize: 16
+          ),
+        ),
+        UnitDropdown(
+          selectedUnit: context.watch<SettingsModel>().selectedUnit,
+          units: units,
+          onChanged: _handleUnitChange, // 選択時のコールバックを設定
+        ),
+      ],
+    );
+  }
+
+  _handleUnitChange(String value){
+    context.read<SettingsModel>().setUnit(value);
+  }
+
+  Widget buildTimeScaleDropdownSection(BuildContext context, ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          AppLocalizations.of(context)!.timescale,
+          style: TextStyle(
+            fontSize: 16
+          ),
+        ),
+        UnitDropdown(
+          selectedUnit: context.watch<SettingsModel>().selectedTimeScale,
+          units: timeScaleUnits,
+          onChanged: _handleTimeScaleUnitChange, // 選択時のコールバックを設定
+        ),
+      ],
+    );
+  }
+
+  _handleTimeScaleUnitChange(String value){
+    context.read<SettingsModel>().setTimeScale(value);
   }
 
   Widget buildNoteSettingsSection(BuildContext context, ColorScheme colorScheme) {
@@ -299,8 +390,7 @@ class SettingsPageState extends State<SettingsPage> {
               child: Text(
                 AppLocalizations.of(context)!.view_on_github,
                 style: TextStyle(
-                  fontSize: 16,
-                  color: colorScheme.primary,
+                  fontSize: 16
                 ),
               ),
             ),

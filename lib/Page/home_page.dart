@@ -164,7 +164,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
           }
         },
       )
-          : Center(child: Text(AppLocalizations.of(context)!.calculate_notes )),
+          : Center(child: Text(AppLocalizations.of(context)!.calculate_notes)),
     );
   }
 

@@ -27,6 +27,8 @@
   "display_settings": "Default Time Unit Setting",
   "time_unit": "Time Unit",
   "note_settings": "Note Settings",
+  "advanced_settings": "Advanced Settings",
+  "decimal_places": "Number of decimal places",
   "author": "Author: Ryuya",
   "view_on_github": "View on GitHub",
   "bpm_input": "Enter BPM",

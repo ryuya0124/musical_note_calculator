@@ -27,6 +27,8 @@
   "display_settings": "デフォルト時間単位設定",
   "time_unit": "時間単位",
   "note_settings": "音符設定",
+  "advanced_settings": "詳細設定",
+  "decimal_places": "小数点以下の桁数",
   "author": "作成者: りゅうや",
   "view_on_github": "GitHubで見る",
   "bpm_input": "BPMを入力",
