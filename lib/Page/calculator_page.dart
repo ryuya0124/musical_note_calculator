@@ -77,9 +77,9 @@ class CalculatorPageState extends State<CalculatorPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      elevation: 2,
+      elevation: 1,
       margin: EdgeInsets.symmetric(vertical: 5),
-      color: colorScheme.surface, // カード背景色をテーマに適応
+      color: colorScheme.surface.withValues(alpha: 0.1), // カード背景色をテーマに適応
       child: ListTile(
         title: Text(
           '${AppLocalizations.of(context)!.getTranslation(note)} - BPM: $bpm',

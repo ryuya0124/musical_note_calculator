@@ -155,11 +155,11 @@ class NotePageState extends State<NotePage> {
 
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 4,
+      elevation: 1,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
       ),
-      color: colorScheme.surface, // カードの背景色（明るいテーマではsurface）
+      color: colorScheme.surface.withValues(alpha: 0.1), // カードの背景色（明るいテーマではsurface）
       child: ListTile(
         contentPadding: EdgeInsets.all(16),
         title: Text(

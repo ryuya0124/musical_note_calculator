@@ -68,12 +68,14 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final appBarColor = Theme.of(context).primaryColor;
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        backgroundColor: colorScheme.surface,
         appBar: AppBarWidget(
           selectedIndex: _selectedIndex,
         ),
@@ -171,11 +173,11 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 4,
+      elevation: 1,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
       ),
-      color: colorScheme.surface, // カードの背景色（明るいテーマではsurface）
+      color: colorScheme.surface.withValues(alpha: 0.1),  // カードの背景色（明るいテーマではsurfaceに透け感を追加）
       child: ListTile(
         contentPadding: EdgeInsets.all(16),
         title: Text(
@@ -183,13 +185,13 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
-            color: colorScheme.onSurface, // タイトルのテキスト色
+            color: colorScheme.onSurface,  // タイトルのテキスト色（背景とのコントラストを重視）
           ),
         ),
         trailing: Text(
           note['duration']!,
           style: TextStyle(
-            color: colorScheme.primary, // 重要な情報にはprimaryカラーを使用
+            color: colorScheme.primary,  // 重要な情報にはprimaryカラーを使用
             fontSize: 16,
           ),
         ),
