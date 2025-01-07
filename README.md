@@ -40,10 +40,10 @@
 ### 手動ビルド手順
 1. 言語ファイルを生成する。
 
-# flutter gen-l10n
+`flutter gen-l10n`
 2. 必要なパッケージを取得する。
 
-# flutter pub get
+`flutter pub get`
 
 ### 注意点
 - リリースページにあるファイルは古い可能性があります。  
