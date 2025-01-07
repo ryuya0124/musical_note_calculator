@@ -39,14 +39,30 @@
 
 ### 手動ビルド手順
 
-1. **言語ファイルを生成する**  
+1. **Flutterをセットアップ**  
+   Flutter SDKをインストールし、パスを通す。
+
+2. **Android Studio、Xcodeなどをセットアップ**  
+   必要なIDEやツールチェーンをインストールし、環境を構築する。
+
+3. **言語ファイルを生成する**  
    ```bash
    flutter gen-l10n
    ```
 
-2. **必要なパッケージを取得する**  
+4. **必要なパッケージを取得する**  
    ```bash
    flutter pub get
+   ```
+
+5. **ビルドコマンドを実行**  
+   デバイスやターゲットプラットフォームに応じたビルドコマンドを実行する。例:  
+   ```bash
+   flutter build apk --release
+   ```  
+   または  
+   ```bash
+   flutter build ios --release
    ```
 
 ### 注意点
