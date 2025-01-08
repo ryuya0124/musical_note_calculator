@@ -18,7 +18,8 @@ class SettingsPageState extends State<SettingsPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
   late int decimalValue;
-  late TextEditingController controller = TextEditingController();
+  late TextEditingController decimalsController = TextEditingController();
+  final FocusNode decimalsFocusNode = FocusNode();
   bool isDotted = false; // 付点音符フラグ
 
   final int _selectedIndex = 4;
@@ -30,15 +31,17 @@ class SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-  super.initState();
-  decimalValue = context.read<SettingsModel>().numDecimal;
-  controller = TextEditingController(text: decimalValue.toStringAsFixed(0));
+    super.initState();
+    decimalValue = context.read<SettingsModel>().numDecimal;
+    decimalsController = TextEditingController(text: decimalValue.toStringAsFixed(0));
   }
 
   @override
   void dispose() {
     nameController.dispose();
     valueController.dispose();
+    decimalsController.dispose();
+    decimalsFocusNode.dispose();
     super.dispose();
   }
 
@@ -46,41 +49,28 @@ class SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBarWidget(selectedIndex: _selectedIndex),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildDisplaySettingsSection(context, colorScheme),
-              SizedBox(height: 40),
-              buildNumDecimalsSettingsSection(context, colorScheme),
-              SizedBox(height: 40),
-              buildAuthorSection(context, colorScheme),
-            ],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus(); // 他の部分をタップしたときにフォーカスを外す
+      },
+      child: Scaffold(
+        appBar: AppBarWidget(selectedIndex: _selectedIndex),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildDisplaySettingsSection(context, colorScheme),
+                SizedBox(height: 40),
+                buildAdvancedSettingsSection(context, colorScheme),
+                SizedBox(height: 40),
+                buildAuthorSection(context, colorScheme),
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget buildNumDecimalsSettingsSection(BuildContext context, ColorScheme colorScheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.advanced_settings,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
-        ),
-        SizedBox(height: 20),
-        buildNumDecimals(context, colorScheme),
-      ],
     );
   }
 
@@ -108,6 +98,24 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget buildAdvancedSettingsSection(BuildContext context, ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          AppLocalizations.of(context)!.advanced_settings,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+          ),
+        ),
+        SizedBox(height: 20),
+        buildNumDecimals(context, colorScheme),
+      ],
+    );
+  }
+
   Widget buildNumDecimals(BuildContext context, ColorScheme colorScheme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,  // 左右の要素を分ける
@@ -129,7 +137,8 @@ class SettingsPageState extends State<SettingsPage> {
                 Container(
                   width: 80, // 幅を指定
                   child: TextField(
-                    controller: controller,
+                    controller: decimalsController,
+                    focusNode: decimalsFocusNode,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
@@ -139,7 +148,12 @@ class SettingsPageState extends State<SettingsPage> {
                     },
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.primary),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                      ),
                       contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
                   ),
@@ -147,10 +161,11 @@ class SettingsPageState extends State<SettingsPage> {
                 SizedBox(width: 16), // 入力欄とボタン間のスペース
                 IconButton(
                   icon: Icon(Icons.add),
+                  color: colorScheme.primary,
                   onPressed: () {
                     setState(() {
                       decimalValue++;
-                      controller.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
+                      decimalsController.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
                     });
                     context.read<SettingsModel>().setNumDecimal(decimalValue);
                   },
@@ -158,11 +173,12 @@ class SettingsPageState extends State<SettingsPage> {
                 SizedBox(width: 8), // プラス・マイナスボタン間のスペース
                 IconButton(
                   icon: Icon(Icons.remove),
+                  color: colorScheme.primary,
                   onPressed: () {
                     setState(() {
                       if (decimalValue > 0) {
                         decimalValue--;
-                        controller.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
+                        decimalsController.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
                       }
                     });
                     context.read<SettingsModel>().setNumDecimal(decimalValue);
@@ -315,6 +331,12 @@ class SettingsPageState extends State<SettingsPage> {
                 controller: nameController,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.note_name,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.primary),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                  ),
                 ),
               ),
             ),
@@ -324,6 +346,12 @@ class SettingsPageState extends State<SettingsPage> {
                 controller: valueController,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.note_value,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.primary),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                  ),
                 ),
                 keyboardType: TextInputType.number,
               ),

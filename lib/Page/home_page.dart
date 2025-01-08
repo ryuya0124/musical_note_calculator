@@ -58,8 +58,10 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       // 画面が戻ったタイミングで設定を更新
       setState(() {
-        selectedUnit = context.read<SettingsModel>().selectedUnit; // 必要な更新処理を行う3
-        _calculateNotes();
+        selectedUnit = context.read<SettingsModel>().selectedUnit; // 必要な更新処理を行う
+        setState(() {
+          _calculateNotes();
+        });
       });
     }
   }
