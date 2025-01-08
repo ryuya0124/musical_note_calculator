@@ -290,7 +290,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                AppLocalizations.of(context)!.warningMessage(maxBpm.toStringAsFixed(2)),
+                AppLocalizations.of(context)!.warningMessage(maxBpm.toStringAsFixed(context.read<SettingsModel>().numDecimal)),
                 style: TextStyle(
                   color: colorScheme.onSurface, // 読みやすいテキスト色
                   fontSize: 14,
