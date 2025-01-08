@@ -125,7 +125,11 @@ class CalculatorPageState extends State<CalculatorPage> {
           child: ExpansionTile(
             title: Text(
               AppLocalizations.of(context)!.getTranslation(title),
-              style: TextStyle(color: colorScheme.onSurface), // タイトルの色をテーマに適応
+              style: TextStyle(
+                fontWeight: FontWeight.bold, // 太字にする
+                fontSize: 18, // フォントサイズを調整
+                color: colorScheme.onSurface, // テキスト色をテーマに基づける
+              ),
             ),
             trailing: Icon(
               _isExpanded[title]! ? Icons.expand_less : Icons.expand_more,
