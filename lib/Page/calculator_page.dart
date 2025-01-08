@@ -90,13 +90,17 @@ class CalculatorPageState extends State<CalculatorPage> {
   }
 
   // 折りたたみボタン用のウィジェットを作成
-  Widget _buildNoteGroup(String title, List<Map<String, String>> notes, BuildContext context) {
+  Widget _buildNoteGroup(String title, List<Map<String, String>> notes, Map<String, bool> enabledNotes, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    List<Map<String, String>> enabledNotesList = notes.where((note) {
+      return enabledNotes[note['note']] ?? false;
+    }).toList();
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10.0), // ここで余白を追加
       child: Card(
-        color: colorScheme.surface, // カード背景色をテーマに適応
+        color: colorScheme.surfaceBright, // カード背景色をテーマに適応
         child: Theme(
           data: Theme.of(context).copyWith(
             dividerColor: colorScheme.outline, // Divider の色をテーマに合わせる
@@ -119,7 +123,7 @@ class CalculatorPageState extends State<CalculatorPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0), // ExpansionTile内にpaddingを追加
                 child: Column(
-                  children: notes.map((note) {
+                  children: enabledNotesList.map((note) {
                     return _buildNoteCard(note['note']!, note['bpm']!, context);
                   }).toList(),
                 ),
@@ -133,6 +137,8 @@ class CalculatorPageState extends State<CalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
+    final enabledNotes = context.watch<SettingsModel>().enabledNotes;
+
     return Scaffold(
       appBar: AppBarWidget(
         selectedIndex: _selectedIndex,
@@ -154,7 +160,14 @@ class CalculatorPageState extends State<CalculatorPage> {
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                   return ListView(
                     children: snapshot.data!.keys.map((key) {
-                      return _buildNoteGroup(key, snapshot.data![key]!, context);
+                      // ノート名 (key) が有効かどうかを確認
+                      if (enabledNotes[key] ?? false) {
+                        // ノートが有効なら、_buildNoteGroup を呼び出して表示
+                        return _buildNoteGroup(key, snapshot.data![key]!, enabledNotes, context);
+                      } else {
+                        // ノートが無効なら、空のウィジェットを返す
+                        return SizedBox.shrink(); // または他の非表示のウィジェット
+                      }
                     }).toList(),
                   );
                 } else {

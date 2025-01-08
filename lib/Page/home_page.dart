@@ -217,7 +217,6 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _calculateNotes(); // ユニット変更後にノートの計算を再実行
   }
 
-
   void _calculateNotes() {
     final bpmInput = bpmController.text;
     if (bpmInput.isEmpty) {
