@@ -77,17 +77,33 @@ class CalculatorPageState extends State<CalculatorPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16), // マージンの調整
       elevation: 1,
-      margin: EdgeInsets.symmetric(vertical: 5),
-      color: colorScheme.surface.withValues(alpha: 0.1), // カード背景色をテーマに適応
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20), // 角を丸くする
+      ),
+      color: colorScheme.surface.withValues(alpha: 0.1), // 背景色をテーマに基づける
       child: ListTile(
+        contentPadding: EdgeInsets.all(16), // パディングを調整
         title: Text(
-          '${AppLocalizations.of(context)!.getTranslation(note)} - BPM: $bpm',
-          style: TextStyle(color: colorScheme.onSurface), // テキスト色をテーマに適応
+          AppLocalizations.of(context)!.getTranslation(note),
+          style: TextStyle(
+            fontWeight: FontWeight.bold, // 太字にする
+            fontSize: 18, // フォントサイズを調整
+            color: colorScheme.onSurface, // テキスト色をテーマに基づける
+          ),
+        ),
+        trailing: Text(
+          'BPM: $bpm',
+          style: TextStyle(
+            color: colorScheme.primary,
+            fontSize: 16,
+          ),
         ),
       ),
     );
   }
+
 
   // 折りたたみボタン用のウィジェットを作成
   Widget _buildNoteGroup(String title, List<Map<String, String>> notes, Map<String, bool> enabledNotes, BuildContext context) {
