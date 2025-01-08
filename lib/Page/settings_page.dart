@@ -318,9 +318,8 @@ class SettingsPageState extends State<SettingsPage> {
   }
 
   Widget buildNoteInputSection(BuildContext context, ColorScheme colorScheme) {
-    final nameController = TextEditingController();
-    final valueController = TextEditingController();
-    bool isDotted = false;
+    bool isButtonEnabled = nameController.text.trim().isNotEmpty &&
+        double.tryParse(valueController.text.trim()) != null;
 
     return Column(
       children: [
@@ -335,9 +334,14 @@ class SettingsPageState extends State<SettingsPage> {
                     borderSide: BorderSide(color: colorScheme.primary),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                    borderSide: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
                 ),
+                onChanged: (_) {
+                  setState(() {});
+                },
               ),
             ),
             SizedBox(width: 10),
@@ -350,10 +354,15 @@ class SettingsPageState extends State<SettingsPage> {
                     borderSide: BorderSide(color: colorScheme.primary),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                    borderSide: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
                 ),
                 keyboardType: TextInputType.number,
+                onChanged: (_) {
+                  setState(() {});
+                },
               ),
             ),
           ],
@@ -364,23 +373,29 @@ class SettingsPageState extends State<SettingsPage> {
             Checkbox(
               value: isDotted,
               onChanged: (bool? value) {
-                isDotted = value ?? false;
+                setState(() {
+                  isDotted = value ?? false;
+                });
               },
             ),
             Text(AppLocalizations.of(context)!.dotted_note),
           ],
         ),
         ElevatedButton(
-          onPressed: () {
+          onPressed: isButtonEnabled
+              ? () {
             String name = nameController.text.trim();
             double? value = double.tryParse(valueController.text.trim());
             if (name.isNotEmpty && value != null) {
               context.read<SettingsModel>().addCustomNote(name, value, isDotted);
               nameController.clear();
               valueController.clear();
-              isDotted = false;
+              setState(() {
+                isDotted = false;
+              });
             }
-          },
+          }
+              : null,
           child: Text(AppLocalizations.of(context)!.add_note),
         ),
       ],
