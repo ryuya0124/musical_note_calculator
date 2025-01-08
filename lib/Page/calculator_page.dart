@@ -1,44 +1,47 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../UI/app_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
-import '../UI/bottom_navigation_bar.dart';
-import 'note_page.dart';
-import 'home_page.dart';
 import '../notes.dart';
-import '../UI/bpm_input_section.dart';
 import '../settings_model.dart';
 
 class CalculatorPage extends StatefulWidget {
-  const CalculatorPage({super.key});
+  final TextEditingController bpmController; // bpmControllerを保持
+  final FocusNode bpmFocusNode; // bpmFocusNodeを保持
+
+
+  const CalculatorPage({
+    super.key,
+    required this.bpmController, // requiredを使用して必須にする
+    required this.bpmFocusNode,
+  });
+
   @override
   CalculatorPageState createState() => CalculatorPageState();
 }
 
 class CalculatorPageState extends State<CalculatorPage> {
-  final TextEditingController bpmController = TextEditingController();
-  final FocusNode bpmFocusNode = FocusNode();
-  int _selectedIndex = 2;  // 選択されたタブを管理
+  late TextEditingController bpmController;
+  late FocusNode bpmFocusNode;
   late StreamController<Map<String, List<Map<String, String>>>> _notesStreamController;
-  late Map<String, bool> _isExpanded;
+  final Map<String, StreamController<bool>> _expansionControllers = {};
 
   @override
   void initState() {
     super.initState();
+    bpmController = widget.bpmController;
+    bpmFocusNode = widget.bpmFocusNode;
     bpmController.addListener(_calculateNotes);
-    _isExpanded = {
-      for (var note in notes) note.name: false,
-    };
     _notesStreamController = StreamController<Map<String, List<Map<String, String>>>>();
   }
 
   @override
   void dispose() {
-    bpmController.dispose();
-    bpmFocusNode.dispose();
     _notesStreamController.close();
+    _expansionControllers.forEach((key, controller) {
+      controller.close();
+    });
     super.dispose();
   }
 
@@ -105,7 +108,21 @@ class CalculatorPageState extends State<CalculatorPage> {
   }
 
 
-  // 折りたたみボタン用のウィジェットを作成
+  // 展開状態を管理するStreamを返す
+  Stream<bool> _getExpansionStream(String title) {
+    if (!_expansionControllers.containsKey(title)) {
+      _expansionControllers[title] = StreamController<bool>.broadcast();
+    }
+    return _expansionControllers[title]!.stream;
+  }
+
+  // 展開状態を更新するメソッド
+  void _toggleExpansion(String title, bool expanded) {
+    final controller = _expansionControllers[title];
+    controller?.add(expanded);  // 状態を更新
+  }
+
+  // 折りたたみボタン用のウィジェット
   Widget _buildNoteGroup(String title, List<Map<String, String>> notes, Map<String, bool> enabledNotes, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -113,62 +130,55 @@ class CalculatorPageState extends State<CalculatorPage> {
       return enabledNotes[note['note']] ?? false;
     }).toList();
 
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.0), // ここで余白を追加
-      child: Card(
-        color: colorScheme.surfaceBright, // カード背景色をテーマに適応
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            dividerColor: colorScheme.outline, // Divider の色をテーマに合わせる
-            iconTheme: IconThemeData(color: colorScheme.primary), // アイコンの色
-          ),
-          child: ExpansionTile(
+    return Card(
+      color: colorScheme.surface, // カード背景色をテーマに適応
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0), // 角丸の半径を指定
+      ),
+      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0), // 左右と上下にマージン
+      child: StreamBuilder<bool>(
+        stream: _getExpansionStream(title),
+        initialData: false, // 初期状態は閉じた状態
+        builder: (context, snapshot) {
+          final isExpanded = snapshot.data ?? false;
+
+          return ExpansionTile(
             title: Text(
               AppLocalizations.of(context)!.getTranslation(title),
               style: TextStyle(
-                fontWeight: FontWeight.bold, // 太字にする
-                fontSize: 18, // フォントサイズを調整
-                color: colorScheme.onSurface, // テキスト色をテーマに基づける
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: colorScheme.onSurface,
               ),
             ),
-            trailing: Icon(
-              _isExpanded[title]! ? Icons.expand_less : Icons.expand_more,
-            ),
+            trailing: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
             onExpansionChanged: (bool expanded) {
-              setState(() {
-                _isExpanded[title] = expanded;
-              });
+              _toggleExpansion(title, expanded);
             },
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0), // ExpansionTile内にpaddingを追加
-                child: Column(
-                  children: enabledNotesList.map((note) {
-                    return _buildNoteCard(note['note']!, note['bpm']!, context);
-                  }).toList(),
-                ),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: enabledNotesList.length,
+                itemBuilder: (context, index) {
+                  return _buildNoteCard(enabledNotesList[index]['note']!, enabledNotesList[index]['bpm']!, context);
+                },
               ),
             ],
-          ),
-        ),
+          );
+        },
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
     final enabledNotes = context.watch<SettingsModel>().enabledNotes;
 
     return Scaffold(
-      appBar: AppBarWidget(
-        selectedIndex: _selectedIndex,
-      ),
       body: Column(
         children: [
-          BpmInputSection(
-            bpmController: bpmController,
-            bpmFocusNode: bpmFocusNode,
-          ),
           Expanded(
             child: StreamBuilder<Map<String, List<Map<String, String>>>>(
               stream: _notesStreamController.stream,
@@ -203,39 +213,6 @@ class CalculatorPageState extends State<CalculatorPage> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBarWidget(
-        selectedIndex: _selectedIndex,
-        onTabSelected: _onTabSelected,  // タブが選ばれた時の処理を渡す
-      ),
     );
-  }
-
-  void _onTabSelected(int index) {
-    setState(() {
-      _selectedIndex = index;  // タブが選ばれたときにインデックスを更新
-    });
-
-    // 選択されたインデックスに応じてページ遷移
-    if (index == 0) {  // NotePage のタブ
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return child;  // アニメーションなし
-          },
-        ),
-      );
-    } else if (index == 1) {  // CalculatorPage のタブ
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => NotePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return child;  // アニメーションなし
-          },
-        ),
-      );
-    }
   }
 }

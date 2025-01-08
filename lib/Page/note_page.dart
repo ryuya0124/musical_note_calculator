@@ -3,25 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
-import 'home_page.dart';
 import '../settings_model.dart';
-import 'calculator_page.dart';
-import '../UI/app_bar.dart';
-import '../UI/bottom_navigation_bar.dart';
-import '../UI/bpm_input_section.dart';
 import '../UI/unit_dropdown.dart';
 import '../notes.dart';
 
 class NotePage extends StatefulWidget {
-  const NotePage({super.key});
+  final TextEditingController bpmController; // bpmControllerを保持
+  final FocusNode bpmFocusNode; // bpmFocusNodeを保持
+
+  const NotePage({super.key,
+    required this.bpmController, // requiredを使用して必須にする
+    required this.bpmFocusNode,
+  });
+
   @override
   NotePageState createState() => NotePageState();
 }
 
 class NotePageState extends State<NotePage> {
-  int _selectedIndex = 1;  // 選択されたタブを管理
-  final TextEditingController bpmController = TextEditingController();
-  final FocusNode bpmFocusNode = FocusNode();
+  late TextEditingController bpmController;
+  late FocusNode bpmFocusNode;
   late String selectedTimeScale;
   late StreamController<List<Map<String, String>>> _notesStreamController;
   //単位選択
@@ -37,6 +38,8 @@ class NotePageState extends State<NotePage> {
   @override
   void initState() {
     super.initState();
+    bpmController = widget.bpmController;
+    bpmFocusNode = widget.bpmFocusNode;
     selectedTimeScale = context.read<SettingsModel>().selectedTimeScale;
     bpmController.addListener(_calculateNotes);
     _notesStreamController = StreamController<List<Map<String, String>>>();
@@ -60,15 +63,8 @@ class NotePageState extends State<NotePage> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        appBar: AppBarWidget(
-            selectedIndex: _selectedIndex
-        ),
         body: Column(
           children: [
-            BpmInputSection(
-              bpmController: bpmController,
-              bpmFocusNode: bpmFocusNode,
-            ),
             buildUnitSwitchSection(context),
             // StreamBuilderを使用して状態を監視
             StreamBuilder<List<Map<String, String>>>(
@@ -96,41 +92,8 @@ class NotePageState extends State<NotePage> {
             )
           ],
         ),
-        bottomNavigationBar: BottomNavigationBarWidget(
-          selectedIndex: _selectedIndex,
-          onTabSelected: _onTabSelected,  // タブが選ばれた時の処理を渡す
-        ),  // ボトムナビゲーションバー
       ),
     );
-  }
-
-  void _onTabSelected(int index) {
-    setState(() {
-      _selectedIndex = index;  // タブが選ばれたときにインデックスを更新
-    });
-
-    // 選択されたインデックスに応じてページ遷移
-    if (index == 0) {  // HomePage のタブ
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return child;  // アニメーションなし
-          },
-        ),
-      );
-    } else if (index == 2) {  // CalculatorPage のタブ
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => CalculatorPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return child;  // アニメーションなし
-          },
-        ),
-      );
-    }
   }
 
   // ユニット切り替えセクション

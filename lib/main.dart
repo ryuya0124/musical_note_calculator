@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'Page/home_page.dart'; // HomePageのインポート
+import 'main_screen.dart'; // MainScreenのインポート
 import 'settings_model.dart'; // SettingsModelのインポート
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -20,6 +20,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
               ? materialDarkTheme(darkDynamic) // ダイナミックカラーが使用可能な場合
               : ThemeData.from(colorScheme: MaterialTheme.darkScheme()), // カスタムテーマのダークモード
           debugShowCheckedModeBanner: false,
-          home: HomePage(), // HomePageを指定
+          home: MainScreen(), // MainScreenを指定
         );
       },
     );

@@ -1,36 +1,40 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../UI/app_bar.dart';
 import '../settings_model.dart';
 import 'metronome_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
-import '../UI/bottom_navigation_bar.dart';
-import '../UI/bpm_input_section.dart';
 import '../UI/unit_dropdown.dart';
-import 'calculator_page.dart';
-import 'note_page.dart';
 import '../notes.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final TextEditingController bpmController; // bpmControllerを保持
+  final FocusNode bpmFocusNode; // bpmFocusNodeを保持
+
+  const HomePage({
+    super.key,
+    required this.bpmController, // requiredを使用して必須にする
+    required this.bpmFocusNode,
+  });
   @override
   HomePageState createState() => HomePageState();
 }
 
 class HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  final TextEditingController bpmController = TextEditingController();
-  final FocusNode bpmFocusNode = FocusNode();
+  late TextEditingController bpmController;
+  late FocusNode bpmFocusNode;
   late String selectedUnit;
   late StreamController<List<Map<String, String>>> _notesStreamController;
   List<String> units = ['s', 'ms', 'µs'];
-  int _selectedIndex = 0;  // 選択されたタブを管理
 
   @override
   void initState() {
     super.initState();
     selectedUnit = context.read<SettingsModel>().selectedUnit;
+    bpmController = widget.bpmController;
+    bpmFocusNode = widget.bpmFocusNode;
+
     bpmController.addListener(_calculateNotes);
     _notesStreamController = StreamController<List<Map<String, String>>>.broadcast();
     WidgetsBinding.instance.addObserver(this);
@@ -38,8 +42,6 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    bpmController.dispose();
-    bpmFocusNode.dispose();
     _notesStreamController.close();  // StreamControllerを閉じる
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -69,53 +71,18 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
       },
       child: Scaffold(
         backgroundColor: colorScheme.surface,
-        appBar: AppBarWidget(
-          selectedIndex: _selectedIndex,
-        ),
         body: Column(
           children: [
-            BpmInputSection(
+            /*BpmInputSection(
               bpmController: bpmController,
               bpmFocusNode: bpmFocusNode,
-            ),
+            ),*/
             buildUnitSwitchSection(context),
             buildNotesList(enabledNotes, appBarColor),
           ],
         ),
-        bottomNavigationBar: BottomNavigationBarWidget(
-          selectedIndex: _selectedIndex,
-          onTabSelected: _onTabSelected,
-        ),
       ),
     );
-  }
-
-  void _onTabSelected(int index) {
-    setState(() {
-      _selectedIndex = index;  // タブが選ばれたときにインデックスを更新
-    });
-
-    if (index == 1) {  // NotePage のタブ
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => NotePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return child;  // アニメーションなし
-          },
-        ),
-      );
-    } else if (index == 2) {  // CalculatorPage のタブ
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => CalculatorPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return child;  // アニメーションなし
-          },
-        ),
-      );
-    }
   }
 
   // ユニット切り替えセクション

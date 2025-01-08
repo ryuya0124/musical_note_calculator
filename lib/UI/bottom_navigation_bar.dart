@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BottomNavigationBarWidget extends StatelessWidget {
   final int selectedIndex;
-  final Function(int) onTabSelected;
+  final ValueChanged<int> onTabSelected;
 
   const BottomNavigationBarWidget({
     super.key,
@@ -15,7 +15,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    // 選択時の背景色に基づいて適切な色を決定
+    // 選択時の背景色に基づいて適切なアイコンの色を決定
     Color getSelectedIconColor() {
       return colorScheme.primaryContainer.computeLuminance() > 0.5
           ? colorScheme.onPrimaryContainer // 背景が明るい場合
@@ -23,29 +23,27 @@ class BottomNavigationBarWidget extends StatelessWidget {
     }
 
     return NavigationBar(
-      selectedIndex: selectedIndex, // 現在選択されているインデックスを設定
-      onDestinationSelected: (index) {
-        onTabSelected(index); // タップされたインデックスをコールバックで渡す
-      },
+      selectedIndex: selectedIndex, // 現在選択されているタブのインデックス
+      onDestinationSelected: onTabSelected, // タブ選択時のコールバック
       destinations: [
         NavigationDestination(
-          icon: Icon(Icons.music_note, color: colorScheme.onSurface), // 未選択時の色
-          selectedIcon: Icon(Icons.music_note, color: getSelectedIconColor()), // 選択時の色
-          label: AppLocalizations.of(context)!.note_spacing,
+          icon: Icon(Icons.home, color: colorScheme.onSurface), // 未選択時の色
+          selectedIcon: Icon(Icons.home, color: getSelectedIconColor()), // 選択時の色
+          label: AppLocalizations.of(context)!.note_spacing, // ラベル
         ),
         NavigationDestination(
           icon: Icon(Icons.note, color: colorScheme.onSurface), // 未選択時の色
           selectedIcon: Icon(Icons.note, color: getSelectedIconColor()), // 選択時の色
-          label: AppLocalizations.of(context)!.note_count,
+          label: AppLocalizations.of(context)!.note_count, // ラベル
         ),
         NavigationDestination(
           icon: Icon(Icons.calculate, color: colorScheme.onSurface), // 未選択時の色
           selectedIcon: Icon(Icons.calculate, color: getSelectedIconColor()), // 選択時の色
-          label: AppLocalizations.of(context)!.calculator,
+          label: AppLocalizations.of(context)!.calculator, // ラベル
         ),
       ],
-      backgroundColor: colorScheme.surface, // 背景色
-      indicatorColor: colorScheme.primaryContainer, // 選択中のインジケータの色
+      backgroundColor: colorScheme.surface, // ナビゲーションバーの背景色
+      indicatorColor: colorScheme.primaryContainer, // 選択中インジケータの色
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow, // ラベル表示の挙動
     );
   }
