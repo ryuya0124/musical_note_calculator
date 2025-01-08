@@ -121,21 +121,24 @@ class SettingsPageState extends State<SettingsPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,  // 左右の要素を分ける
       crossAxisAlignment: CrossAxisAlignment.center,  // 縦方向で中央揃え
       children: [
+        // テキストを左寄せ
         Text(
           AppLocalizations.of(context)!.decimal_places,
           style: TextStyle(
             fontSize: 16,
           ),
         ),
-        SizedBox(width: 16), // テキストと入力欄の間にスペースを追加
-        Expanded(  // 残りのスペースを占めて、右寄せにする
+        SizedBox(width: 8), // テキストと入力欄の間に少しスペースを追加
+
+        // 右寄せのテキストフィールドとボタンを持つRow
+        Flexible(
           child: Align(
             alignment: Alignment.centerRight,  // 右寄せ
             child: Row(
-              mainAxisSize: MainAxisSize.min,  // 最小サイズに設定
+              mainAxisSize: MainAxisSize.min, // 最小サイズに設定
               children: [
                 Container(
-                  width: 80, // 幅を指定
+                  constraints: BoxConstraints(maxWidth: 70),  // 幅を70に制限
                   child: TextField(
                     controller: decimalsController,
                     focusNode: decimalsFocusNode,
@@ -158,7 +161,7 @@ class SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                 ),
-                SizedBox(width: 16), // 入力欄とボタン間のスペース
+                SizedBox(width: 4), // 入力欄とボタンの間のスペース
                 IconButton(
                   icon: Icon(Icons.add),
                   color: colorScheme.primary,

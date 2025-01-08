@@ -1,4 +1,4 @@
-// lib/pages/note_page.dart
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -23,7 +23,7 @@ class NotePageState extends State<NotePage> {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
   late String selectedTimeScale;
-  List<Map<String, String>> _notes = [];
+  late StreamController<List<Map<String, String>>> _notesStreamController;
   //単位選択
   List<String> units = ['1s', '100ms', '10ms'];
 
@@ -39,12 +39,14 @@ class NotePageState extends State<NotePage> {
     super.initState();
     selectedTimeScale = context.read<SettingsModel>().selectedTimeScale;
     bpmController.addListener(_calculateNotes);
+    _notesStreamController = StreamController<List<Map<String, String>>>();
   }
 
   @override
   void dispose() {
     bpmController.dispose();
     bpmFocusNode.dispose();
+    _notesStreamController.close(); // ストリームのクローズ
     super.dispose();
   }
 
@@ -59,7 +61,7 @@ class NotePageState extends State<NotePage> {
       },
       child: Scaffold(
         appBar: AppBarWidget(
-          selectedIndex: _selectedIndex
+            selectedIndex: _selectedIndex
         ),
         body: Column(
           children: [
@@ -68,7 +70,30 @@ class NotePageState extends State<NotePage> {
               bpmFocusNode: bpmFocusNode,
             ),
             buildUnitSwitchSection(context),
-            buildNotesList(enabledNotes, appBarColor),
+            // StreamBuilderを使用して状態を監視
+            StreamBuilder<List<Map<String, String>>>(
+              stream: _notesStreamController.stream,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  // エラーが発生した場合
+                  return Center(child: Text('エラーが発生しました'));
+                }
+
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  return buildNotesList(enabledNotes, appBarColor, snapshot.data!);
+                } else {
+                  // データがない場合、縦方向にも中央にメッセージを表示
+                  return Expanded(
+                    child: Center(
+                      child: Text(
+                        AppLocalizations.of(context)!.calculate_notes,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  );
+                }
+              },
+            )
           ],
         ),
         bottomNavigationBar: BottomNavigationBarWidget(
@@ -130,23 +155,21 @@ class NotePageState extends State<NotePage> {
     );
   }
 
-  Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor) {
+  Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor, List<Map<String, String>> notes) {
     return Expanded(
       child: bpmController.text.isEmpty
           ? Center(child: Text(AppLocalizations.of(context)!.bpm_instruction))
-          : _notes.isNotEmpty
-          ? ListView.builder(
-        itemCount: _notes.length,
+          : ListView.builder(
+        itemCount: notes.length,
         itemBuilder: (context, index) {
-          final note = _notes[index];
+          final note = notes[index];
           if (enabledNotes[note['name']] == true) {
             return buildNoteCard(note, appBarColor, context);
           } else {
             return Container();
           }
         },
-      )
-          : Center(child: Text(AppLocalizations.of(context)!.calculate_notes )),
+      ),
     );
   }
 
@@ -184,17 +207,13 @@ class NotePageState extends State<NotePage> {
   void _calculateNotes() {
     final bpmInput = bpmController.text;
     if (bpmInput.isEmpty) {
-      setState(() {
-        _notes = [];
-      });
+      _notesStreamController.sink.add([]);
       return;
     }
 
     final bpm = double.tryParse(bpmInput);
     if (bpm == null || bpm <= 0) {
-      setState(() {
-        _notes = [];
-      });
+      _notesStreamController.sink.add([]);
       return;
     }
 
@@ -206,24 +225,23 @@ class NotePageState extends State<NotePage> {
         ? 100 * 60 // 1µs
         : 60.0;  // その他の場合は60.0
 
+    final notesList = notes.map((note) {
+      // ノートの間隔を計算
+      final noteLength = calculateNoteFrequency(
+        bpm,
+        conversionFactor,
+        note.note,
+        isDotted: note.dotted,
+      );
 
-    setState(() {
-      _notes = notes.map((note) {
-        // ノートの間隔を計算
-        final noteLength = calculateNoteFrequency(
-          bpm,
-          conversionFactor,
-          note.note,
-          isDotted: note.dotted,
-        );
+      // フォーマットしてリストに追加
+      return {
+        'name': note.name,
+        'duration': _formatDuration(noteLength),
+      };
+    }).toList();
 
-        // フォーマットしてリストに追加
-        return {
-          'name': note.name,
-          'duration': _formatDuration(noteLength),
-        };
-      }).toList();
-    });
+    _notesStreamController.sink.add(notesList);
   }
 
   String _formatDuration(double duration) {

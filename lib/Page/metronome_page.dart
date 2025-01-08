@@ -1,3 +1,4 @@
+import 'dart:async'; // StreamControllerのインポート
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
@@ -19,15 +20,16 @@ class MetronomePage extends StatefulWidget {
 }
 
 class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserver {
-
   final _selectedIndex = 3;
-  bool isPlaying = false;
-  late Duration interval;
-  late String note;
-  late String intervalTime = widget.interval;
   final metronome = Metronome();
   late double bpm = widget.bpm;
+  late String note = widget.note;
+  late String intervalTime = widget.interval;
   int vol = 100;
+  bool isPlaying = false;
+
+  final _isPlayingController = StreamController<bool>.broadcast();
+  final _iconStateController = StreamController<bool>.broadcast();
 
   // 最後に状態を更新した時間を保持
   int lastUpdatedTime = 0;
@@ -52,53 +54,42 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    note = widget.note;
-    bpm = convertNoteDurationToBPM(bpm,note);
-
-    interval = Duration(microseconds: ( (60000 * 1000) / widget.bpm).round());
-
-    //速すぎると壊れるので速度制限
-    if(bpm >= maxBpm) bpm = maxBpm;
-
+    bpm = convertNoteDurationToBPM(bpm, note);
 
     metronome.init('assets/$weakTick',
       bpm: bpm.toInt(),
       volume: 100,
-      //When set to true, the music of other apps will stop when the metronome is played.
       enableSession: false,
       enableTickCallback: true,
     );
-
-    // アイコンの状態を管理する変数
-    isLeftIcon = true;
 
     metronome.onListenTick((_) {
       final currentTime = DateTime.now().millisecondsSinceEpoch;
 
       // 最後の更新から150ms以上経過した場合のみ更新を行う
       if (currentTime - lastUpdatedTime >= 150) {
-        setState(() {
-          // アイコンの状態を切り替え
-          isLeftIcon = !isLeftIcon;
+        // アイコンの状態を切り替え
+        isLeftIcon = !isLeftIcon;
+        _iconStateController.sink.add(isLeftIcon);
 
-          // 最後に更新した時間を記録
-          lastUpdatedTime = currentTime;
-        });
+        // 最後に更新した時間を記録
+        lastUpdatedTime = currentTime;
       }
     });
-
   }
 
   @override
   void dispose() {
     metronome.stop();
     metronome.destroy();
+    _isPlayingController.close();
+    _iconStateController.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state)  async  {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.inactive:
         stopMetronome();
@@ -129,30 +120,28 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
   void toggleMetronome() {
     if (isPlaying) {
       stopMetronome();
+      isPlaying = false;
     } else {
       startMetronome();
+      isPlaying = true;
     }
   }
 
   void startMetronome() {
     if (isPlaying) return;
 
-    bpm = convertNoteDurationToBPM(widget.bpm,note);
-    //速すぎると壊れるので速度制限
-    if(bpm >= maxBpm) bpm = maxBpm;
+    bpm = convertNoteDurationToBPM(widget.bpm, note);
+    if (bpm >= maxBpm) bpm = maxBpm;
     metronome.play(bpm.toInt());
-    setState(() {
-      isPlaying = true;
-    });
+
+    _isPlayingController.sink.add(true);
   }
 
   void stopMetronome() {
     if (!isPlaying) return;
     metronome.stop();
 
-    setState(() {
-      isPlaying = false;
-    });
+    _isPlayingController.sink.add(false);
   }
 
   @override
@@ -168,6 +157,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 20),
                 buildAnimatedIcon(screenHeight, context),
                 const SizedBox(height: 20),
                 buildBpmDisplay(context),
@@ -181,6 +171,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
                 buildVolumeBar(context),
                 const SizedBox(height: 20),
                 buildWarningSection(context),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -190,14 +181,20 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
   }
 
   Widget buildAnimatedIcon(double screenHeight, BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 100),
-      child: Image.asset(
-        getMetronomeIcon(context,isLeftIcon),
-        key: ValueKey<String>(getMetronomeIcon(context,isLeftIcon)),
-        height: screenHeight * 0.3,
-        gaplessPlayback: true,
-      ),
+    return StreamBuilder<bool>(
+      stream: _iconStateController.stream,
+      builder: (context, snapshot) {
+        final isLeft = snapshot.data ?? true;
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 100),
+          child: Image.asset(
+            getMetronomeIcon(context, isLeft),
+            key: ValueKey<String>(getMetronomeIcon(context, isLeft)),
+            height: screenHeight * 0.3,
+            gaplessPlayback: true,
+          ),
+        );
+      },
     );
   }
 
@@ -227,7 +224,6 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
     );
   }
 
-
   Widget buildQuarterNoteEquivalent(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -242,28 +238,33 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
     );
   }
 
-
   Widget buildToggleButton(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    return StreamBuilder<bool>(
+      stream: _isPlayingController.stream,
+      builder: (context, snapshot) {
+        final isPlaying = snapshot.data ?? false;
+        final colorScheme = Theme.of(context).colorScheme;
 
-    return ElevatedButton(
-      onPressed: toggleMetronome,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
-        textStyle: const TextStyle(fontSize: 18),
-        backgroundColor: isPlaying
-            ? colorScheme.error // 再生中はエラー色（例: 赤）
-            : colorScheme.primary, // 停止中はプライマリ色（例: 青）
-        foregroundColor: colorScheme.onPrimary, // テキスト色（プライマリ色に対する適切な色）
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0), // ボタンの角を丸く
-        ),
-      ),
-      child: Text(
-        isPlaying
-            ? AppLocalizations.of(context)!.stop
-            : AppLocalizations.of(context)!.start,
-      ),
+        return ElevatedButton(
+          onPressed: toggleMetronome,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
+            textStyle: const TextStyle(fontSize: 18),
+            backgroundColor: isPlaying
+                ? colorScheme.error // 再生中はエラー色（例: 赤）
+                : colorScheme.primary, // 停止中はプライマリ色（例: 青）
+            foregroundColor: colorScheme.onPrimary, // テキスト色（プライマリ色に対する適切な色）
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0), // ボタンの角を丸く
+            ),
+          ),
+          child: Text(
+            isPlaying
+                ? AppLocalizations.of(context)!.stop
+                : AppLocalizations.of(context)!.start,
+          ),
+        );
+      },
     );
   }
 
@@ -335,10 +336,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
 
   ///4分音符に換算
   double convertNoteDurationToBPM(double bpm, String note) {
-    // ノートデータを検索
     final noteData = findNoteData(note);
-
-    // BPMを計算
     return calculateNoteBPM(bpm, noteData, 4);
   }
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../UI/app_bar.dart';
@@ -20,24 +21,24 @@ class CalculatorPageState extends State<CalculatorPage> {
   final TextEditingController bpmController = TextEditingController();
   final FocusNode bpmFocusNode = FocusNode();
   int _selectedIndex = 2;  // 選択されたタブを管理
-  Map<String, List<Map<String, String>>> _notes = {};
+  late StreamController<Map<String, List<Map<String, String>>>> _notesStreamController;
   late Map<String, bool> _isExpanded;
-
 
   @override
   void initState() {
     super.initState();
     bpmController.addListener(_calculateNotes);
-    //ドロップダウンの表示と非表示
     _isExpanded = {
       for (var note in notes) note.name: false,
     };
+    _notesStreamController = StreamController<Map<String, List<Map<String, String>>>>();
   }
 
   @override
   void dispose() {
     bpmController.dispose();
     bpmFocusNode.dispose();
+    _notesStreamController.close();
     super.dispose();
   }
 
@@ -45,33 +46,30 @@ class CalculatorPageState extends State<CalculatorPage> {
   void _calculateNotes() {
     final bpmInput = bpmController.text;
     if (bpmInput.isEmpty) {
-      setState(() {
-        _notes = {};
-      });
+      _notesStreamController.add({});
       return;
     }
 
     final bpm = double.tryParse(bpmInput);
     if (bpm == null || bpm <= 0) {
-      setState(() {
-        _notes = {};
-      });
+      _notesStreamController.add({});
       return;
     }
 
-    setState(() {
-      _notes = {};
+    Map<String, List<Map<String, String>>> calculatedNotes = {};
 
-      for (var baseNote in notes) {
-        _notes[baseNote.name] = notes.map((targetNote) {
-          double targetBPM = calculateNoteBPM(bpm, baseNote, targetNote.note);
-          return {
-            'note': targetNote.name,
-            'bpm': targetBPM.toStringAsFixed(context.read<SettingsModel>().numDecimal),
-          };
-        }).toList();
-      }
-    });
+    for (var baseNote in notes) {
+      calculatedNotes[baseNote.name] = notes.map((targetNote) {
+        double targetBPM = calculateNoteBPM(bpm, baseNote, targetNote.note);
+        return {
+          'note': targetNote.name,
+          'bpm': targetBPM.toStringAsFixed(context.read<SettingsModel>().numDecimal),
+        };
+      }).toList();
+    }
+
+    // 結果をStreamに送信
+    _notesStreamController.add(calculatedNotes);
   }
 
   // カード内で音符の計算結果を表示
@@ -91,7 +89,7 @@ class CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-// 折りたたみボタン用のウィジェットを作成
+  // 折りたたみボタン用のウィジェットを作成
   Widget _buildNoteGroup(String title, List<Map<String, String>> notes, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -140,19 +138,37 @@ class CalculatorPageState extends State<CalculatorPage> {
         selectedIndex: _selectedIndex,
       ),
       body: Column(
-          children: [
-            BpmInputSection(
-              bpmController: bpmController,
-              bpmFocusNode: bpmFocusNode,
+        children: [
+          BpmInputSection(
+            bpmController: bpmController,
+            bpmFocusNode: bpmFocusNode,
+          ),
+          Expanded(
+            child: StreamBuilder<Map<String, List<Map<String, String>>>>(
+              stream: _notesStreamController.stream,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('エラーが発生しました'));
+                }
+
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  return ListView(
+                    children: snapshot.data!.keys.map((key) {
+                      return _buildNoteGroup(key, snapshot.data![key]!, context);
+                    }).toList(),
+                  );
+                } else {
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context)!.calculate_notes,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  );
+                }
+              },
             ),
-            Expanded(
-              child: ListView(
-                children: _notes.keys.map((key) {
-                  return _buildNoteGroup(key, _notes[key]!, context);
-                }).toList(),
-              ),
-            ),
-          ],
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBarWidget(
         selectedIndex: _selectedIndex,
