@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'Page/home_page.dart';
-import 'Page/note_page.dart';
-import 'Page/calculator_page.dart';
-import 'UI/bottom_navigation_bar.dart'; // ナビゲーションバーをインポート
-import '../UI/app_bar.dart';
-import '../UI/bpm_input_section.dart';
+import '../Page/home_page.dart';
+import '../Page/note_page.dart';
+import '../Page/calculator_page.dart';
+import 'bottom_navigation_bar.dart'; // ナビゲーションバーをインポート
+import '../../UI/app_bar.dart';
+import '../../UI/bpm_input_section.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
