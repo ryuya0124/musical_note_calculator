@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../settings_model.dart';
 
 class BpmInputSection extends StatelessWidget {
   final TextEditingController bpmController;
@@ -38,7 +40,7 @@ class BpmInputSection extends StatelessWidget {
             color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
-              bpmController.text = (currentValue + 1).toStringAsFixed(0);
+              bpmController.text = (currentValue + context.read<SettingsModel>().deltaValue).toStringAsFixed(0);
             },
             splashColor: colorScheme.primary.withValues(alpha: 0.2),
           ),
@@ -47,7 +49,7 @@ class BpmInputSection extends StatelessWidget {
             color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
-              bpmController.text = (currentValue - 1).clamp(0, double.infinity).toStringAsFixed(0);
+              bpmController.text = (currentValue - context.read<SettingsModel>().deltaValue).clamp(0, double.infinity).toStringAsFixed(0);
             },
             splashColor: colorScheme.primary.withValues(alpha: 0.2),
           ),

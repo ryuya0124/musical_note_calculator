@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class NumDecimalsWidget extends StatelessWidget {
+class numericInputColumnWidget extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final String titleText;
@@ -8,7 +8,7 @@ class NumDecimalsWidget extends StatelessWidget {
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
 
-  const NumDecimalsWidget({
+  const numericInputColumnWidget({
     Key? key,
     required this.controller,
     required this.focusNode,

@@ -9,6 +9,8 @@ class SettingsModel extends ChangeNotifier {
   int numDecimal = 2;
   //最大BPMの設定
   int maxBPM = 500;
+  //+-ボタンの増減値
+  double deltaValue = 1;
 
   // カスタムノートのリストを保持
   List<NoteData> customNotes = [];
@@ -67,6 +69,9 @@ class SettingsModel extends ChangeNotifier {
 
     //最大BPMの保存
     prefs.setInt('maxBPM', maxBPM);
+
+    //+-ボタンの増減値
+    prefs.setDouble('deltaValue', deltaValue);
   }
 
   // SharedPreferencesから設定を読み込む
@@ -110,6 +115,9 @@ class SettingsModel extends ChangeNotifier {
     //最大BPMを読み込む
     maxBPM = prefs.getInt('maxBPM') ?? 500;
 
+    //+-ボタンの増減値
+    deltaValue = prefs.getDouble('deltaValue') ?? 500;
+
     notifyListeners();
   }
 
@@ -137,6 +145,13 @@ class SettingsModel extends ChangeNotifier {
   // 最大BPMの変更
   void setMaxBPM(int num) {
     maxBPM = num;
+    _saveSettings(); // 設定を保存
+    notifyListeners();
+  }
+
+  // 最大BPMの変更
+  void setDeltaValue(double num) {
+    deltaValue = num;
     _saveSettings(); // 設定を保存
     notifyListeners();
   }

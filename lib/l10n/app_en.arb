@@ -29,6 +29,7 @@
   "note_settings": "Note View Settings",
   "advanced_settings": "Advanced Settings",
   "decimal_places": "Decimal places",
+  "deltaValue": "Increment/Decrement Value",
   "author": "Author: Ryuya",
   "view_on_github": "View on GitHub",
   "bpm_input": "Enter BPM",

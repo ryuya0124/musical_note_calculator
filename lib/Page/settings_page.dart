@@ -1,12 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../settings_model.dart';
 import '../UI/app_bar.dart';
 import '../UI/unit_dropdown.dart';
-import '../UI/num_decimals_widget.dart';
+import '../UI/numeric_input_column.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
@@ -28,8 +26,12 @@ class SettingsPageState extends State<SettingsPage> {
   late int maxBPM;
   late TextEditingController maxBPMController = TextEditingController();
   final FocusNode maxBPMFocusNode = FocusNode();
-  bool isDotted = false; // 付点音符フラグ
 
+  late double deltaValue;
+  late TextEditingController deltaValueController = TextEditingController();
+  final FocusNode deltaValueFocusNode = FocusNode();
+
+  bool isDotted = false; // 付点音符フラグ
   final int _selectedIndex = 4;
 
   //単位選択
@@ -45,6 +47,9 @@ class SettingsPageState extends State<SettingsPage> {
 
     maxBPM = context.read<SettingsModel>().maxBPM;
     maxBPMController = TextEditingController(text: maxBPM.toString());
+
+    deltaValue = context.read<SettingsModel>().deltaValue;
+    deltaValueController = TextEditingController(text: deltaValue.toString());
   }
 
   @override
@@ -123,9 +128,10 @@ class SettingsPageState extends State<SettingsPage> {
             color: colorScheme.primary,
           ),
         ),
+
         SizedBox(height: 20),
         //小数桁数
-        NumDecimalsWidget(
+        numericInputColumnWidget(
           controller: decimalsController,
           focusNode: decimalsFocusNode,
           titleText: AppLocalizations.of(context)!.decimal_places,
@@ -137,7 +143,7 @@ class SettingsPageState extends State<SettingsPage> {
           },
           onIncrement: () {
             setState(() {
-              decimalValue++;
+              decimalValue += context.read<SettingsModel>().deltaValue.toInt();
               decimalsController.text = decimalValue.toString();
             });
             context.read<SettingsModel>().setNumDecimal(decimalValue);
@@ -145,7 +151,7 @@ class SettingsPageState extends State<SettingsPage> {
           onDecrement: () {
             setState(() {
               if (decimalValue > 0) {
-                decimalValue--;
+                decimalValue -= context.read<SettingsModel>().deltaValue.toInt();
                 decimalsController.text = decimalValue.toString();
               }
             });
@@ -156,19 +162,19 @@ class SettingsPageState extends State<SettingsPage> {
         SizedBox(height: 20),
 
         //最大BPM
-        NumDecimalsWidget(
+        numericInputColumnWidget(
           controller: maxBPMController,
           focusNode: maxBPMFocusNode,
           titleText: AppLocalizations.of(context)!.maxBPM,
           onChanged: (value) {
             setState(() {
-              maxBPM = int.tryParse(value) ?? 0;
+              maxBPM = int.tryParse(value) ?? 500;
             });
             context.read<SettingsModel>().setMaxBPM(maxBPM);
           },
           onIncrement: () {
             setState(() {
-              maxBPM++;
+              maxBPM += context.read<SettingsModel>().deltaValue.toInt();
               maxBPMController.text = maxBPM.toString();
             });
             context.read<SettingsModel>().setMaxBPM(maxBPM);
@@ -176,11 +182,42 @@ class SettingsPageState extends State<SettingsPage> {
           onDecrement: () {
             setState(() {
               if (maxBPM > 0) {
-                maxBPM--;
+                maxBPM -= context.read<SettingsModel>().deltaValue.toInt();
                 maxBPMController.text = maxBPM.toString();
               }
             });
             context.read<SettingsModel>().setMaxBPM(maxBPM);
+          },
+        ),
+
+        SizedBox(height: 20),
+
+        // +-ボタンの増減値 (deltaValue)
+        numericInputColumnWidget(
+          controller: deltaValueController,
+          focusNode: deltaValueFocusNode,
+          titleText: AppLocalizations.of(context)!.deltaValue,
+          onChanged: (value) {
+            setState(() {
+              deltaValue = double.tryParse(value) ?? 1;
+            });
+            context.read<SettingsModel>().setDeltaValue(deltaValue);
+          },
+          onIncrement: () {
+            setState(() {
+              deltaValue += context.read<SettingsModel>().deltaValue;
+              deltaValueController.text = deltaValue.toString();
+            });
+            context.read<SettingsModel>().setDeltaValue(deltaValue);
+          },
+          onDecrement: () {
+            setState(() {
+              if (deltaValue > 0) {
+                deltaValue -= context.read<SettingsModel>().deltaValue;
+                deltaValueController.text = deltaValue.toString();
+              }
+            });
+            context.read<SettingsModel>().setDeltaValue(deltaValue);
           },
         ),
       ],
