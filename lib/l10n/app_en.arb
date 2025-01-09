@@ -28,7 +28,7 @@
   "time_unit": "Time Unit",
   "note_settings": "Note View Settings",
   "advanced_settings": "Advanced Settings",
-  "decimal_places": "Number of decimal places",
+  "decimal_places": "Decimal places",
   "author": "Author: Ryuya",
   "view_on_github": "View on GitHub",
   "bpm_input": "Enter BPM",
@@ -42,6 +42,7 @@
   "note_count": "Note Count",
   "calculator": "Note Value Conversion",
   "warningMessage": "Setting a high BPM may cause a crash.\nThe metronome feature is in beta.\nThe maximum BPM is {maxBpm}.",
+  "maxBPM": "Metronome Max BPM",
   "@warningMessage": {
     "description": "BPM",
     "placeholders": {

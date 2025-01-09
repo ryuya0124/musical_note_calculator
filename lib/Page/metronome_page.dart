@@ -1,4 +1,5 @@
 import 'dart:async'; // StreamControllerのインポート
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
@@ -46,7 +47,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
   // 音源のパス
   final String strongTick = 'metronome_tick_strong.wav';
   final String weakTick = 'metronome_tick_weak.wav';
-  final double maxBpm = 500;
+  late int maxBpm;
 
   bool isLeftIcon = false;
 
@@ -55,6 +56,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     bpm = convertNoteDurationToBPM(bpm, note);
+    maxBpm = context.read<SettingsModel>().maxBPM;
 
     metronome.init('assets/$weakTick',
       bpm: bpm.toInt(),
@@ -131,7 +133,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
     if (isPlaying) return;
 
     bpm = convertNoteDurationToBPM(widget.bpm, note);
-    if (bpm >= maxBpm) bpm = maxBpm;
+    if (bpm >= maxBpm) bpm = maxBpm.toDouble();
     metronome.play(bpm.toInt());
 
     _isPlayingController.sink.add(true);

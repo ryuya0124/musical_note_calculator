@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../settings_model.dart';
 import '../UI/app_bar.dart';
 import '../UI/unit_dropdown.dart';
+import '../UI/num_decimals_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
@@ -17,9 +20,14 @@ class SettingsPage extends StatefulWidget {
 class SettingsPageState extends State<SettingsPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
+
   late int decimalValue;
   late TextEditingController decimalsController = TextEditingController();
   final FocusNode decimalsFocusNode = FocusNode();
+
+  late int maxBPM;
+  late TextEditingController maxBPMController = TextEditingController();
+  final FocusNode maxBPMFocusNode = FocusNode();
   bool isDotted = false; // 付点音符フラグ
 
   final int _selectedIndex = 4;
@@ -34,6 +42,9 @@ class SettingsPageState extends State<SettingsPage> {
     super.initState();
     decimalValue = context.read<SettingsModel>().numDecimal;
     decimalsController = TextEditingController(text: decimalValue.toStringAsFixed(0));
+
+    maxBPM = context.read<SettingsModel>().maxBPM;
+    maxBPMController = TextEditingController(text: maxBPM.toString());
   }
 
   @override
@@ -42,6 +53,8 @@ class SettingsPageState extends State<SettingsPage> {
     valueController.dispose();
     decimalsController.dispose();
     decimalsFocusNode.dispose();
+    maxBPMController.dispose();
+    maxBPMFocusNode.dispose();
     super.dispose();
   }
 
@@ -111,85 +124,64 @@ class SettingsPageState extends State<SettingsPage> {
           ),
         ),
         SizedBox(height: 20),
-        buildNumDecimals(context, colorScheme),
-      ],
-    );
-  }
-
-  Widget buildNumDecimals(BuildContext context, ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,  // 左右の要素を分ける
-      crossAxisAlignment: CrossAxisAlignment.center,  // 縦方向で中央揃え
-      children: [
-        // テキストを左寄せ
-        Text(
-          AppLocalizations.of(context)!.decimal_places,
-          style: TextStyle(
-            fontSize: 16,
-          ),
+        //小数桁数
+        NumDecimalsWidget(
+          controller: decimalsController,
+          focusNode: decimalsFocusNode,
+          titleText: AppLocalizations.of(context)!.decimal_places,
+          onChanged: (value) {
+            setState(() {
+              decimalValue = int.tryParse(value) ?? 0;
+            });
+            context.read<SettingsModel>().setNumDecimal(decimalValue);
+          },
+          onIncrement: () {
+            setState(() {
+              decimalValue++;
+              decimalsController.text = decimalValue.toString();
+            });
+            context.read<SettingsModel>().setNumDecimal(decimalValue);
+          },
+          onDecrement: () {
+            setState(() {
+              if (decimalValue > 0) {
+                decimalValue--;
+                decimalsController.text = decimalValue.toString();
+              }
+            });
+            context.read<SettingsModel>().setNumDecimal(decimalValue);
+          },
         ),
-        SizedBox(width: 8), // テキストと入力欄の間に少しスペースを追加
 
-        // 右寄せのテキストフィールドとボタンを持つRow
-        Flexible(
-          child: Align(
-            alignment: Alignment.centerRight,  // 右寄せ
-            child: Row(
-              mainAxisSize: MainAxisSize.min, // 最小サイズに設定
-              children: [
-                Container(
-                  constraints: BoxConstraints(maxWidth: 70),  // 幅を70に制限
-                  child: TextField(
-                    controller: decimalsController,
-                    focusNode: decimalsFocusNode,
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      setState(() {
-                        decimalValue = int.tryParse(value) ?? 0;
-                      });
-                      context.read<SettingsModel>().setNumDecimal(decimalValue);
-                    },
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: colorScheme.primary),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.5)),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 10),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 4), // 入力欄とボタンの間のスペース
-                IconButton(
-                  icon: Icon(Icons.add),
-                  color: colorScheme.primary,
-                  onPressed: () {
-                    setState(() {
-                      decimalValue++;
-                      decimalsController.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
-                    });
-                    context.read<SettingsModel>().setNumDecimal(decimalValue);
-                  },
-                ),
-                SizedBox(width: 8), // プラス・マイナスボタン間のスペース
-                IconButton(
-                  icon: Icon(Icons.remove),
-                  color: colorScheme.primary,
-                  onPressed: () {
-                    setState(() {
-                      if (decimalValue > 0) {
-                        decimalValue--;
-                        decimalsController.text = decimalValue.toStringAsFixed(0); // ボタンで変更した値をTextFieldに反映
-                      }
-                    });
-                    context.read<SettingsModel>().setNumDecimal(decimalValue);
-                  },
-                ),
-              ],
-            ),
-          ),
+        SizedBox(height: 20),
+
+        //最大BPM
+        NumDecimalsWidget(
+          controller: maxBPMController,
+          focusNode: maxBPMFocusNode,
+          titleText: AppLocalizations.of(context)!.maxBPM,
+          onChanged: (value) {
+            setState(() {
+              maxBPM = int.tryParse(value) ?? 0;
+            });
+            context.read<SettingsModel>().setMaxBPM(maxBPM);
+          },
+          onIncrement: () {
+            setState(() {
+              maxBPM++;
+              maxBPMController.text = maxBPM.toString();
+            });
+            context.read<SettingsModel>().setMaxBPM(maxBPM);
+          },
+          onDecrement: () {
+            setState(() {
+              if (maxBPM > 0) {
+                maxBPM--;
+                maxBPMController.text = maxBPM.toString();
+              }
+            });
+            context.read<SettingsModel>().setMaxBPM(maxBPM);
+          },
         ),
       ],
     );

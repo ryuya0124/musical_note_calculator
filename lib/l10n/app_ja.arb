@@ -28,7 +28,7 @@
   "time_unit": "時間単位",
   "note_settings": "音符表示設定",
   "advanced_settings": "詳細設定",
-  "decimal_places": "小数点以下の桁数",
+  "decimal_places": "小数の桁数",
   "author": "作成者: りゅうや",
   "view_on_github": "GitHubで見る",
   "bpm_input": "BPMを入力",
@@ -42,6 +42,7 @@
   "note_count": "音符回数",
   "calculator": "音価換算",
   "warningMessage": "高速なBPMに設定するとクラッシュする可能性があります。\nメトロノーム機能はベータ版です。\n最大BPMは{maxBpm}です。",
+  "maxBPM": "メトロノーム 最大BPM",
   "@warningMessage": {
     "description": "BPM",
     "placeholders": {

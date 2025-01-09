@@ -7,6 +7,8 @@ class SettingsModel extends ChangeNotifier {
   String selectedTimeScale = '1s';
   //小数の桁数設定
   int numDecimal = 2;
+  //最大BPMの設定
+  int maxBPM = 500;
 
   // カスタムノートのリストを保持
   List<NoteData> customNotes = [];
@@ -62,6 +64,9 @@ class SettingsModel extends ChangeNotifier {
 
     //小数の桁数の保存
     prefs.setInt('numDecimal', numDecimal);
+
+    //最大BPMの保存
+    prefs.setInt('maxBPM', maxBPM);
   }
 
   // SharedPreferencesから設定を読み込む
@@ -102,6 +107,9 @@ class SettingsModel extends ChangeNotifier {
     //小数の桁数を読み込む
     numDecimal = prefs.getInt('numDecimal') ?? 2;
 
+    //最大BPMを読み込む
+    maxBPM = prefs.getInt('maxBPM') ?? 500;
+
     notifyListeners();
   }
 
@@ -122,6 +130,13 @@ class SettingsModel extends ChangeNotifier {
   // 小数の桁数の変更
   void setNumDecimal(int num) {
     numDecimal = num;
+    _saveSettings(); // 設定を保存
+    notifyListeners();
+  }
+
+  // 最大BPMの変更
+  void setMaxBPM(int num) {
+    maxBPM = num;
     _saveSettings(); // 設定を保存
     notifyListeners();
   }
