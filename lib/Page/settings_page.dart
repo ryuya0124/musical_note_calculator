@@ -49,7 +49,7 @@ class SettingsPageState extends State<SettingsPage> {
     maxBPMController = TextEditingController(text: maxBPM.toString());
 
     deltaValue = context.read<SettingsModel>().deltaValue;
-    deltaValueController = TextEditingController(text: deltaValue.toString());
+    deltaValueController = TextEditingController(text: deltaValue.toStringAsFixed(context.read<SettingsModel>().numDecimal));
   }
 
   @override
@@ -139,19 +139,23 @@ class SettingsPageState extends State<SettingsPage> {
             setState(() {
               decimalValue = int.tryParse(value) ?? 0;
             });
-            context.read<SettingsModel>().setNumDecimal(decimalValue);
+            if (decimalValue < 1000 && decimalValue > 0) {
+              context.read<SettingsModel>().setNumDecimal(decimalValue);
+            }
           },
           onIncrement: () {
             setState(() {
-              decimalValue += context.read<SettingsModel>().deltaValue.toInt();
-              decimalsController.text = decimalValue.toString();
+              if (decimalValue < 1000) {
+                decimalValue++;
+                decimalsController.text = decimalValue.toString();
+              }
             });
             context.read<SettingsModel>().setNumDecimal(decimalValue);
           },
           onDecrement: () {
             setState(() {
               if (decimalValue > 0) {
-                decimalValue -= context.read<SettingsModel>().deltaValue.toInt();
+                decimalValue--;
                 decimalsController.text = decimalValue.toString();
               }
             });
@@ -205,7 +209,7 @@ class SettingsPageState extends State<SettingsPage> {
           },
           onIncrement: () {
             setState(() {
-              deltaValue += context.read<SettingsModel>().deltaValue;
+              deltaValue++;
               deltaValueController.text = deltaValue.toString();
             });
             context.read<SettingsModel>().setDeltaValue(deltaValue);
@@ -213,7 +217,7 @@ class SettingsPageState extends State<SettingsPage> {
           onDecrement: () {
             setState(() {
               if (deltaValue > 0) {
-                deltaValue -= context.read<SettingsModel>().deltaValue;
+                deltaValue--;
                 deltaValueController.text = deltaValue.toString();
               }
             });

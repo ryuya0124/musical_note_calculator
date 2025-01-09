@@ -116,7 +116,7 @@ class SettingsModel extends ChangeNotifier {
     maxBPM = prefs.getInt('maxBPM') ?? 500;
 
     //+-ボタンの増減値
-    deltaValue = prefs.getDouble('deltaValue') ?? 500;
+    deltaValue = prefs.getDouble('deltaValue') ?? 1;
 
     notifyListeners();
   }

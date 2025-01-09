@@ -40,7 +40,9 @@ class BpmInputSection extends StatelessWidget {
             color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
-              bpmController.text = (currentValue + context.read<SettingsModel>().deltaValue).toStringAsFixed(0);
+              bpmController.text =
+                  (currentValue + context.read<SettingsModel>().deltaValue)
+                      .toStringAsFixed(context.read<SettingsModel>().numDecimal);
             },
             splashColor: colorScheme.primary.withValues(alpha: 0.2),
           ),
@@ -49,7 +51,9 @@ class BpmInputSection extends StatelessWidget {
             color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
-              bpmController.text = (currentValue - context.read<SettingsModel>().deltaValue).clamp(0, double.infinity).toStringAsFixed(0);
+              bpmController.text =
+                  (currentValue - context.read<SettingsModel>().deltaValue)
+                      .clamp(0, double.infinity).toStringAsFixed(context.read<SettingsModel>().numDecimal);
             },
             splashColor: colorScheme.primary.withValues(alpha: 0.2),
           ),
