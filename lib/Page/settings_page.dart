@@ -7,6 +7,7 @@ import '../UI/unit_dropdown.dart';
 import '../UI/numeric_input_column.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
+import 'licence_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -16,6 +17,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
 
@@ -84,6 +86,7 @@ class SettingsPageState extends State<SettingsPage> {
                 buildAdvancedSettingsSection(context, colorScheme),
                 SizedBox(height: 40),
                 buildAuthorSection(context, colorScheme),
+                SizedBox(height: 20),
               ],
             ),
           ),
@@ -479,7 +482,43 @@ class SettingsPageState extends State<SettingsPage> {
             ),
           ],
         ),
+        SizedBox(height: 20),
+        buildLicenceLink(context, colorScheme),
       ],
+    );
+  }
+
+  // ライセンス情報
+  Widget buildLicenceLink(BuildContext context, ColorScheme colorScheme) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => LicencePage(),
+          ),
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(10.0),
+        child: Row(
+          children: [
+            Icon(
+              Icons.description,
+              color: colorScheme.primary,
+              size: 28,
+            ),
+            SizedBox(width: 16),
+            Text(
+              'ライセンス情報',
+              style: TextStyle(
+                fontSize: 16,
+                //fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

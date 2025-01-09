@@ -20,6 +20,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       AppLocalizations.of(context)!.note_count,
       AppLocalizations.of(context)!.calculator,
       AppLocalizations.of(context)!.metronome,
+      AppLocalizations.of(context)!.settings,
       AppLocalizations.of(context)!.settings
     ];
 
