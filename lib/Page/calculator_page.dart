@@ -85,7 +85,7 @@ class CalculatorPageState extends State<CalculatorPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20), // 角を丸くする
       ),
-      color: colorScheme.surface.withValues(alpha: 0.1), // 背景色をテーマに基づける
+      color: colorScheme.surface, // 背景色をテーマに基づける
       child: ListTile(
         contentPadding: EdgeInsets.all(16), // パディングを調整
         title: Text(
@@ -131,7 +131,7 @@ class CalculatorPageState extends State<CalculatorPage> {
     }).toList();
 
     return Card(
-      color: colorScheme.surface, // カード背景色をテーマに適応
+      color: colorScheme.surface.withValues(alpha: 0.1), // カード背景色をテーマに適応
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0), // 角丸の半径を指定
       ),
