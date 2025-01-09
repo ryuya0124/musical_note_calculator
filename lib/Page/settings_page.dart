@@ -494,7 +494,7 @@ class SettingsPageState extends State<SettingsPage> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => LicencePage(),
+            builder: (context) => LicensePage(),
           ),
         );
       },
