@@ -82,8 +82,9 @@ class NotePageState extends State<NotePage> {
                   return Expanded(
                     child: Center(
                       child: Text(
-                        AppLocalizations.of(context)!.calculate_notes,
+                        AppLocalizations.of(context)!.note_instruction,
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   );
@@ -121,7 +122,7 @@ class NotePageState extends State<NotePage> {
   Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor, List<Map<String, String>> notes) {
     return Expanded(
       child: bpmController.text.isEmpty
-          ? Center(child: Text(AppLocalizations.of(context)!.bpm_instruction))
+          ? Center(child: Text(AppLocalizations.of(context)!.note_instruction))
           : ListView.builder(
         itemCount: notes.length,
         itemBuilder: (context, index) {

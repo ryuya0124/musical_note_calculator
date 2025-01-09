@@ -114,8 +114,9 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         builder: (context, snapshot) {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text(
-                AppLocalizations.of(context)!.calculate_notes,
+                AppLocalizations.of(context)!.home_instruction,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
             ));
           }
 

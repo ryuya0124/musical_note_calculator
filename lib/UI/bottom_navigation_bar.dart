@@ -27,13 +27,13 @@ class BottomNavigationBarWidget extends StatelessWidget {
       onDestinationSelected: onTabSelected, // タブ選択時のコールバック
       destinations: [
         NavigationDestination(
-          icon: Icon(Icons.home, color: colorScheme.onSurface), // 未選択時の色
-          selectedIcon: Icon(Icons.home, color: getSelectedIconColor()), // 選択時の色
+          icon: Icon(Icons.music_note, color: colorScheme.onSurface), // 未選択時の色
+          selectedIcon: Icon(Icons.music_note, color: getSelectedIconColor()), // 選択時の色
           label: AppLocalizations.of(context)!.note_spacing, // ラベル
         ),
         NavigationDestination(
-          icon: Icon(Icons.note, color: colorScheme.onSurface), // 未選択時の色
-          selectedIcon: Icon(Icons.note, color: getSelectedIconColor()), // 選択時の色
+          icon: Icon(Icons.music_note_outlined, color: colorScheme.onSurface), // 未選択時の色
+          selectedIcon: Icon(Icons.music_note_outlined, color: getSelectedIconColor()), // 選択時の色
           label: AppLocalizations.of(context)!.note_count, // ラベル
         ),
         NavigationDestination(
