@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class numericInputColumnWidget extends StatelessWidget {
+class NumericInputColumnWidget extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final String titleText;
@@ -8,15 +8,15 @@ class numericInputColumnWidget extends StatelessWidget {
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
 
-  const numericInputColumnWidget({
-    Key? key,
+  const NumericInputColumnWidget({
+    super.key,
     required this.controller,
     required this.focusNode,
     required this.titleText,
     required this.onChanged,
     required this.onIncrement,
     required this.onDecrement,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +62,7 @@ class numericInputColumnWidget extends StatelessWidget {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: colorScheme.onSurface.withOpacity(0.5),
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       contentPadding: EdgeInsets.symmetric(vertical: 10),

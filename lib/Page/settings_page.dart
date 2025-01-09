@@ -131,7 +131,7 @@ class SettingsPageState extends State<SettingsPage> {
 
         SizedBox(height: 20),
         //小数桁数
-        numericInputColumnWidget(
+        NumericInputColumnWidget(
           controller: decimalsController,
           focusNode: decimalsFocusNode,
           titleText: AppLocalizations.of(context)!.decimal_places,
@@ -166,7 +166,7 @@ class SettingsPageState extends State<SettingsPage> {
         SizedBox(height: 20),
 
         //最大BPM
-        numericInputColumnWidget(
+        NumericInputColumnWidget(
           controller: maxBPMController,
           focusNode: maxBPMFocusNode,
           titleText: AppLocalizations.of(context)!.maxBPM,
@@ -197,7 +197,7 @@ class SettingsPageState extends State<SettingsPage> {
         SizedBox(height: 20),
 
         // +-ボタンの増減値 (deltaValue)
-        numericInputColumnWidget(
+        NumericInputColumnWidget(
           controller: deltaValueController,
           focusNode: deltaValueFocusNode,
           titleText: AppLocalizations.of(context)!.deltaValue,
