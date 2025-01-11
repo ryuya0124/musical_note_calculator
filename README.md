@@ -2,25 +2,35 @@
 
 **BPMや音符関連の計算をするアプリ**
 
-このアプリは、音楽制作や演奏時に便利なBPM（テンポ）や音符の長さに関する計算を行うツールです。
+このアプリは、音ゲーや音楽制作、演奏時に便利なBPM（テンポ）や音符の長さに関する計算を行うツールです。
 
 ## アプリ画面例
 | 音符計算画面 | 音符回数画面 |
 | --- | --- |
-| ![音符計算画面](https://github.com/user-attachments/assets/1044b4ce-ab2c-4f53-ae85-f30f5cc53e89) | ![音符回数画面](https://github.com/user-attachments/assets/393343ff-236a-4e67-8b15-b2fe7fb935d8) |
+| ![音符計算画面](https://github.com/user-attachments/assets/31724174-d531-4497-8d14-f493c64bb9df) | ![音符回数画面](https://github.com/user-attachments/assets/bf9d286c-aad7-42a8-bdc7-503c28cd42c7) |
 
-| 音符換算画面 | 設定画面 |
+| 音符換算画面 | 音符換算画面(展開) |
 | --- | --- |
-| ![音符換算画面](https://github.com/user-attachments/assets/957122b0-5773-4652-b27c-d6083a99a985) | ![設定画面](https://github.com/user-attachments/assets/985dfaee-a90d-426c-a5c7-287c947d48f7) |
+| ![音符換算画面](https://github.com/user-attachments/assets/00194d00-36c2-4aef-8ad1-fdb914e04daa) | ![音符換算画面(展開)](https://github.com/user-attachments/assets/a9e40091-57e7-4af1-b459-abeb61ddb7f1) |
 
 | メトロノーム画面 |  |
 | --- | --- |
-| ![メトロノーム画面](https://github.com/user-attachments/assets/9602d4f8-51a3-4e98-b79d-3fd1302cd203) | |
+| ![メトロノーム画面](https://github.com/user-attachments/assets/b458b8eb-1446-45dd-913e-4b2020c081dd) |  |
+
+| 設定画面 | 設定画面 |
+| --- | --- |
+| ![設定画面](https://github.com/user-attachments/assets/cfb03d52-f109-4c15-830c-a2a4bf22217c) | ![設定画面](https://github.com/user-attachments/assets/bc1460df-85b6-4c2c-a5f2-0b0971c5ac90) |
+
 
 ## 主な機能
 - **音符計算ページ**  
   設定した時間単位で各音符の長さを計算できます。  
   - 音符計算ページのカードをタップすると、**メトロノームページ**が開きます。
+    
+- **メトロノームページ**  
+  音符換算ページでタップしたカードの音符に合わせたメトロノームが再生されます。  
+  - 4分音符に変換したときのBPMが表示されます。
+  - アプリがクラッシュする可能性があるので、最大BPMを制限できます。
 
 - **音符回数ページ**  
   指定した時間内で、各音符が何回発生するかを計算できます。
@@ -33,6 +43,9 @@
   - **カスタム音符の追加**：好きな名前と長さで独自の音符を登録可能。  
   - **音符の表示/非表示**の切り替え。  
   - **デフォルトの時間単位**の設定。
+  - **小数の桁数**の設定。
+  - **メトロノームの最大BPM**の設定。
+  - **+/-ボタンの増減値**の設定。
 
 ## ビルドについて
 このプロジェクトは、GitHub Actionsでもビルド可能です。各自でリポジトリをフォークして試すこともできます。
@@ -70,7 +83,8 @@
 最新版を入手するには、リポジトリをフォークし、自分でビルドすることをおすすめします。
 
 ## アプリの配布予定
-- 完成したら**Google Play**で配布する可能性があります。
+~~- 完成したら**Google Play**で配布する可能性があります。~~<br>
+Google Playは個人開発者に人権がなかった。
 - **App Store**での配布予定はありません（手数料が高いため）。
 
 ## 既知の問題
