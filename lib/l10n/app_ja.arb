@@ -1,6 +1,7 @@
 {
   "@@locale":"ja",
   "title":"音符計算機",
+  "materialYou": "Material Youを使用",
   "metronome": "メトロノーム",
   "ratethisapp": "このアプリをレビューする",
   "privacypolicy": "プライバシーポリシー",
@@ -29,7 +30,7 @@
   "note_settings": "音符表示設定",
   "advanced_settings": "詳細設定",
   "decimal_places": "小数の桁数",
-  "deltaValue": "＋ － ボタンの増減値",
+  "deltaValue": "＋/－ ボタンの増減値",
   "author": "作成者: りゅうや",
   "view_on_github": "GitHubで見る",
   "bpm_input": "BPMを入力",

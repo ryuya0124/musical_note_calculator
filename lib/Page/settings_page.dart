@@ -7,7 +7,6 @@ import '../UI/unit_dropdown.dart';
 import '../UI/numeric_input_column.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
-import 'licence_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -33,6 +32,8 @@ class SettingsPageState extends State<SettingsPage> {
   late TextEditingController deltaValueController = TextEditingController();
   final FocusNode deltaValueFocusNode = FocusNode();
 
+  late bool useMaterialYou;
+
   bool isDotted = false; // 付点音符フラグ
   final int _selectedIndex = 4;
 
@@ -52,6 +53,8 @@ class SettingsPageState extends State<SettingsPage> {
 
     deltaValue = context.read<SettingsModel>().deltaValue;
     deltaValueController = TextEditingController(text: deltaValue.toStringAsFixed(context.read<SettingsModel>().numDecimal));
+
+    useMaterialYou = context.read<SettingsModel>().useMaterialYou;
   }
 
   @override
@@ -227,6 +230,24 @@ class SettingsPageState extends State<SettingsPage> {
             context.read<SettingsModel>().setDeltaValue(deltaValue);
           },
         ),
+
+        SizedBox(height: 20),
+
+        // Material You
+        if (!context.watch<SettingsModel>().isDynamicColorAvailable) ...[
+          SwitchListTile(
+            title: Text(AppLocalizations.of(context)!.materialYou),
+            value: context.watch<SettingsModel>().useMaterialYou,
+            onChanged: (bool value) {
+              context.read<SettingsModel>().setMaterialYou(value);
+            },
+            activeColor: colorScheme.onPrimary, // スイッチがONのときのスライダー色
+            activeTrackColor: colorScheme.primary, // ON時のトラック色
+            inactiveThumbColor: colorScheme.onSurface.withValues(alpha: 0.6), // OFF時のスライダー色
+            inactiveTrackColor: colorScheme.onSurface.withValues(alpha: 0.3), // OFF時のトラック色
+          ),
+        ]
+
       ],
     );
   }

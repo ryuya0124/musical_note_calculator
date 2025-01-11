@@ -23,31 +23,36 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicColorBuilder(
-      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        // ダイナミックカラーが利用できるかどうかをチェック
-        bool isDynamicColorAvailable = lightDynamic != null && darkDynamic != null;
+    return Consumer<SettingsModel>(
+      builder: (context, settings, child) {
+        return DynamicColorBuilder(
+          builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+            bool isDynamicColorAvailable = lightDynamic != null && darkDynamic != null;
+            context.read<SettingsModel>().setDynamicColorAvailability(isDynamicColorAvailable);
 
-        return MaterialApp(
-          localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            AppLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: [
-            Locale('en', 'US'),
-            Locale('ja', 'JP'),
-          ],
-          title: 'MyApp',
-          theme: isDynamicColorAvailable
-              ? materialLightTheme(lightDynamic) // ダイナミックカラーが使用可能な場合
-              : ThemeData.from(colorScheme: MaterialTheme.lightScheme()), // カスタムテーマのライトモード
-          darkTheme: isDynamicColorAvailable
-              ? materialDarkTheme(darkDynamic) // ダイナミックカラーが使用可能な場合
-              : ThemeData.from(colorScheme: MaterialTheme.darkScheme()), // カスタムテーマのダークモード
-          debugShowCheckedModeBanner: false,
-          home: MainScreen(), // MainScreenを指定
+            return MaterialApp(
+              localizationsDelegates: [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                AppLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en', 'US'),
+                Locale('ja', 'JP'),
+              ],
+              title: 'MyApp',
+              theme: context.read<SettingsModel>().useMaterialYou && isDynamicColorAvailable
+                  ? materialLightTheme(lightDynamic) // Dynamic Theme 有効かつ利用可能
+                  : ThemeData.from(colorScheme: MaterialTheme.lightScheme()), // デフォルトライトテーマ
+              darkTheme: context.read<SettingsModel>().useMaterialYou && isDynamicColorAvailable
+                  ? materialDarkTheme(darkDynamic) // Dynamic Theme 有効かつ利用可能
+                  : ThemeData.from(colorScheme: MaterialTheme.darkScheme()), // デフォルトダークテーマ
+
+              debugShowCheckedModeBanner: false,
+              home: const MainScreen(),
+            );
+          },
         );
       },
     );

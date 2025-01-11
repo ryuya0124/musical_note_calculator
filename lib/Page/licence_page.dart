@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../UI/app_bar.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LicencePage extends StatefulWidget {
   const LicencePage({super.key});
@@ -10,14 +10,15 @@ class LicencePage extends StatefulWidget {
 }
 
 class LicencePageState extends State<LicencePage> {
-  String appName = "アプリ名";
+  late String appName;
   String appVersion = "2.0.0";
   Icon? appIcon; // null許容型に変更
-  final int _selectedIndex = 5;
+  //final int _selectedIndex = 5;
 
   @override
   void initState() {
     super.initState();
+    appName = AppLocalizations.of(context)!.title;
     _getAppInfo();
   }
 
@@ -25,7 +26,7 @@ class LicencePageState extends State<LicencePage> {
   Future<void> _getAppInfo() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
-      //appName = packageInfo.appName;
+      appName = packageInfo.appName;
       //appVersion = packageInfo.version;
       //appIcon = Icon(Icons.car_repair); // アイコンを設定
     });

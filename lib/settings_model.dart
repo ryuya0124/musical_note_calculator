@@ -11,6 +11,14 @@ class SettingsModel extends ChangeNotifier {
   int maxBPM = 500;
   //+-ボタンの増減値
   double deltaValue = 1;
+  //Material You
+  bool useMaterialYou = false;
+  bool isDynamicColorAvailable = false;
+
+  // 動的カラー利用可否を設定
+  void setDynamicColorAvailability(bool isAvailable) {
+    isDynamicColorAvailable = !isAvailable;
+  }
 
   // カスタムノートのリストを保持
   List<NoteData> customNotes = [];
@@ -72,6 +80,9 @@ class SettingsModel extends ChangeNotifier {
 
     //+-ボタンの増減値
     prefs.setDouble('deltaValue', deltaValue);
+
+    //Material You
+    prefs.setBool('useMaterialYou', useMaterialYou);
   }
 
   // SharedPreferencesから設定を読み込む
@@ -118,6 +129,13 @@ class SettingsModel extends ChangeNotifier {
     //+-ボタンの増減値
     deltaValue = prefs.getDouble('deltaValue') ?? 1;
 
+    //Material You
+    if(isDynamicColorAvailable){
+      useMaterialYou = prefs.getBool('useMaterialYou') ?? true;
+    }else{
+      useMaterialYou = prefs.getBool('useMaterialYou') ?? false;
+    }
+
     notifyListeners();
   }
 
@@ -149,9 +167,16 @@ class SettingsModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 最大BPMの変更
+  // +/-ボタンの増減値変更
   void setDeltaValue(double num) {
     deltaValue = num;
+    _saveSettings(); // 設定を保存
+    notifyListeners();
+  }
+
+  // Material You変更
+  void setMaterialYou(bool isMaterialYou) {
+    useMaterialYou = isMaterialYou;
     _saveSettings(); // 設定を保存
     notifyListeners();
   }
