@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class UnitDropdown extends StatelessWidget {
+class UnitDropdown extends StatefulWidget {
   final String selectedUnit;
   final List<String> units;
   final ValueChanged<String> onChanged;
@@ -13,20 +13,31 @@ class UnitDropdown extends StatelessWidget {
   });
 
   @override
+  _UnitDropdownState createState() => _UnitDropdownState();
+}
+
+class _UnitDropdownState extends State<UnitDropdown> {
+  late String _currentSelectedUnit;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初期選択された単位を設定
+    _currentSelectedUnit = widget.selectedUnit;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    //return Padding(
-    //padding: const EdgeInsets.symmetric(horizontal: 26.0), // 左右にマージンを追加
-    //child: Material(
     return Material(
-      color: colorScheme.surface, // 完全に不透明な背景色
-      borderRadius: BorderRadius.circular(12), // 外枠の角丸
+      color: colorScheme.surface,
+      borderRadius: BorderRadius.circular(12),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12), // 外枠に角丸を適用
+        borderRadius: BorderRadius.circular(12),
         child: DropdownButton<String>(
-          value: selectedUnit,
-          items: units.map((String unit) {
+          value: _currentSelectedUnit,
+          items: widget.units.map((String unit) {
             return DropdownMenuItem<String>(
               value: unit,
               child: AnimatedPadding(
@@ -45,7 +56,10 @@ class UnitDropdown extends StatelessWidget {
           }).toList(),
           onChanged: (value) {
             if (value != null) {
-              onChanged(value);
+              setState(() {
+                _currentSelectedUnit = value;
+              });
+              widget.onChanged(value);
             }
           },
           dropdownColor: colorScheme.surface,
@@ -63,6 +77,5 @@ class UnitDropdown extends StatelessWidget {
         ),
       ),
     );
-    //}
   }
 }

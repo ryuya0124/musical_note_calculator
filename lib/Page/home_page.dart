@@ -7,6 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../UI/unit_dropdown.dart';
 import '../notes.dart';
+import 'package:animations/animations.dart';
 
 class HomePage extends StatefulWidget {
   final TextEditingController bpmController; // bpmControllerを保持
@@ -146,33 +147,37 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         borderRadius: BorderRadius.circular(20),
       ),
       color: colorScheme.surface.withValues(alpha: 0.1),
-      child: ListTile(
-        contentPadding: EdgeInsets.all(16),
-        title: Text(
-          AppLocalizations.of(context)!.getTranslation(note['name']!),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        trailing: Text(
-          note['duration']!,
-          style: TextStyle(
-            color: colorScheme.primary,
-            fontSize: 16,
-          ),
-        ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MetronomePage(
-                bpm: double.parse(bpmController.text),
-                note: note['name']!,
-                interval: note['duration']!,
+      child: OpenContainer(
+        transitionType: ContainerTransitionType.fade,
+        closedElevation: 0.0,
+        closedColor: Colors.transparent, // 遷移前に透明に
+        transitionDuration: Duration(milliseconds: 300),
+        closedBuilder: (BuildContext _, VoidCallback openContainer) {
+          return ListTile(
+            contentPadding: EdgeInsets.all(16),
+            title: Text(
+              AppLocalizations.of(context)!.getTranslation(note['name']!),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: colorScheme.onSurface,
               ),
             ),
+            trailing: Text(
+              note['duration']!,
+              style: TextStyle(
+                color: colorScheme.primary,
+                fontSize: 16,
+              ),
+            ),
+            onTap: openContainer, // タップでアニメーションを開始
+          );
+        },
+        openBuilder: (BuildContext context, VoidCallback _) {
+          return MetronomePage(
+            bpm: double.parse(bpmController.text),
+            note: note['name']!,
+            interval: note['duration']!,
           );
         },
       ),

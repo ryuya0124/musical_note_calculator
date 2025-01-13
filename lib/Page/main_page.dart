@@ -74,9 +74,13 @@ class _MainScreenState extends State<MainScreen> {
           ),
           Expanded(
             // ページリスト
-            child: IndexedStack(
-              index: _selectedIndex, // 現在選択されているページ
-              children: _pages, // ページリスト
+            child: Stack(
+              children: List.generate(_pages.length, (index) {
+                return Offstage(
+                  offstage: _selectedIndex != index,
+                  child: _pages[index], // 現在選択されているページのみ表示
+                );
+              }),
             ),
           ),
         ],
