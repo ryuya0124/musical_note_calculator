@@ -69,5 +69,6 @@
   "note_name": "音符名",
   "note_value": "音符の長さ(数値)",
   "add_note": "音符を追加",
-  "dotted_note": "付点音符"
+  "dotted_note": "付点音符",
+  "licenceInfo": "ライセンス情報"
 }

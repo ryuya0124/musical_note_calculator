@@ -5,8 +5,11 @@ import '../settings_model.dart';
 import '../UI/app_bar.dart';
 import '../UI/unit_dropdown.dart';
 import '../UI/numeric_input_column.dart';
+import 'licence_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
+import 'dart:io';
+import '../pageAnimation.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -513,11 +516,22 @@ class SettingsPageState extends State<SettingsPage> {
   Widget buildLicenceLink(BuildContext context, ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => LicensePage(),
-          ),
-        );
+        if (Platform.isIOS) {
+          // iOSの場合
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LicencePage()),
+          );
+        } else {
+          // iOS以外の場合
+          pushPage<void>(
+            context,
+                (BuildContext context) {
+              return LicencePage();  // SettingsPageに遷移
+            },
+            name: "/root/settings/licence",  // ルート名を設定
+          );
+        }
       },
       child: Container(
         padding: EdgeInsets.all(10.0),
@@ -530,7 +544,7 @@ class SettingsPageState extends State<SettingsPage> {
             ),
             SizedBox(width: 16),
             Text(
-              'ライセンス情報',
+              AppLocalizations.of(context)!.licenceInfo,
               style: TextStyle(
                 fontSize: 16,
                 //fontWeight: FontWeight.bold,

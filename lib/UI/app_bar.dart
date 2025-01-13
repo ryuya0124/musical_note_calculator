@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../Page/settings_page.dart';
+import '../pageAnimation.dart';
+import 'dart:io';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final int selectedIndex;
@@ -59,10 +61,22 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
+              if (Platform.isIOS) {
+                // iOSの場合
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              } else {
+                // iOS以外の場合
+                pushPage<void>(
+                  context,
+                      (BuildContext context) {
+                    return SettingsPage();  // SettingsPageに遷移
+                  },
+                  name: "/root/settings",  // ルート名を設定
+                );
+              }
             },
             color: colorScheme.primary, // アイコンの色
           ),

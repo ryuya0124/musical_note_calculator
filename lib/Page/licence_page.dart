@@ -12,21 +12,26 @@ class LicencePage extends StatefulWidget {
 class LicencePageState extends State<LicencePage> {
   late String appName;
   String appVersion = "2.0.0";
-  Icon? appIcon; // null許容型に変更
+  //Icon? appIcon; // null許容型に変更
   //final int _selectedIndex = 5;
 
   @override
   void initState() {
     super.initState();
-    appName = AppLocalizations.of(context)!.title;
     _getAppInfo();
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // AppLocalizationsをdidChangeDependencies内で呼び出す
+    appName = AppLocalizations.of(context)!.title;
   }
 
   // アプリ情報を非同期で取得
   Future<void> _getAppInfo() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
-      appName = packageInfo.appName;
+      //appName = packageInfo.appName;
       //appVersion = packageInfo.version;
       //appIcon = Icon(Icons.car_repair); // アイコンを設定
     });
@@ -39,7 +44,7 @@ class LicencePageState extends State<LicencePage> {
         applicationName: appName, // アプリ名
         applicationVersion: appVersion, // アプリバージョン
         applicationIcon: Icon(Icons.car_repair), // アプリアイコン
-        applicationLegalese: 'All rights reserved', // 著作権表示
+        applicationLegalese: 'MIT License Copyright (c) 2025 ryuya0124', // 著作権表示
       ),
     );
   }

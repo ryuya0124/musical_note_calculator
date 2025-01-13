@@ -69,5 +69,6 @@
   "note_name": "Note name",
   "note_value": "Length of note (number)",
   "add_note": "Add notes",
-  "dotted_note": "Dotted note"
+  "dotted_note": "Dotted note",
+  "licenceInfo": "License Information"
 }

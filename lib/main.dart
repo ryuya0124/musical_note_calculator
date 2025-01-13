@@ -44,11 +44,22 @@ class MyApp extends StatelessWidget {
               title: 'MyApp',
               theme: context.read<SettingsModel>().useMaterialYou && isDynamicColorAvailable
                   ? materialLightTheme(lightDynamic) // Dynamic Theme 有効かつ利用可能
-                  : ThemeData.from(colorScheme: MaterialTheme.lightScheme()), // デフォルトライトテーマ
+                  : ThemeData.from(colorScheme: MaterialTheme.lightScheme()).copyWith(
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: {
+                    TargetPlatform.android: PredictiveBackPageTransitionsBuilder(), // Androidで予測型戻るジェスチャーを有効化
+                  },
+                ),
+              ),
               darkTheme: context.read<SettingsModel>().useMaterialYou && isDynamicColorAvailable
                   ? materialDarkTheme(darkDynamic) // Dynamic Theme 有効かつ利用可能
-                  : ThemeData.from(colorScheme: MaterialTheme.darkScheme()), // デフォルトダークテーマ
-
+                  : ThemeData.from(colorScheme: MaterialTheme.darkScheme()).copyWith(
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: {
+                    TargetPlatform.android: PredictiveBackPageTransitionsBuilder(), // Androidで予測型戻るジェスチャーを有効化
+                  },
+                ),
+              ),
               debugShowCheckedModeBanner: false,
               home: const MainScreen(),
             );
