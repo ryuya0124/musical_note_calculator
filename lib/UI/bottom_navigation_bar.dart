@@ -41,6 +41,11 @@ class BottomNavigationBarWidget extends StatelessWidget {
           selectedIcon: Icon(Icons.calculate, color: getSelectedIconColor()), // 選択時の色
           label: AppLocalizations.of(context)!.calculator, // ラベル
         ),
+        NavigationDestination(
+          icon: Icon(Icons.music_note_sharp, color: colorScheme.onSurface), // 未選択時の色
+          selectedIcon: Icon(Icons.music_note_sharp, color: getSelectedIconColor()), // 選択時の色
+          label: AppLocalizations.of(context)!.anmitu, // ラベル
+        ),
       ],
       backgroundColor: colorScheme.surface, // ナビゲーションバーの背景色
       indicatorColor: colorScheme.primaryContainer, // 選択中インジケータの色

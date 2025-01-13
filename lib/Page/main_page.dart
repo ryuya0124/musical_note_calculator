@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:musical_note_calculator/Page/anmituChecker_page.dart';
 import 'home_page.dart';
 import 'note_page.dart';
 import 'calculator_page.dart';
@@ -49,6 +50,10 @@ class _MainScreenState extends State<MainScreen> {
           bpmController: bpmController,
           bpmFocusNode: bpmFocusNode
       ), // 計算機ページ
+      AnmituCheckerPage(
+          bpmController: bpmController,
+          bpmFocusNode: bpmFocusNode
+      ), // 餡蜜チェッカーページ
     ];
   }
 

@@ -44,6 +44,7 @@
   "note_spacing": "Note Spacing",
   "note_count": "Number of Notes",
   "calculator": "BPM-Note Conversion",
+  "anmitu": "Anmitsu Checker",
   "warningMessage": "Setting a high BPM may cause a crash.\nThe metronome feature is in beta.\nThe maximum BPM is {maxBpm}.",
   "maxBPM": "Metronome Max BPM",
   "@warningMessage": {

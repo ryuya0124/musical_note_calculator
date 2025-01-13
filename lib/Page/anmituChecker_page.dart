@@ -9,20 +9,20 @@ import '../UI/unit_dropdown.dart';
 import '../notes.dart';
 import 'package:animations/animations.dart';
 
-class HomePage extends StatefulWidget {
+class AnmituCheckerPage extends StatefulWidget {
   final TextEditingController bpmController; // bpmControllerを保持
   final FocusNode bpmFocusNode; // bpmFocusNodeを保持
 
-  const HomePage({
+  const AnmituCheckerPage({
     super.key,
     required this.bpmController, // requiredを使用して必須にする
     required this.bpmFocusNode,
   });
   @override
-  HomePageState createState() => HomePageState();
+  AnmituCheckerPageState createState() => AnmituCheckerPageState();
 }
 
-class HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindingObserver {
   late TextEditingController bpmController;
   late FocusNode bpmFocusNode;
   late String selectedUnit;
@@ -99,9 +99,9 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         builder: (context, snapshot) {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text(
-                AppLocalizations.of(context)!.home_instruction,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+              AppLocalizations.of(context)!.home_instruction,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ));
           }
 

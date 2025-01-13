@@ -69,7 +69,7 @@ class UnitDropdownState extends State<UnitDropdown> {
             height: 2,
             color: colorScheme.primary,
           ),
-          icon: AnimatedRotation(
+          icon: const AnimatedRotation(
             turns: 1,
             duration: Duration(milliseconds: 200),
             child: Icon(Icons.arrow_drop_down),

@@ -79,7 +79,6 @@ class NotePageState extends State<NotePage> {
                     ),
                   );
                 }
-
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                   return buildNotesList(enabledNotes, appBarColor, snapshot.data!);
                 } else {

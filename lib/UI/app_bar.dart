@@ -21,8 +21,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       AppLocalizations.of(context)!.note_spacing,
       AppLocalizations.of(context)!.note_count,
       AppLocalizations.of(context)!.calculator,
+      AppLocalizations.of(context)!.anmitu,
       AppLocalizations.of(context)!.metronome,
-      AppLocalizations.of(context)!.settings,
       AppLocalizations.of(context)!.settings
     ];
 
@@ -33,7 +33,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     final tabTextColor = colorScheme.onSurface; // タブ名のテキスト色
 
     // 設定画面以外
-    if (selectedIndex != 3 && selectedIndex != 4) {
+    if (selectedIndex != 4 && selectedIndex != 5) {
       return AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: colorScheme.onPrimary, // 背景色をテーマの onPrimary に
