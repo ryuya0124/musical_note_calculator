@@ -53,17 +53,17 @@ class SettingsModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     // カスタムノートの保存
-    List<String> customNoteNames = customNotes.map((note) => note.name).toList();
-    List<String> customNoteValues = customNotes.map((note) => note.note.toString()).toList();
-    List<String> customNoteDotted = customNotes.map((note) => note.dotted.toString()).toList();
+    final List<String> customNoteNames = customNotes.map((note) => note.name).toList();
+    final List<String> customNoteValues = customNotes.map((note) => note.note.toString()).toList();
+    final List<String> customNoteDotted = customNotes.map((note) => note.dotted.toString()).toList();
 
     prefs.setStringList('customNoteNames', customNoteNames);
     prefs.setStringList('customNoteValues', customNoteValues);
     prefs.setStringList('customNoteDotted', customNoteDotted);
 
     // 音符の状態を保存
-    List<String> noteKeys = enabledNotes.keys.toList();
-    List<String> noteValues = enabledNotes.values.map((e) => e.toString()).toList();
+    final List<String> noteKeys = enabledNotes.keys.toList();
+    final List<String> noteValues = enabledNotes.values.map((e) => e.toString()).toList();
 
     prefs.setStringList('enabledNotesKeys', noteKeys);
     prefs.setStringList('enabledNotesValues', noteValues);
@@ -90,15 +90,15 @@ class SettingsModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     // カスタムノートの読み込み
-    List<String>? customNoteNames = prefs.getStringList('customNoteNames');
-    List<String>? customNoteValues = prefs.getStringList('customNoteValues');
-    List<String>? customNoteDotted = prefs.getStringList('customNoteDotted');
+    final List<String>? customNoteNames = prefs.getStringList('customNoteNames');
+    final List<String>? customNoteValues = prefs.getStringList('customNoteValues');
+    final List<String>? customNoteDotted = prefs.getStringList('customNoteDotted');
 
     if (customNoteNames != null && customNoteValues != null && customNoteDotted != null) {
       customNotes = [];
       for (int i = 0; i < customNoteNames.length; i++) {
-        double noteValue = double.tryParse(customNoteValues[i]) ?? 4;
-        bool noteDotted = stringToBool(customNoteDotted[i]);
+        final double noteValue = double.tryParse(customNoteValues[i]) ?? 4;
+        final bool noteDotted = stringToBool(customNoteDotted[i]);
         customNotes.add(NoteData(customNoteNames[i], noteValue, noteDotted));
         registerNoteData(customNoteNames[i], noteValue, noteDotted);
       }
@@ -110,8 +110,8 @@ class SettingsModel extends ChangeNotifier {
     selectedTimeScale = prefs.getString('selectedTimeScale') ?? '1s';
 
     // 音符の状態を読み込む
-    List<String>? noteKeys = prefs.getStringList('enabledNotesKeys');
-    List<String>? noteValues = prefs.getStringList('enabledNotesValues');
+    final List<String>? noteKeys = prefs.getStringList('enabledNotesKeys');
+    final List<String>? noteValues = prefs.getStringList('enabledNotesValues');
 
     if (noteKeys != null && noteValues != null) {
       enabledNotes = {};

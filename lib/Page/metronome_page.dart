@@ -279,7 +279,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
     return Padding(
       padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           border: Border.all(color: colorScheme.error, width: 2), // ボーダー色はそのままエラー色
           borderRadius: BorderRadius.circular(8),
@@ -288,7 +288,7 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
         child: Row(
           children: [
             Icon(Icons.warning, color: colorScheme.error), // アイコン色
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 AppLocalizations.of(context)!.warningMessage(maxBpm.toStringAsFixed(context.read<SettingsModel>().numDecimal)),

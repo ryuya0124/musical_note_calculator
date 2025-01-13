@@ -59,11 +59,11 @@ class CalculatorPageState extends State<CalculatorPage> {
       return;
     }
 
-    Map<String, List<Map<String, String>>> calculatedNotes = {};
+    final Map<String, List<Map<String, String>>> calculatedNotes = {};
 
     for (var baseNote in notes) {
       calculatedNotes[baseNote.name] = notes.map((targetNote) {
-        double targetBPM = calculateNoteBPM(bpm, baseNote, targetNote.note);
+        final double targetBPM = calculateNoteBPM(bpm, baseNote, targetNote.note);
         return {
           'note': targetNote.name,
           'bpm': targetBPM.toStringAsFixed(context.read<SettingsModel>().numDecimal),
@@ -80,14 +80,14 @@ class CalculatorPageState extends State<CalculatorPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16), // マージンの調整
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // マージンの調整
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20), // 角を丸くする
       ),
       color: colorScheme.surface, // 背景色をテーマに基づける
       child: ListTile(
-        contentPadding: EdgeInsets.all(16), // パディングを調整
+        contentPadding: const EdgeInsets.all(16), // パディングを調整
         title: Text(
           AppLocalizations.of(context)!.getTranslation(note),
           style: TextStyle(
@@ -126,7 +126,7 @@ class CalculatorPageState extends State<CalculatorPage> {
   Widget _buildNoteGroup(String title, List<Map<String, String>> notes, Map<String, bool> enabledNotes, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    List<Map<String, String>> enabledNotesList = notes.where((note) {
+    final List<Map<String, String>> enabledNotesList = notes.where((note) {
       return enabledNotes[note['note']] ?? false;
     }).toList();
 
@@ -135,7 +135,7 @@ class CalculatorPageState extends State<CalculatorPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0), // 角丸の半径を指定
       ),
-      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0), // 左右と上下にマージン
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0), // 左右と上下にマージン
       child: StreamBuilder<bool>(
         stream: _getExpansionStream(title),
         initialData: false, // 初期状態は閉じた状態
@@ -158,7 +158,7 @@ class CalculatorPageState extends State<CalculatorPage> {
             children: [
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: enabledNotesList.length,
                 itemBuilder: (context, index) {
                   return _buildNoteCard(enabledNotesList[index]['note']!, enabledNotesList[index]['bpm']!, context);
@@ -184,7 +184,7 @@ class CalculatorPageState extends State<CalculatorPage> {
               stream: _notesStreamController.stream,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(child: Text('エラーが発生しました'));
+                  return const Center(child: Text('エラーが発生しました'));
                 }
 
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
@@ -196,7 +196,7 @@ class CalculatorPageState extends State<CalculatorPage> {
                         return _buildNoteGroup(key, snapshot.data![key]!, enabledNotes, context);
                       } else {
                         // ノートが無効なら、空のウィジェットを返す
-                        return SizedBox.shrink(); // または他の非表示のウィジェット
+                        return const SizedBox.shrink(); // または他の非表示のウィジェット
                       }
                     }).toList(),
                   );
@@ -204,7 +204,7 @@ class CalculatorPageState extends State<CalculatorPage> {
                   return Center(
                     child: Text(
                       AppLocalizations.of(context)!.calculator_instruction,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                   );

@@ -21,7 +21,7 @@ class BpmInputSection extends StatelessWidget {
             child: TextField(
               controller: bpmController,
               focusNode: bpmFocusNode,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.bpm_input,
                 labelStyle: TextStyle(color: colorScheme.onSurface),
@@ -34,9 +34,9 @@ class BpmInputSection extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;
@@ -47,7 +47,7 @@ class BpmInputSection extends StatelessWidget {
             splashColor: colorScheme.primary.withValues(alpha: 0.2),
           ),
           IconButton(
-            icon: Icon(Icons.remove),
+            icon: const Icon(Icons.remove),
             color: colorScheme.primary,
             onPressed: () {
               final currentValue = double.tryParse(bpmController.text) ?? 0;

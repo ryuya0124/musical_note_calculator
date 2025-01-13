@@ -29,7 +29,7 @@ class LicencePageState extends State<LicencePage> {
 
   // アプリ情報を非同期で取得
   Future<void> _getAppInfo() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       //appName = packageInfo.appName;
       //appVersion = packageInfo.version;
@@ -43,7 +43,7 @@ class LicencePageState extends State<LicencePage> {
       body: LicensePage(
         applicationName: appName, // アプリ名
         applicationVersion: appVersion, // アプリバージョン
-        applicationIcon: Icon(Icons.car_repair), // アプリアイコン
+        applicationIcon: const Icon(Icons.car_repair), // アプリアイコン
         applicationLegalese: 'MIT License Copyright (c) 2025 ryuya0124', // 著作権表示
       ),
     );

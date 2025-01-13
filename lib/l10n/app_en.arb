@@ -70,5 +70,6 @@
   "note_value": "Length of note (number)",
   "add_note": "Add notes",
   "dotted_note": "Dotted note",
-  "licenceInfo": "License Information"
+  "licenceInfo": "License Information",
+  "error": "An error has occurred."
 }

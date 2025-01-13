@@ -72,7 +72,12 @@ class NotePageState extends State<NotePage> {
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   // エラーが発生した場合
-                  return Center(child: Text('エラーが発生しました'));
+                  return Center(child: Text(
+                      AppLocalizations.of(context)!.error,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  );
                 }
 
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
@@ -83,7 +88,7 @@ class NotePageState extends State<NotePage> {
                     child: Center(
                       child: Text(
                         AppLocalizations.of(context)!.note_instruction,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -100,15 +105,15 @@ class NotePageState extends State<NotePage> {
   // ユニット切り替えセクション
   Widget buildUnitSwitchSection(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(right: 16.0),
+      margin: const EdgeInsets.only(right: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
             AppLocalizations.of(context)!.timescale,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           UnitDropdown(
             selectedUnit: selectedTimeScale,
             units: units,
@@ -141,14 +146,14 @@ class NotePageState extends State<NotePage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
       color: colorScheme.surface.withValues(alpha: 0.1), // カードの背景色（明るいテーマではsurface）
       child: ListTile(
-        contentPadding: EdgeInsets.all(16),
+        contentPadding: const EdgeInsets.all(16),
         title: Text(
           AppLocalizations.of(context)!.getTranslation(note['name']!),
           style: TextStyle(

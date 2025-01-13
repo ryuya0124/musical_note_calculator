@@ -88,11 +88,11 @@ class SettingsPageState extends State<SettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildDisplaySettingsSection(context, colorScheme),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 buildAdvancedSettingsSection(context, colorScheme),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 buildAuthorSection(context, colorScheme),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -113,13 +113,13 @@ class SettingsPageState extends State<SettingsPage> {
             color: colorScheme.primary,
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         buildTimeUnitDropdownSection(context, colorScheme),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         buildTimeScaleDropdownSection(context, colorScheme),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         buildNoteSettingsSection(context, colorScheme),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         buildCustomNotesSection(context, colorScheme), // カスタムノート追加
       ],
     );
@@ -138,7 +138,7 @@ class SettingsPageState extends State<SettingsPage> {
           ),
         ),
 
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         //小数桁数
         NumericInputColumnWidget(
           controller: decimalsController,
@@ -172,7 +172,7 @@ class SettingsPageState extends State<SettingsPage> {
           },
         ),
 
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         //最大BPM
         NumericInputColumnWidget(
@@ -203,7 +203,7 @@ class SettingsPageState extends State<SettingsPage> {
           },
         ),
 
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         // +-ボタンの増減値 (deltaValue)
         NumericInputColumnWidget(
@@ -234,7 +234,7 @@ class SettingsPageState extends State<SettingsPage> {
           },
         ),
 
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         // Material You
         if (!context.watch<SettingsModel>().isDynamicColorAvailable) ...[
@@ -261,7 +261,7 @@ class SettingsPageState extends State<SettingsPage> {
       children: [
         Text(
           AppLocalizations.of(context)!.time_unit,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16
           ),
         ),
@@ -284,7 +284,7 @@ class SettingsPageState extends State<SettingsPage> {
       children: [
         Text(
           AppLocalizations.of(context)!.timescale,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16
           ),
         ),
@@ -313,10 +313,10 @@ class SettingsPageState extends State<SettingsPage> {
             color: colorScheme.primary,
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         ...context.watch<SettingsModel>().enabledNotes.keys.map((noteKey) {
           return Container(
-            margin: EdgeInsets.only(left: 8.0),
+            margin: const EdgeInsets.only(left: 8.0),
             child: SwitchListTile(
               title: Text(AppLocalizations.of(context)!.getTranslation(noteKey)),
               value: context.watch<SettingsModel>().enabledNotes[noteKey]!,
@@ -339,9 +339,9 @@ class SettingsPageState extends State<SettingsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         buildTitleSection(context, colorScheme),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         buildCustomNotesList(context, colorScheme),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         buildNoteInputSection(context, colorScheme),
       ],
     );
@@ -363,7 +363,7 @@ class SettingsPageState extends State<SettingsPage> {
 
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: settingsModel.customNotes.length,
       itemBuilder: (context, index) {
         final note = settingsModel.customNotes[index];
@@ -381,7 +381,7 @@ class SettingsPageState extends State<SettingsPage> {
   }
 
   Widget buildNoteInputSection(BuildContext context, ColorScheme colorScheme) {
-    bool isButtonEnabled = nameController.text.trim().isNotEmpty &&
+    final bool isButtonEnabled = nameController.text.trim().isNotEmpty &&
         double.tryParse(valueController.text.trim()) != null;
 
     return Column(
@@ -407,7 +407,7 @@ class SettingsPageState extends State<SettingsPage> {
                 },
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: TextField(
                 controller: valueController,
@@ -430,7 +430,7 @@ class SettingsPageState extends State<SettingsPage> {
             ),
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Row(
           children: [
             Checkbox(
@@ -447,8 +447,8 @@ class SettingsPageState extends State<SettingsPage> {
         ElevatedButton(
           onPressed: isButtonEnabled
               ? () {
-            String name = nameController.text.trim();
-            double? value = double.tryParse(valueController.text.trim());
+            final String name = nameController.text.trim();
+            final double? value = double.tryParse(valueController.text.trim());
             if (name.isNotEmpty && value != null) {
               context.read<SettingsModel>().addCustomNote(name, value, isDotted);
               nameController.clear();
@@ -477,7 +477,7 @@ class SettingsPageState extends State<SettingsPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Row(
           children: [
             IconButton(
@@ -499,14 +499,14 @@ class SettingsPageState extends State<SettingsPage> {
               },
               child: Text(
                 AppLocalizations.of(context)!.view_on_github,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16
                 ),
               ),
             ),
           ],
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         buildLicenceLink(context, colorScheme),
       ],
     );
@@ -520,21 +520,21 @@ class SettingsPageState extends State<SettingsPage> {
           // iOSの場合
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => LicencePage()),
+            MaterialPageRoute(builder: (context) => const LicencePage()),
           );
         } else {
           // iOS以外の場合
           pushPage<void>(
             context,
                 (BuildContext context) {
-              return LicencePage();  // SettingsPageに遷移
+              return const LicencePage();  // SettingsPageに遷移
             },
             name: "/root/settings/licence",  // ルート名を設定
           );
         }
       },
       child: Container(
-        padding: EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(10.0),
         child: Row(
           children: [
             Icon(
@@ -542,7 +542,7 @@ class SettingsPageState extends State<SettingsPage> {
               color: colorScheme.primary,
               size: 28,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Text(
               AppLocalizations.of(context)!.licenceInfo,
               style: TextStyle(

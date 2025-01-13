@@ -34,14 +34,14 @@ class NumericInputColumnWidget extends StatelessWidget {
       children: [
         Text(
           titleText,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
           ),
           maxLines: 2, // 必要に応じて最大行数を設定
           overflow: TextOverflow.ellipsis, // 長い場合に省略を設定（必要なら）
           softWrap: true, // 自動改行を許可
         ),
-        SizedBox(width: 8), // テキストと入力欄の間に少しスペースを追加
+        const SizedBox(width: 8), // テキストと入力欄の間に少しスペースを追加
         Flexible(
           child: Align(
             alignment: Alignment.centerRight,
@@ -49,7 +49,7 @@ class NumericInputColumnWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min, // 最小サイズに設定
               children: [
                 Container(
-                  constraints: BoxConstraints(maxWidth: 90), // 幅を90に制限
+                  constraints: const BoxConstraints(maxWidth: 90), // 幅を90に制限
                   child: TextField(
                     controller: controller,
                     focusNode: focusNode,
@@ -65,22 +65,22 @@ class NumericInputColumnWidget extends StatelessWidget {
                           color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                   ),
                 ),
-                SizedBox(width: 4), // 入力欄とボタンの間のスペース
+                const SizedBox(width: 4), // 入力欄とボタンの間のスペース
                 if (showButtons) // 最小幅または解像度に基づいてボタンを表示
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.add),
+                        icon: const Icon(Icons.add),
                         color: colorScheme.primary,
                         onPressed: onIncrement,
                       ),
-                      SizedBox(width: 4), // プラス・マイナスボタン間のスペース
+                      const SizedBox(width: 4), // プラス・マイナスボタン間のスペース
                       IconButton(
-                        icon: Icon(Icons.remove),
+                        icon: const Icon(Icons.remove),
                         color: colorScheme.primary,
                         onPressed: onDecrement,
                       ),

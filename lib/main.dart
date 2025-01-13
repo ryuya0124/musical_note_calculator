@@ -13,7 +13,7 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => SettingsModel(),
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -27,11 +27,11 @@ class MyApp extends StatelessWidget {
       builder: (context, settings, child) {
         return DynamicColorBuilder(
           builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-            bool isDynamicColorAvailable = lightDynamic != null && darkDynamic != null;
+            final bool isDynamicColorAvailable = lightDynamic != null && darkDynamic != null;
             context.read<SettingsModel>().setDynamicColorAvailability(isDynamicColorAvailable);
 
             return MaterialApp(
-              localizationsDelegates: [
+              localizationsDelegates: const [
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
                 AppLocalizations.delegate,

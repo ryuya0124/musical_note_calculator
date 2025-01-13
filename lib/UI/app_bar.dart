@@ -13,11 +13,11 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
-    List<String> tabNames = [
+    final List<String> tabNames = [
       AppLocalizations.of(context)!.note_spacing,
       AppLocalizations.of(context)!.note_count,
       AppLocalizations.of(context)!.calculator,
@@ -47,7 +47,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   .titleLarge
                   ?.copyWith(color: titleTextColor), // タイトルのテキスト色
             ),
-            SizedBox(width: 8), // タイトルとタブ名の間隔を調整
+            const SizedBox(width: 8), // タイトルとタブ名の間隔を調整
             Text(
               tabNames[selectedIndex], // 現在のタブ名を表示
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -59,20 +59,20 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () {
               if (Platform.isIOS) {
                 // iOSの場合
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                  MaterialPageRoute(builder: (context) => const SettingsPage()),
                 );
               } else {
                 // iOS以外の場合
                 pushPage<void>(
                   context,
                       (BuildContext context) {
-                    return SettingsPage();  // SettingsPageに遷移
+                    return const SettingsPage();  // SettingsPageに遷移
                   },
                   name: "/root/settings",  // ルート名を設定
                 );
@@ -95,7 +95,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
               ?.copyWith(color: titleTextColor), // 設定画面のタイトル色
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context); // 戻るボタン
           },

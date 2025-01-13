@@ -13,10 +13,10 @@ class UnitDropdown extends StatefulWidget {
   });
 
   @override
-  _UnitDropdownState createState() => _UnitDropdownState();
+  UnitDropdownState createState() => UnitDropdownState();
 }
 
-class _UnitDropdownState extends State<UnitDropdown> {
+class UnitDropdownState extends State<UnitDropdown> {
   late String _currentSelectedUnit;
 
   @override
@@ -41,8 +41,8 @@ class _UnitDropdownState extends State<UnitDropdown> {
             return DropdownMenuItem<String>(
               value: unit,
               child: AnimatedPadding(
-                padding: EdgeInsets.all(8),
-                duration: Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(8),
+                duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 child: Text(
                   unit,

@@ -89,15 +89,15 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // ユニット切り替えセクション
   Widget buildUnitSwitchSection(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(right: 16.0),
+      margin: const EdgeInsets.only(right: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
             AppLocalizations.of(context)!.time_unit,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           UnitDropdown(
             selectedUnit: selectedUnit,
             units: units,
@@ -116,7 +116,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text(
                 AppLocalizations.of(context)!.home_instruction,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
             ));
           }
@@ -141,7 +141,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -151,10 +151,10 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         transitionType: ContainerTransitionType.fade,
         closedElevation: 0.0,
         closedColor: Colors.transparent, // 遷移前に透明に
-        transitionDuration: Duration(milliseconds: 300),
+        transitionDuration: const Duration(milliseconds: 300),
         closedBuilder: (BuildContext _, VoidCallback openContainer) {
           return ListTile(
-            contentPadding: EdgeInsets.all(16),
+            contentPadding: const EdgeInsets.all(16),
             title: Text(
               AppLocalizations.of(context)!.getTranslation(note['name']!),
               style: TextStyle(

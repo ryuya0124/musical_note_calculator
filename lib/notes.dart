@@ -48,7 +48,7 @@ double calculateNoteBPM(double bpm, NoteData note, double afterNote) {
 
 /// ノートの長さを計算
 double calculateNoteLength(double quarterNoteLength, double noteRatio, {bool isDotted = false}) {
-  double baseLength = quarterNoteLength / noteRatio * 4;
+  final double baseLength = quarterNoteLength / noteRatio * 4;
   return isDotted ? baseLength * 1.5 : baseLength;
 }
 
