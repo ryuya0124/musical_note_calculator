@@ -160,14 +160,42 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
         stream: _notesStreamController.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No Results Available'));
+            return Center(
+              child: Text(
+                'No Results Available',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            );
           }
 
           return ListView.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(snapshot.data![index]),
+              final resultText = snapshot.data![index];
+              final double value = double.tryParse(resultText.split(': ').last) ?? 0;
+
+              // 結果に応じた色を設定
+              final resultColor = _getResultColor(value);
+              final resultTextDetail = _getResultText(value);
+
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                color: resultColor.withOpacity(0.1), // 薄い背景色
+                elevation: 4,
+                child: ListTile(
+                  title: Text(
+                    resultText,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: resultColor,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Difficulty: $resultTextDetail',
+                    style: TextStyle(color: resultColor.withOpacity(0.8)),
+                  ),
+                ),
               );
             },
           );
@@ -176,7 +204,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     );
   }
 
-  // 餡蜜判定の計算式
+  // 餡蜜判定結果の計算式
   void _calculateAnmitu() {
     final bpm = double.tryParse(bpmController.text) ?? 0;
     final judgmentWindow = gameJudgmentWindows[selectedGame]![selectedJudgment]!;
@@ -196,6 +224,29 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     // 餡蜜判定計算式: 判定幅 * 2 - 音符の長さ
     final anmituValue = judgmentWindow * 2 - noteLengthMs;
 
-    _notesStreamController.add(['Anmitu Value: $anmituValue']);
+    _notesStreamController.add([
+      'Judgment Window: $judgmentWindow ms',
+      'Anmitu Value: $anmituValue',
+    ]);
+  }
+
+  // 難易度に応じた色を取得
+  Color _getResultColor(double value) {
+    if (value <= 0) return Colors.red; // 不可能
+    if (value <= 10) return Colors.orange; // 難しい
+    if (value <= 20) return Colors.amber; // ちょっと難しい
+    if (value <= 30) return Colors.lightGreen; // まぁなんとか
+    if (value <= 40) return Colors.green; // 簡単
+    return Colors.blue; // 余裕
+  }
+
+// 難易度に応じたテキストを取得
+  String _getResultText(double value) {
+    if (value <= 0) return 'Impossible';
+    if (value <= 10) return 'Very Hard';
+    if (value <= 20) return 'Hard';
+    if (value <= 30) return 'Manageable';
+    if (value <= 40) return 'Easy';
+    return 'Very Easy';
   }
 }

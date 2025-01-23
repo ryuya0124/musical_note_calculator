@@ -6,6 +6,7 @@ import 'calculator_page.dart';
 import '../UI/bottom_navigation_bar.dart'; // ナビゲーションバーをインポート
 import '../../UI/app_bar.dart';
 import '../../UI/bpm_input_section.dart';
+import 'package:flutter/services.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -33,6 +34,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     bpmFocusNode = FocusNode();
     bpmController = TextEditingController();
 

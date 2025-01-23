@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter/services.dart';
 
 class BottomNavigationBarWidget extends StatelessWidget {
   final int selectedIndex;
@@ -14,6 +15,16 @@ class BottomNavigationBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    // ナビゲーションバーを透明に設定
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent, // ナビゲーションバーを透明に
+      systemNavigationBarDividerColor: Colors.transparent, // 区切り線も透明に
+      systemNavigationBarIconBrightness:
+      colorScheme.surface.computeLuminance() > 0.5
+          ? Brightness.dark // 背景が明るい場合
+          : Brightness.light, // 背景が暗い場合
+    ));
 
     // 選択時の背景色に基づいて適切なアイコンの色を決定
     Color getSelectedIconColor() {
