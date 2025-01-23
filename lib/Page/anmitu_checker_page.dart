@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../notes.dart';
+import '../UI/bpm_input_section.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
+
 
 class AnmituCheckerPage extends StatefulWidget {
   final TextEditingController bpmController;
@@ -19,11 +23,13 @@ class AnmituCheckerPage extends StatefulWidget {
 class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindingObserver {
   late TextEditingController bpmController;
   late FocusNode bpmFocusNode;
+  late FocusNode noteFocusNode;
   late String selectedGame;
   late String selectedJudgment;
+  bool isDotted = false;
+
   late StreamController<List<String>> _notesStreamController;
   final TextEditingController noteController = TextEditingController();
-  final TextEditingController dottedController = TextEditingController();
 
   // ゲームと判定幅の設定
   final Map<String, Map<String, double>> gameJudgmentWindows = {
@@ -45,6 +51,8 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     bpmController = widget.bpmController;
     bpmFocusNode = widget.bpmFocusNode;
 
+    noteFocusNode = FocusNode();
+
     selectedGame = gameJudgmentWindows.keys.first;
     selectedJudgment = gameJudgmentWindows[selectedGame]!.keys.first;
 
@@ -55,7 +63,6 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
   @override
   void dispose() {
     noteController.dispose();
-    dottedController.dispose();
     _notesStreamController.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -126,25 +133,25 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
   Widget buildNoteInputSection() {
     return Column(
       children: [
-        TextField(
-          controller: noteController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Enter Note Type (e.g., 8 for eighth note)',
-          ),
-          onChanged: (_) => _calculateAnmitu(), // 入力時に餡蜜判定を再計算
+        // 音符入力フィールド
+        BpmInputSection(
+          bpmController: noteController,
+          bpmFocusNode: noteFocusNode,
         ),
-        TextField(
-          controller: dottedController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Is Dotted? (1 for true, 0 for false)',
-          ),
-          onChanged: (_) => _calculateAnmitu(), // 入力時に餡蜜判定を再計算
+        // 付点チェックボックス
+        CheckboxListTile(
+          value: isDotted,
+          onChanged: (value) => setState(() {
+            isDotted = value ?? false;
+            _calculateAnmitu(); // チェック変更時に再計算
+          }),
+          title: Text(AppLocalizations.of(context)!.dotted_note), // 例: "付点"
+          controlAffinity: ListTileControlAffinity.leading, // チェックボックスを左側に配置
         ),
       ],
     );
   }
+
 
   // 餡蜜判定結果リスト
   Widget buildResultList() {
@@ -174,7 +181,6 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     final bpm = double.tryParse(bpmController.text) ?? 0;
     final judgmentWindow = gameJudgmentWindows[selectedGame]![selectedJudgment]!;
     final noteType = double.tryParse(noteController.text) ?? 0;
-    final isDotted = (int.tryParse(dottedController.text) ?? 0) == 1;
 
     if (bpm <= 0 || noteType <= 0) {
       _notesStreamController.add(['Invalid BPM or Note Type']);

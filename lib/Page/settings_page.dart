@@ -430,20 +430,20 @@ class SettingsPageState extends State<SettingsPage> {
             ),
           ],
         ),
+
         const SizedBox(height: 10),
-        Row(
-          children: [
-            Checkbox(
-              value: isDotted,
-              onChanged: (bool? value) {
-                setState(() {
-                  isDotted = value ?? false;
-                });
-              },
-            ),
-            Text(AppLocalizations.of(context)!.dotted_note),
-          ],
+
+        CheckboxListTile(
+          value: isDotted,
+          onChanged: (bool? value) {
+            setState(() {
+              isDotted = value ?? false;
+            });
+          },
+          title: Text(AppLocalizations.of(context)!.dotted_note), // 例: "付点"
+          controlAffinity: ListTileControlAffinity.leading, // チェックボックスを左側に配置
         ),
+
         ElevatedButton(
           onPressed: isButtonEnabled
               ? () {
