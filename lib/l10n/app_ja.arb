@@ -45,6 +45,13 @@
   "note_count": "音符回数",
   "calculator": "BPM-音符換算",
   "anmitu": "餡蜜チェッカー",
+  "select_game": "ゲームを選択",
+  "check_anmitu": "餡蜜チェック",
+  "note_timings_input": "音符タイミング",
+  "note_timings_hint": "音符タイミングヒント",
+  "anmitu_found": "餡蜜 found",
+  "no_anmitu_found": "餡蜜 no found",
+  "invalid_input": "ivalid 入力",
   "warningMessage": "高速なBPMに設定するとクラッシュする可能性があります。\nメトロノーム機能はベータ版です。\n最大BPMは{maxBpm}です。",
   "maxBPM": "メトロノームの最大BPM",
   "@warningMessage": {

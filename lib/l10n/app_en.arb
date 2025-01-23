@@ -45,6 +45,13 @@
   "note_count": "Number of Notes",
   "calculator": "BPM-Note Conversion",
   "anmitu": "Anmitsu Checker",
+  "check_anmitu": "Check Anmitsu",
+  "note_timings_input": "音符タイミング",
+  "note_timings_hint": "音符タイミングヒント",
+  "anmitu_found": "餡蜜 found",
+  "no_anmitu_found": "餡蜜 no found",
+  "invalid_input": "ivalid 入力",
+  "select_game": "Select a game",
   "warningMessage": "Setting a high BPM may cause a crash.\nThe metronome feature is in beta.\nThe maximum BPM is {maxBpm}.",
   "maxBPM": "Metronome Max BPM",
   "@warningMessage": {
