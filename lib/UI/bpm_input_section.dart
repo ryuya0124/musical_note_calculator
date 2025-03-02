@@ -6,12 +6,19 @@ import '../settings_model.dart';
 class BpmInputSection extends StatelessWidget {
   final TextEditingController bpmController;
   final FocusNode bpmFocusNode;
+  final String? label;
 
-  const BpmInputSection({super.key, required this.bpmController, required this.bpmFocusNode});
+  const BpmInputSection({
+    super.key,
+    required this.bpmController,
+    required this.bpmFocusNode,
+    this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final String labelText = label ?? AppLocalizations.of(context)!.bpm_input;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -23,7 +30,7 @@ class BpmInputSection extends StatelessWidget {
               focusNode: bpmFocusNode,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.bpm_input,
+                labelText: labelText,
                 labelStyle: TextStyle(color: colorScheme.onSurface),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: colorScheme.primary),

@@ -80,8 +80,8 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
         backgroundColor: colorScheme.surface,
         body: Column(
           children: [
-            buildGameSwitchSection(),
             buildNoteInputSection(),
+            buildGameSwitchSection(),
             buildResultList(),
           ],
         ),
@@ -91,39 +91,52 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
 
   // ゲームと判定幅の選択セクション
   Widget buildGameSwitchSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        DropdownButton<String>(
-          value: selectedGame,
-          items: gameJudgmentWindows.keys
-              .map((game) => DropdownMenuItem(
-            value: game,
-            child: Text(game),
-          ))
-              .toList(),
-          onChanged: (value) {
-            setState(() {
-              selectedGame = value!;
-              selectedJudgment = gameJudgmentWindows[selectedGame]!.keys.first;
-              _calculateAnmitu();
-            });
-          },
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: DropdownButton<String>(
+              value: selectedGame,
+              isExpanded: true,
+              items: gameJudgmentWindows.keys
+                  .map((game) => DropdownMenuItem(
+                value: game,
+                child: Center(child: Text(game)), // 文字を中央寄せ
+              ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedGame = value!;
+                  selectedJudgment = gameJudgmentWindows[selectedGame]!.keys.first;
+                  _calculateAnmitu();
+                });
+              },
+            ),
+          ),
         ),
-        DropdownButton<String>(
-          value: selectedJudgment,
-          items: gameJudgmentWindows[selectedGame]!.keys
-              .map((judgment) => DropdownMenuItem(
-            value: judgment,
-            child: Text(judgment),
-          ))
-              .toList(),
-          onChanged: (value) {
-            setState(() {
-              selectedJudgment = value!;
-              _calculateAnmitu();
-            });
-          },
+        const SizedBox(width: 10), // 間隔を調整
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: DropdownButton<String>(
+              value: selectedJudgment,
+              isExpanded: true,
+              items: gameJudgmentWindows[selectedGame]!.keys
+                  .map((judgment) => DropdownMenuItem(
+                value: judgment,
+                child: Center(child: Text(judgment)), // 文字を中央寄せ
+              ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedJudgment = value!;
+                  _calculateAnmitu();
+                });
+              },
+            ),
+          ),
         ),
       ],
     );
@@ -137,6 +150,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
         BpmInputSection(
           bpmController: noteController,
           bpmFocusNode: noteFocusNode,
+          label: "音符(数値)を入力",
         ),
         // 付点チェックボックス
         CheckboxListTile(
