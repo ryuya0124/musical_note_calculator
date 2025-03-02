@@ -47,11 +47,7 @@
   "anmitu": "餡蜜チェッカー",
   "select_game": "ゲームを選択",
   "check_anmitu": "餡蜜チェック",
-  "note_timings_input": "音符タイミング",
-  "note_timings_hint": "音符タイミングヒント",
-  "anmitu_found": "餡蜜 found",
-  "no_anmitu_found": "餡蜜 no found",
-  "invalid_input": "ivalid 入力",
+  "invalid_input": "無効な入力",
   "warningMessage": "高速なBPMに設定するとクラッシュする可能性があります。\nメトロノーム機能はベータ版です。\n最大BPMは{maxBpm}です。",
   "maxBPM": "メトロノームの最大BPM",
   "@warningMessage": {
@@ -79,5 +75,18 @@
   "add_note": "音符を追加",
   "dotted_note": "付点音符",
   "licenceInfo": "ライセンス情報",
-  "error": "エラーが発生しました。"
+  "error": "エラーが発生しました。",
+
+  "timingWindow": "判定幅",
+  "anmitsu_value": "許容範囲",
+  "difficulty": "難易度",
+  "invalid_BPM_or_Note_Type": "無効なBPMまたは音符",
+  "no_Results_Available": "計算結果がありません",
+  "input_notes": "音符(数値)を入力",
+  "impossible": "不可能",
+  "veryHard": "非常に難しい",
+  "hard": "難しい",
+  "manageable": "やや簡単",
+  "easy": "簡単",
+  "veryEasy": "非常に簡単"
 }

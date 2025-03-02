@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../settings_model.dart';
 import '../notes.dart';
 import '../UI/bpm_input_section.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -152,7 +154,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
         BpmInputSection(
           bpmController: noteController,
           bpmFocusNode: noteFocusNode,
-          label: "音符(数値)を入力",
+          label: AppLocalizations.of(context)!.input_notes,
         ),
         CheckboxListTile(
           value: isDotted,
@@ -176,7 +178,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Text(
-                'No Results Available',
+                AppLocalizations.of(context)!.no_Results_Available,
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
             );
@@ -204,7 +206,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
                     ),
                   ),
                   subtitle: Text(
-                    'Difficulty: $resultTextDetail',
+                    '${AppLocalizations.of(context)!.difficulty}: $resultTextDetail',
                     style: TextStyle(color: resultColor.withOpacity(0.8)),
                   ),
                 ),
@@ -223,7 +225,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     final noteType = double.tryParse(noteController.text) ?? 0;
 
     if (bpm <= 0 || noteType <= 0) {
-      _notesStreamController.add(['Invalid BPM or Note Type']);
+      _notesStreamController.add([AppLocalizations.of(context)!.invalid_BPM_or_Note_Type]);
       return;
     }
 
@@ -237,8 +239,8 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     final anmituValue = judgmentWindow * 2 - noteLengthMs;
 
     _notesStreamController.add([
-      'Judgment Window: $judgmentWindow ms',
-      'Anmitu Value: $anmituValue',
+      '${AppLocalizations.of(context)!.timingWindow}: ${judgmentWindow.toStringAsFixed(context.read<SettingsModel>().numDecimal)} ms',
+      '${AppLocalizations.of(context)!.anmitsu_value}: ${anmituValue.toStringAsFixed(context.read<SettingsModel>().numDecimal)} ms',
     ]);
   }
 
@@ -254,11 +256,11 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
 
   // 難易度に応じたテキストを取得
   String _getResultText(double value) {
-    if (value <= 0) return 'Impossible';
-    if (value <= 10) return 'Very Hard';
-    if (value <= 20) return 'Hard';
-    if (value <= 30) return 'Manageable';
-    if (value <= 40) return 'Easy';
-    return 'Very Easy';
+    if (value <= 0) return AppLocalizations.of(context)!.impossible;
+    if (value <= 10) return AppLocalizations.of(context)!.veryHard;
+    if (value <= 20) return AppLocalizations.of(context)!.hard;
+    if (value <= 30) return AppLocalizations.of(context)!.manageable;
+    if (value <= 40) return AppLocalizations.of(context)!.easy;
+    return AppLocalizations.of(context)!.veryEasy;
   }
 }

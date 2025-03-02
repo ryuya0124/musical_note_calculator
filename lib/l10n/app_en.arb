@@ -46,11 +46,7 @@
   "calculator": "BPM-Note Conversion",
   "anmitu": "Anmitsu Checker",
   "check_anmitu": "Check Anmitsu",
-  "note_timings_input": "音符タイミング",
-  "note_timings_hint": "音符タイミングヒント",
-  "anmitu_found": "餡蜜 found",
-  "no_anmitu_found": "餡蜜 no found",
-  "invalid_input": "ivalid 入力",
+  "invalid_input": "invalid_Input",
   "select_game": "Select a game",
   "warningMessage": "Setting a high BPM may cause a crash.\nThe metronome feature is in beta.\nThe maximum BPM is {maxBpm}.",
   "maxBPM": "Metronome Max BPM",
@@ -79,5 +75,19 @@
   "add_note": "Add notes",
   "dotted_note": "Dotted note",
   "licenceInfo": "License Information",
-  "error": "An error has occurred."
+  "error": "An error has occurred.",
+
+  "timingWindow": "Timing Window",
+  "anmitsu_value": "Tolerance Range",
+  "difficulty": "Difficulty",
+  "invalid_BPM_or_Note_Type": "Invalid BPM or Note Type",
+  "no_Results_Available": "No results available",
+  "input_notes": "Input notes (numbers)",
+  "impossible": "Impossible",
+  "veryHard": "Very Hard",
+  "hard": "Hard",
+  "manageable": "Manageable",
+  "easy": "Easy",
+  "veryEasy": "Very Easy"
+
 }
