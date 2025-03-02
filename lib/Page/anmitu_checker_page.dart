@@ -5,7 +5,6 @@ import '../UI/bpm_input_section.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
-
 class AnmituCheckerPage extends StatefulWidget {
   final TextEditingController bpmController;
   final FocusNode bpmFocusNode;
@@ -28,6 +27,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
   late String selectedJudgment;
   bool isDotted = false;
 
+  // 結果表示用のStreamController（List<String>型）
   late StreamController<List<String>> _notesStreamController;
   final TextEditingController noteController = TextEditingController();
 
@@ -50,14 +50,17 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     super.initState();
     bpmController = widget.bpmController;
     bpmFocusNode = widget.bpmFocusNode;
-
     noteFocusNode = FocusNode();
-
     selectedGame = gameJudgmentWindows.keys.first;
     selectedJudgment = gameJudgmentWindows[selectedGame]!.keys.first;
 
     _notesStreamController = StreamController<List<String>>.broadcast();
     WidgetsBinding.instance.addObserver(this);
+
+    // 入力値が変化したら、結果を再計算する
+    noteController.addListener(() {
+      _calculateAnmitu();
+    });
   }
 
   @override
@@ -71,7 +74,6 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -103,7 +105,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
               items: gameJudgmentWindows.keys
                   .map((game) => DropdownMenuItem(
                 value: game,
-                child: Center(child: Text(game)), // 文字を中央寄せ
+                child: Center(child: Text(game)),
               ))
                   .toList(),
               onChanged: (value) {
@@ -116,7 +118,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
             ),
           ),
         ),
-        const SizedBox(width: 10), // 間隔を調整
+        const SizedBox(width: 10),
         Expanded(
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -126,7 +128,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
               items: gameJudgmentWindows[selectedGame]!.keys
                   .map((judgment) => DropdownMenuItem(
                 value: judgment,
-                child: Center(child: Text(judgment)), // 文字を中央寄せ
+                child: Center(child: Text(judgment)),
               ))
                   .toList(),
               onChanged: (value) {
@@ -146,26 +148,24 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
   Widget buildNoteInputSection() {
     return Column(
       children: [
-        // 音符入力フィールド
+        // StreamBuilderは不要。BpmInputSectionはTextEditingControllerで管理されるので直接返す
         BpmInputSection(
           bpmController: noteController,
           bpmFocusNode: noteFocusNode,
           label: "音符(数値)を入力",
         ),
-        // 付点チェックボックス
         CheckboxListTile(
           value: isDotted,
           onChanged: (value) => setState(() {
             isDotted = value ?? false;
-            _calculateAnmitu(); // チェック変更時に再計算
+            _calculateAnmitu();
           }),
-          title: Text(AppLocalizations.of(context)!.dotted_note), // 例: "付点"
-          controlAffinity: ListTileControlAffinity.leading, // チェックボックスを左側に配置
+          title: Text(AppLocalizations.of(context)!.dotted_note),
+          controlAffinity: ListTileControlAffinity.leading,
         ),
       ],
     );
   }
-
 
   // 餡蜜判定結果リスト
   Widget buildResultList() {
@@ -187,14 +187,12 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
             itemBuilder: (context, index) {
               final resultText = snapshot.data![index];
               final double value = double.tryParse(resultText.split(': ').last) ?? 0;
-
-              // 結果に応じた色を設定
               final resultColor = _getResultColor(value);
               final resultTextDetail = _getResultText(value);
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                color: resultColor.withOpacity(0.1), // 薄い背景色
+                color: resultColor.withOpacity(0.1),
                 elevation: 4,
                 child: ListTile(
                   title: Text(
@@ -232,7 +230,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     // 4分音符の長さ (ms) を計算
     final quarterNoteLengthMs = 60000.0 / bpm;
 
-    // `calculateNoteLength`を使用して音符の長さを計算
+    // 音符の長さを計算（calculateNoteLengthは別実装を想定）
     final double noteLengthMs = calculateNoteLength(quarterNoteLengthMs, noteType, isDotted: isDotted);
 
     // 餡蜜判定計算式: 判定幅 * 2 - 音符の長さ
@@ -246,15 +244,15 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
 
   // 難易度に応じた色を取得
   Color _getResultColor(double value) {
-    if (value <= 0) return Colors.red; // 不可能
-    if (value <= 10) return Colors.orange; // 難しい
-    if (value <= 20) return Colors.amber; // ちょっと難しい
-    if (value <= 30) return Colors.lightGreen; // まぁなんとか
-    if (value <= 40) return Colors.green; // 簡単
-    return Colors.blue; // 余裕
+    if (value <= 0) return Colors.red;
+    if (value <= 10) return Colors.orange;
+    if (value <= 20) return Colors.amber;
+    if (value <= 30) return Colors.lightGreen;
+    if (value <= 40) return Colors.green;
+    return Colors.blue;
   }
 
-// 難易度に応じたテキストを取得
+  // 難易度に応じたテキストを取得
   String _getResultText(double value) {
     if (value <= 0) return 'Impossible';
     if (value <= 10) return 'Very Hard';
