@@ -4,9 +4,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import 'package:metronome/metronome.dart';
 import 'package:provider/provider.dart';
-import '../notes.dart';
+import '../ParamData/notes.dart';
 import '../UI/app_bar.dart';
-import '../settings_model.dart';
+import '../ParamData/settings_model.dart';
 
 class MetronomePage extends StatefulWidget {
   final double bpm;

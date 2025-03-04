@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../settings_model.dart';
+import '../ParamData/settings_model.dart';
 import '../UI/app_bar.dart';
 import '../UI/unit_dropdown.dart';
 import '../UI/numeric_input_column.dart';
@@ -9,7 +9,7 @@ import 'licence_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import 'dart:io';
-import '../pageAnimation.dart';
+import '../UI/pageAnimation.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

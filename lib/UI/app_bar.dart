@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../Page/settings_page.dart';
-import '../pageAnimation.dart';
+import 'pageAnimation.dart';
 import 'dart:io';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {

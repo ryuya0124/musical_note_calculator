@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../settings_model.dart';
-import '../notes.dart';
+import '../ParamData/settings_model.dart';
+import '../ParamData/notes.dart';
 import '../UI/bpm_input_section.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

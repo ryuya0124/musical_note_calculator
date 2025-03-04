@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../settings_model.dart';
+import '../ParamData/settings_model.dart';
 import 'metronome_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../UI/unit_dropdown.dart';
-import '../notes.dart';
+import '../ParamData/notes.dart';
 import 'package:animations/animations.dart';
 
 class HomePage extends StatefulWidget {
