@@ -5,7 +5,6 @@ import '../settings_model.dart';
 import '../notes.dart';
 import '../UI/bpm_input_section.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 
 class AnmituCheckerPage extends StatefulWidget {
   final TextEditingController bpmController;
@@ -179,7 +178,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
             return Center(
               child: Text(
                 AppLocalizations.of(context)!.no_Results_Available,
-                style: TextStyle(fontSize: 18, color: Colors.grey),
+                style: const TextStyle(fontSize: 18, color: Colors.grey),
               ),
             );
           }
@@ -194,7 +193,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                color: resultColor.withOpacity(0.1),
+                color: resultColor.withValues(alpha: 0.1),
                 elevation: 4,
                 child: ListTile(
                   title: Text(
@@ -207,7 +206,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
                   ),
                   subtitle: Text(
                     '${AppLocalizations.of(context)!.difficulty}: $resultTextDetail',
-                    style: TextStyle(color: resultColor.withOpacity(0.8)),
+                    style: TextStyle(color: resultColor.withValues(alpha: 0.8)),
                   ),
                 ),
               );
