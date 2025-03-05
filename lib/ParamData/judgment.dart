@@ -9,7 +9,7 @@ class GameJudgmentData {
 final Map<String, List<GameJudgmentData>> gameJudgmentWindows = {
   'Game A': [
     GameJudgmentData('Perfect', 25.0),
-    GameJudgmentData('Good', 50.0),
+    GameJudgmentData('Good', 41.667),
     GameJudgmentData('Bad', 100.0),
   ],
   'Game B': [

@@ -88,6 +88,6 @@
   "hard": "Hard",
   "manageable": "Manageable",
   "easy": "Easy",
-  "veryEasy": "Very Easy"
-
+  "veryEasy": "Very Easy",
+  "note_length": "Note Length"
 }

@@ -36,7 +36,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
   final Map<String, Map<String, double>> gameJudgmentWindows = {
     'Game A': {
       'Perfect': 25.0,
-      'Good': 50.0,
+      'Good': 41.667,
       'Bad': 100.0,
     },
     'Game B': {
@@ -60,6 +60,9 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
 
     // 入力値が変化したら、結果を再計算する
     noteController.addListener(() {
+      _calculateAnmitu();
+    });
+    bpmController.addListener(() {
       _calculateAnmitu();
     });
   }
@@ -187,28 +190,28 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final resultText = snapshot.data![index];
-              final double value = double.tryParse(resultText.split(': ').last) ?? 0;
+              final match = RegExp(r'[-+]?[0-9]*\.?[0-9]+').firstMatch(resultText);
+              final double value = match != null ? double.tryParse(match.group(0)!) ?? 0 : 0;
               final resultColor = _getResultColor(value);
-              final resultTextDetail = _getResultText(value);
 
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                color: resultColor.withValues(alpha: 0.1),
-                elevation: 4,
-                child: ListTile(
-                  title: Text(
-                    resultText,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: resultColor,
+              return Column(
+                children: [
+                  Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    color: resultColor.withOpacity(0.1),
+                    elevation: 4,
+                    child: ListTile(
+                      title: Text(
+                        resultText,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: resultColor,
+                        ),
+                      ),
                     ),
                   ),
-                  subtitle: Text(
-                    '${AppLocalizations.of(context)!.difficulty}: $resultTextDetail',
-                    style: TextStyle(color: resultColor.withValues(alpha: 0.8)),
-                  ),
-                ),
+                ],
               );
             },
           );
@@ -216,6 +219,8 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
       ),
     );
   }
+
+
 
   // 餡蜜判定結果の計算式
   void _calculateAnmitu() {
@@ -237,9 +242,14 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     // 餡蜜判定計算式: 判定幅 * 2 - 音符の長さ
     final anmituValue = judgmentWindow * 2 - noteLengthMs;
 
+    final resultColor = _getResultColor(anmituValue);
+    final resultTextDetail = _getResultText(anmituValue);
+
     _notesStreamController.add([
       '${AppLocalizations.of(context)!.timingWindow}: ${judgmentWindow.toStringAsFixed(context.read<SettingsModel>().numDecimal)} ms',
+      '${AppLocalizations.of(context)!.note_length}: $noteLengthMs ms',
       '${AppLocalizations.of(context)!.anmitsu_value}: ${anmituValue.toStringAsFixed(context.read<SettingsModel>().numDecimal)} ms',
+      '${AppLocalizations.of(context)!.difficulty}: $resultTextDetail',
     ]);
   }
 

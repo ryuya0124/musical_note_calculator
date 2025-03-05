@@ -88,5 +88,6 @@
   "hard": "難しい",
   "manageable": "やや簡単",
   "easy": "簡単",
-  "veryEasy": "非常に簡単"
+  "veryEasy": "非常に簡単",
+  "note_length": "ノーツ間隔"
 }
