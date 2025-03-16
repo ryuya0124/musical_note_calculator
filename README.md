@@ -95,7 +95,12 @@ Google Playは個人開発者に人権がなかった。
 このプロジェクトは、Flutterを使用して開発されています。
 
 ## メモ
-プロセカ 白ノーツ 41.6ms <br>
+プロセカ <br> 
+白ノーツ、赤フリック、ロング始点 41.6ms <br>
+黄色ノーツ、黄ロング始点 55ms<br>
+黄色フリック 58.3ms<br>
+
+
 Deemo 50ms <br>
 Arcaea 50ms(内部25ms) <br>
 Cytus Cytus II TP Perfect 70ms <br>
