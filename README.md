@@ -105,40 +105,29 @@ Google Playは個人開発者に人権がなかった。
 
 
 ### ユメステ
-- **PERFECT+**  
-  ±25ms
-- **PERFECT**  
-  ±40ms
+- **PERFECT+**  ±25ms
+- **PERFECT**  ±40ms
 
 ### ガルパ
-- **PERFECT**  
-  ±41.6ms?
+- **PERFECT**  ±41.6ms?
 
 ### Deemo
 - ±50ms
 
 ### Arcaea
-- **PURE**
-  ±50ms
-- **内部PURE**
-  ±25ms
+- **PURE**±50ms
+- **内部PURE**±25ms
 
 ### TAKUMI³
-- **虹JUST**
-  ±40ms
-- **JUST**
-  ±60ms
+- **虹JUST**±40ms
+- **JUST**±60ms
 
 ### Cytus / Cytus II
-- **TP Perfect**  
-  ±70ms
+- **TP Perfect**  ±70ms
 
 ### KALPA
-- **PERFECT**  
-  ±67ms
+- **PERFECT**  ±67ms
 
 ### Phigros
-- **通常モード Perfect**  
-  ±80ms
-- **課題モード Perfect**  
-  ±40ms
+- **通常モード Perfect**  ±80ms
+- **課題モード Perfect**  ±40ms
