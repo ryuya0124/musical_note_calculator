@@ -101,9 +101,15 @@ Google Playは個人開発者に人権がなかった。
 黄色フリック ±58.3ms<br>
 黄または緑ロング終点、黄または緑ロング終点フリック +66.6ms -58.3ms<br>
 
+ユメステ
+PERFECT+ ±25ms
+PERFECT ±40ms
 
 Deemo ±50ms <br>
 Arcaea ±50ms(内部±25ms) <br>
 Cytus Cytus II TP Perfect ±70ms <br>
-Phigros(通常モード) ±80ms <br>
-Phigros(課題モード) ±40ms <br>
+
+Phigros
+
+通常モード ±80ms <br>
+課題モード ±40ms <br>
