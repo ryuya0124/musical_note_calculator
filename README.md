@@ -110,6 +110,10 @@ Google Playは個人開発者に人権がなかった。
 - **PERFECT**  
   ±40ms
 
+### ガルパ
+- **PERFECT**  
+  ±41.6ms?
+
 ### Deemo
 - ±50ms
 
