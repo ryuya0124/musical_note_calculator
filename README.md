@@ -96,15 +96,13 @@ Google Playは個人開発者に人権がなかった。
 
 ## メモ
 プロセカ <br> 
-白ノーツ、赤フリック、ロング始点 41.6ms <br>
-黄色ノーツ、黄ロング始点 55ms<br>
-黄色フリック 58.3ms<br>
+白ノーツ、赤フリック、緑ロング始点 ±41.6ms <br>
+黄色ノーツ、黄ロング始点 ±55ms<br>
+黄色フリック ±58.3ms<br>
+黄または緑ロング終点、黄または緑ロング終点フリック +58.3ms -66.6ms<br>
 
 
-Deemo 50ms <br>
-Arcaea 50ms(内部25ms) <br>
-Cytus Cytus II TP Perfect 70ms <br>
-Phigros 80ms <br>
-
-<br><br>
-※これらは全て±の値
+Deemo ±50ms <br>
+Arcaea ±50ms(内部±25ms) <br>
+Cytus Cytus II TP Perfect ±70ms <br>
+Phigros ±80ms <br>
