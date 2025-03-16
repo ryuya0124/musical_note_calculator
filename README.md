@@ -105,4 +105,5 @@ Google Playは個人開発者に人権がなかった。
 Deemo ±50ms <br>
 Arcaea ±50ms(内部±25ms) <br>
 Cytus Cytus II TP Perfect ±70ms <br>
-Phigros ±80ms <br>
+Phigros(通常モード) ±80ms <br>
+Phigros(課題モード) ±40ms <br>
