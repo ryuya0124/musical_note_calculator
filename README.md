@@ -109,18 +109,22 @@ Google Playは個人開発者に人権がなかった。
 - **PERFECT**  ±40ms
 
 ### ガルパ
-- **PERFECT**  ±41.6ms?
+- **PERFECT**  ±41.67ms
+
+### D4DJ グルミク
+- **PERFECT(内部)** ±25ms
+- **PERFECT** ±50ms?
 
 ### Deemo
 - ±50ms
 
 ### Arcaea
-- **PURE**±50ms
-- **内部PURE**±25ms
+- **PURE(内部)** ±25ms
+- **PURE** ±50ms
 
 ### TAKUMI³
-- **虹JUST**±40ms
-- **JUST**±60ms
+- **虹JUST** ±40ms
+- **JUST** ±60ms
 
 ### Cytus / Cytus II
 - **TP Perfect**  ±70ms
@@ -131,3 +135,10 @@ Google Playは個人開発者に人権がなかった。
 ### Phigros
 - **通常モード Perfect**  ±80ms
 - **課題モード Perfect**  ±40ms
+
+### ミリシタ
+- **PERFECT(OM)** ±28ms?
+- **PERFECT(MM以下)** ±50ms?
+
+### デレステ
+- **PERFECT(Mas以上)** ±70ms?
