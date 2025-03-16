@@ -114,14 +114,27 @@ Google Playは個人開発者に人権がなかった。
 - ±50ms
 
 ### Arcaea
-- ±50ms（内部 ±25ms）
+- **PURE**
+  ±50ms
+- **内部PURE**
+  ±25ms
+
+### TAKUMI³
+- **虹JUST**
+  ±40ms
+- **JUST**
+  ±60ms
 
 ### Cytus / Cytus II
 - **TP Perfect**  
   ±70ms
 
+### KALPA
+- **PERFECT**  
+  ±67ms
+
 ### Phigros
-- **通常モード**  
+- **通常モード Perfect**  
   ±80ms
-- **課題モード**  
+- **課題モード Perfect**  
   ±40ms
