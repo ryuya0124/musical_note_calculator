@@ -332,8 +332,8 @@ class MetronomePageState extends State<MetronomePage>
     final localizations = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark
-        ? colorScheme.surfaceContainerHigh.withValues(alpha: 0.4)
-        : colorScheme.surface;
+        ? colorScheme.surfaceContainerHigh.withValues(alpha: 0.55)
+        : colorScheme.surfaceContainerHighest.withValues(alpha: 0.85);
 
     return Container(
       width: double.infinity,
@@ -341,11 +341,16 @@ class MetronomePageState extends State<MetronomePage>
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: 0.35),
+          width: 2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
-            blurRadius: 40,
-            offset: const Offset(0, 18),
+            color: colorScheme.primary.withValues(alpha: isDark ? 0.35 : 0.15),
+            blurRadius: 45,
+            spreadRadius: 1,
+            offset: const Offset(0, 20),
           ),
         ],
       ),
