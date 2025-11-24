@@ -33,6 +33,12 @@ class MetronomePageState extends State<MetronomePage>
   int vol = 100;
   bool isPlaying = false;
 
+  // 拍関連
+  final List<int> beatOptions = [2, 3, 4, 5, 6];
+  static const int customBeatSentinel = -1;
+  int selectedBeatOption = 4;
+  int? customBeats;
+
   final _isPlayingController = StreamController<bool>.broadcast();
   final _iconStateController = StreamController<bool>.broadcast();
 
@@ -67,10 +73,13 @@ class MetronomePageState extends State<MetronomePage>
     bpm = convertNoteDurationToBPM(bpm, note);
 
     metronome.init(
-      'assets/$weakTick',
+      'assets/$weakTick', // 弱拍
+      accentedPath: 'assets/$strongTick', // 強拍（1拍目）
       bpm: bpm.toInt(),
-      volume: 100,
+      volume: vol,
       enableTickCallback: true,
+      timeSignature: selectedBeatOption,
+      sampleRate: 44100,
     );
 
     _tickSubscription = metronome.tickStream.listen((event) {
@@ -144,7 +153,9 @@ class MetronomePageState extends State<MetronomePage>
     if (isPlaying) return;
 
     bpm = convertNoteDurationToBPM(widget.bpm, note);
+    final beats = _currentBeats;
     metronome.setBPM(bpm.toInt());
+    metronome.setTimeSignature(beats);
     metronome.play();
 
     _isPlayingController.sink.add(true);
@@ -178,6 +189,8 @@ class MetronomePageState extends State<MetronomePage>
                 buildNoteDisplay(context),
                 const SizedBox(height: 20),
                 buildQuarterNoteEquivalent(context),
+                const SizedBox(height: 20),
+                buildBeatSelector(context),
                 const SizedBox(height: 20),
                 buildToggleButton(context),
                 const SizedBox(height: 20),
@@ -321,5 +334,84 @@ class MetronomePageState extends State<MetronomePage>
 
   String getLocalizedText(String key, BuildContext context) {
     return AppLocalizations.of(context)!.getTranslation(key);
+  }
+
+  int get _currentBeats {
+    if (selectedBeatOption == customBeatSentinel) {
+      return (customBeats != null && customBeats! > 0) ? customBeats! : 4;
+    }
+    return selectedBeatOption;
+  }
+
+  Widget buildBeatSelector(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Beat (time signature)',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButton<int>(
+                isExpanded: true,
+                value: selectedBeatOption,
+                items: [
+                  ...beatOptions.map(
+                    (b) => DropdownMenuItem<int>(
+                      value: b,
+                      child: Text('$b / 4'),
+                    ),
+                  ),
+                  const DropdownMenuItem<int>(
+                    value: customBeatSentinel,
+                    child: Text('Other'),
+                  ),
+                ],
+                onChanged: (val) {
+                  if (val == null) return;
+                  setState(() {
+                    selectedBeatOption = val;
+                  });
+                  if (isPlaying) {
+                    stopMetronome();
+                    startMetronome();
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            if (selectedBeatOption == customBeatSentinel)
+              SizedBox(
+                width: 80,
+                child: TextField(
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Beat',
+                  ),
+                  onChanged: (val) {
+                    final parsed = int.tryParse(val);
+                    setState(() {
+                      customBeats = parsed;
+                    });
+                    if (isPlaying && parsed != null && parsed > 0) {
+                      stopMetronome();
+                      startMetronome();
+                    }
+                  },
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
   }
 }
