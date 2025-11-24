@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:musical_note_calculator/l10n/app_localizations.dart';
 
 class LicencePage extends StatefulWidget {

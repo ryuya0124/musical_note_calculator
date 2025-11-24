@@ -36,6 +36,8 @@ class MetronomePageState extends State<MetronomePage>
   final _isPlayingController = StreamController<bool>.broadcast();
   final _iconStateController = StreamController<bool>.broadcast();
 
+  StreamSubscription<int>? _tickSubscription;
+
   // 最後に状態を更新した時間を保持
   int lastUpdatedTime = 0;
 
@@ -73,14 +75,16 @@ class MetronomePageState extends State<MetronomePage>
       enableTickCallback: true,
     );
 
-    metronome.tickStream.listen((event) {
+    _tickSubscription = metronome.tickStream.listen((event) {
       final currentTime = DateTime.now().millisecondsSinceEpoch;
 
       // 最後の更新から150ms以上経過した場合のみ更新を行う
       if (currentTime - lastUpdatedTime >= 150) {
         // アイコンの状態を切り替え
         isLeftIcon = !isLeftIcon;
-        _iconStateController.sink.add(isLeftIcon);
+        if (!_iconStateController.isClosed) {
+          _iconStateController.sink.add(isLeftIcon);
+        }
 
         // 最後に更新した時間を記録
         lastUpdatedTime = currentTime;
@@ -91,6 +95,7 @@ class MetronomePageState extends State<MetronomePage>
   @override
   void dispose() {
     metronome.stop();
+    _tickSubscription?.cancel();
     metronome.destroy();
     _isPlayingController.close();
     _iconStateController.close();
