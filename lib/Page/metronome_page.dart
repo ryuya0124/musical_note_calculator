@@ -346,6 +346,24 @@ class MetronomePageState extends State<MetronomePage>
   Widget buildBeatSelector(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    // 現在の音符に応じた分母（4分音符なら4, 8分なら8, など）
+    final noteData = findNoteData(note);
+    final int baseDenom = noteData.note.toInt();
+    final bool isDottedNote = noteData.dotted;
+
+    String formatBeatLabel(int beats) {
+      if (!isDottedNote) {
+        // 通常: 2/4, 3/4, 4/4 ... のように表示
+        return '$beats/$baseDenom';
+      } else {
+        // 付点: 分子に3, 分母に2をかける
+        final int top = beats * 3;
+        final int bottom = baseDenom * 2;
+        // 例: 2拍, 付点4分音符(4) -> 6/8
+        return '$top/$bottom';
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -368,7 +386,7 @@ class MetronomePageState extends State<MetronomePage>
                   ...beatOptions.map(
                     (b) => DropdownMenuItem<int>(
                       value: b,
-                      child: Text('$b / 4'),
+                      child: Text(formatBeatLabel(b)),
                     ),
                   ),
                   const DropdownMenuItem<int>(
