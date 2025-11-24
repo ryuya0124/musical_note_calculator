@@ -307,14 +307,16 @@ class MetronomePageState extends State<MetronomePage>
         color: colorScheme.secondary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(18),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 6,
         children: [
           Icon(Icons.graphic_eq_rounded, size: 20, color: colorScheme.primary),
-          const SizedBox(width: 8),
           Text(
             AppLocalizations.of(context)!.quarterNoteEquivalent(equivalent),
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
               color: colorScheme.onSurface,
