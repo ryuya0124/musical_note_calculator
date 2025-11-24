@@ -25,7 +25,7 @@ class MetronomePage extends StatefulWidget {
 
 class MetronomePageState extends State<MetronomePage>
     with WidgetsBindingObserver {
-  final _selectedIndex = 3;
+  final _selectedIndex = 4;
   final metronome = Metronome();
   late double bpm = widget.bpm;
   late String note = widget.note;
