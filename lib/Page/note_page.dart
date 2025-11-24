@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../ParamData/settings_model.dart';
 import '../UI/unit_dropdown.dart';
@@ -11,7 +11,8 @@ class NotePage extends StatefulWidget {
   final TextEditingController bpmController; // bpmControllerを保持
   final FocusNode bpmFocusNode; // bpmFocusNodeを保持
 
-  const NotePage({super.key,
+  const NotePage({
+    super.key,
     required this.bpmController, // requiredを使用して必須にする
     required this.bpmFocusNode,
   });
@@ -72,22 +73,26 @@ class NotePageState extends State<NotePage> {
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   // エラーが発生した場合
-                  return Center(child: Text(
+                  return Center(
+                    child: Text(
                       AppLocalizations.of(context)!.error,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                   );
                 }
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                  return buildNotesList(enabledNotes, appBarColor, snapshot.data!);
+                  return buildNotesList(
+                      enabledNotes, appBarColor, snapshot.data!);
                 } else {
                   // データがない場合、縦方向にも中央にメッセージを表示
                   return Expanded(
                     child: Center(
                       child: Text(
                         AppLocalizations.of(context)!.note_instruction,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -123,25 +128,27 @@ class NotePageState extends State<NotePage> {
     );
   }
 
-  Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor, List<Map<String, String>> notes) {
+  Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor,
+      List<Map<String, String>> notes) {
     return Expanded(
       child: bpmController.text.isEmpty
           ? Center(child: Text(AppLocalizations.of(context)!.note_instruction))
           : ListView.builder(
-        itemCount: notes.length,
-        itemBuilder: (context, index) {
-          final note = notes[index];
-          if (enabledNotes[note['name']] == true) {
-            return buildNoteCard(note, appBarColor, context);
-          } else {
-            return Container();
-          }
-        },
-      ),
+              itemCount: notes.length,
+              itemBuilder: (context, index) {
+                final note = notes[index];
+                if (enabledNotes[note['name']] == true) {
+                  return buildNoteCard(note, appBarColor, context);
+                } else {
+                  return Container();
+                }
+              },
+            ),
     );
   }
 
-  Widget buildNoteCard(Map<String, String> note, Color appBarColor, BuildContext context) {
+  Widget buildNoteCard(
+      Map<String, String> note, Color appBarColor, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -150,7 +157,8 @@ class NotePageState extends State<NotePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
-      color: colorScheme.surface.withValues(alpha: 0.1), // カードの背景色（明るいテーマではsurface）
+      color: colorScheme.surface
+          .withValues(alpha: 0.1), // カードの背景色（明るいテーマではsurface）
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
         title: Text(
@@ -186,12 +194,12 @@ class NotePageState extends State<NotePage> {
     }
 
     final conversionFactor = selectedTimeScale == '1s'
-        ? 60.0  // 1秒の場合は60
+        ? 60.0 // 1秒の場合は60
         : selectedTimeScale == '100ms'
-        ? 10 * 60 // 1ms
-        : selectedTimeScale == '10ms'
-        ? 100 * 60 // 1µs
-        : 60.0;  // その他の場合は60.0
+            ? 10 * 60 // 1ms
+            : selectedTimeScale == '10ms'
+                ? 100 * 60 // 1µs
+                : 60.0; // その他の場合は60.0
 
     final notesList = notes.map((note) {
       // ノートの間隔を計算

@@ -31,7 +31,7 @@ ThemeData materialLightTheme(ColorScheme lightColorScheme) {
     ),
 
     // カードのテーマ
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: lightColorScheme.surface,
       shadowColor: lightColorScheme.shadow,
       elevation: 2,

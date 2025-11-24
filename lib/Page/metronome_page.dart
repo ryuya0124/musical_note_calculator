@@ -1,6 +1,6 @@
 import 'dart:async'; // StreamControllerのインポート
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import 'package:metronome/metronome.dart';
 import 'package:provider/provider.dart';
@@ -13,13 +13,18 @@ class MetronomePage extends StatefulWidget {
   final String note;
   final String interval;
 
-  const MetronomePage({super.key, required this.bpm, required this.note, required this.interval});
+  const MetronomePage(
+      {super.key,
+      required this.bpm,
+      required this.note,
+      required this.interval});
 
   @override
   MetronomePageState createState() => MetronomePageState();
 }
 
-class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserver {
+class MetronomePageState extends State<MetronomePage>
+    with WidgetsBindingObserver {
   final _selectedIndex = 3;
   final metronome = Metronome();
   late double bpm = widget.bpm;
@@ -37,9 +42,13 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
   String getMetronomeIcon(BuildContext context, bool isLeft) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     if (isLeft) {
-      return isDarkMode ? 'assets/metronome-left-white.png' : 'assets/metronome-left.png';
+      return isDarkMode
+          ? 'assets/metronome-left-white.png'
+          : 'assets/metronome-left.png';
     } else {
-      return isDarkMode ? 'assets/metronome-right-white.png' : 'assets/metronome-right.png';
+      return isDarkMode
+          ? 'assets/metronome-right-white.png'
+          : 'assets/metronome-right.png';
     }
   }
 
@@ -57,14 +66,14 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
     bpm = convertNoteDurationToBPM(bpm, note);
     maxBpm = context.read<SettingsModel>().maxBPM;
 
-    metronome.init('assets/$weakTick',
+    metronome.init(
+      'assets/$weakTick',
       bpm: bpm.toInt(),
       volume: 100,
-      enableSession: false,
       enableTickCallback: true,
     );
 
-    metronome.onListenTick((_) {
+    metronome.tickStream.listen((event) {
       final currentTime = DateTime.now().millisecondsSinceEpoch;
 
       // 最後の更新から150ms以上経過した場合のみ更新を行う
@@ -133,7 +142,8 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
 
     bpm = convertNoteDurationToBPM(widget.bpm, note);
     if (bpm >= maxBpm) bpm = maxBpm.toDouble();
-    metronome.play(bpm.toInt());
+    metronome.setBPM(bpm.toInt());
+    metronome.play();
 
     _isPlayingController.sink.add(true);
   }
@@ -230,7 +240,8 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
 
     return Text(
       AppLocalizations.of(context)!.quarterNoteEquivalent(
-        convertNoteDurationToBPM(widget.bpm, note).toStringAsFixed(context.read<SettingsModel>().numDecimal),
+        convertNoteDurationToBPM(widget.bpm, note)
+            .toStringAsFixed(context.read<SettingsModel>().numDecimal),
       ),
       style: TextStyle(
         fontSize: 20,
@@ -249,7 +260,8 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
         return ElevatedButton(
           onPressed: toggleMetronome,
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
             textStyle: const TextStyle(fontSize: 18),
             backgroundColor: isPlaying
                 ? colorScheme.error // 再生中はエラー色（例: 赤）
@@ -281,7 +293,8 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          border: Border.all(color: colorScheme.error, width: 2), // ボーダー色はそのままエラー色
+          border:
+              Border.all(color: colorScheme.error, width: 2), // ボーダー色はそのままエラー色
           borderRadius: BorderRadius.circular(8),
           color: adjustedBackgroundColor, // 薄くした背景色
         ),
@@ -291,7 +304,8 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                AppLocalizations.of(context)!.warningMessage(maxBpm.toStringAsFixed(context.read<SettingsModel>().numDecimal)),
+                AppLocalizations.of(context)!.warningMessage(maxBpm
+                    .toStringAsFixed(context.read<SettingsModel>().numDecimal)),
                 style: TextStyle(
                   color: colorScheme.onSurface, // 読みやすいテキスト色
                   fontSize: 14,
@@ -328,7 +342,8 @@ class MetronomePageState extends State<MetronomePage> with WidgetsBindingObserve
             metronome.setVolume(vol); // 音量を即時に反映させる
           },
           activeColor: colorScheme.primary, // スライダーのアクティブ部分の色
-          inactiveColor: colorScheme.onSurface.withValues(alpha: 0.3), // スライダーの非アクティブ部分の色
+          inactiveColor:
+              colorScheme.onSurface.withValues(alpha: 0.3), // スライダーの非アクティブ部分の色
           thumbColor: colorScheme.primary, // スライダーのサム（つまみ）の色
         ),
       ],

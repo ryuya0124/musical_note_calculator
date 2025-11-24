@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 
 class LicencePage extends StatefulWidget {
   const LicencePage({super.key});
@@ -20,6 +20,7 @@ class LicencePageState extends State<LicencePage> {
     super.initState();
     _getAppInfo();
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -29,7 +30,6 @@ class LicencePageState extends State<LicencePage> {
 
   // アプリ情報を非同期で取得
   Future<void> _getAppInfo() async {
-    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       //appName = packageInfo.appName;
       //appVersion = packageInfo.version;
@@ -44,7 +44,8 @@ class LicencePageState extends State<LicencePage> {
         applicationName: appName, // アプリ名
         applicationVersion: appVersion, // アプリバージョン
         applicationIcon: const Icon(Icons.car_repair), // アプリアイコン
-        applicationLegalese: 'MIT License Copyright (c) 2025 ryuya0124', // 著作権表示
+        applicationLegalese:
+            'MIT License Copyright (c) 2025 ryuya0124', // 著作権表示
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../ParamData/notes.dart';
 import '../ParamData/settings_model.dart';
@@ -9,7 +9,6 @@ import '../ParamData/settings_model.dart';
 class CalculatorPage extends StatefulWidget {
   final TextEditingController bpmController; // bpmControllerを保持
   final FocusNode bpmFocusNode; // bpmFocusNodeを保持
-
 
   const CalculatorPage({
     super.key,
@@ -24,7 +23,8 @@ class CalculatorPage extends StatefulWidget {
 class CalculatorPageState extends State<CalculatorPage> {
   late TextEditingController bpmController;
   late FocusNode bpmFocusNode;
-  late StreamController<Map<String, List<Map<String, String>>>> _notesStreamController;
+  late StreamController<Map<String, List<Map<String, String>>>>
+      _notesStreamController;
   final Map<String, StreamController<bool>> _expansionControllers = {};
 
   @override
@@ -33,7 +33,8 @@ class CalculatorPageState extends State<CalculatorPage> {
     bpmController = widget.bpmController;
     bpmFocusNode = widget.bpmFocusNode;
     bpmController.addListener(_calculateNotes);
-    _notesStreamController = StreamController<Map<String, List<Map<String, String>>>>();
+    _notesStreamController =
+        StreamController<Map<String, List<Map<String, String>>>>();
   }
 
   @override
@@ -63,10 +64,12 @@ class CalculatorPageState extends State<CalculatorPage> {
 
     for (var baseNote in notes) {
       calculatedNotes[baseNote.name] = notes.map((targetNote) {
-        final double targetBPM = calculateNoteBPM(bpm, baseNote, targetNote.note);
+        final double targetBPM =
+            calculateNoteBPM(bpm, baseNote, targetNote.note);
         return {
           'note': targetNote.name,
-          'bpm': targetBPM.toStringAsFixed(context.read<SettingsModel>().numDecimal),
+          'bpm': targetBPM
+              .toStringAsFixed(context.read<SettingsModel>().numDecimal),
         };
       }).toList();
     }
@@ -80,7 +83,8 @@ class CalculatorPageState extends State<CalculatorPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // マージンの調整
+      margin:
+          const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // マージンの調整
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20), // 角を丸くする
@@ -107,7 +111,6 @@ class CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-
   // 展開状態を管理するStreamを返す
   Stream<bool> _getExpansionStream(String title) {
     if (!_expansionControllers.containsKey(title)) {
@@ -119,11 +122,12 @@ class CalculatorPageState extends State<CalculatorPage> {
   // 展開状態を更新するメソッド
   void _toggleExpansion(String title, bool expanded) {
     final controller = _expansionControllers[title];
-    controller?.add(expanded);  // 状態を更新
+    controller?.add(expanded); // 状態を更新
   }
 
   // 折りたたみボタン用のウィジェット
-  Widget _buildNoteGroup(String title, List<Map<String, String>> notes, Map<String, bool> enabledNotes, BuildContext context) {
+  Widget _buildNoteGroup(String title, List<Map<String, String>> notes,
+      Map<String, bool> enabledNotes, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     final List<Map<String, String>> enabledNotesList = notes.where((note) {
@@ -135,7 +139,8 @@ class CalculatorPageState extends State<CalculatorPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0), // 角丸の半径を指定
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0), // 左右と上下にマージン
+      margin: const EdgeInsets.symmetric(
+          horizontal: 16.0, vertical: 10.0), // 左右と上下にマージン
       child: StreamBuilder<bool>(
         stream: _getExpansionStream(title),
         initialData: false, // 初期状態は閉じた状態
@@ -161,7 +166,8 @@ class CalculatorPageState extends State<CalculatorPage> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: enabledNotesList.length,
                 itemBuilder: (context, index) {
-                  return _buildNoteCard(enabledNotesList[index]['note']!, enabledNotesList[index]['bpm']!, context);
+                  return _buildNoteCard(enabledNotesList[index]['note']!,
+                      enabledNotesList[index]['bpm']!, context);
                 },
               ),
             ],
@@ -170,7 +176,6 @@ class CalculatorPageState extends State<CalculatorPage> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +198,8 @@ class CalculatorPageState extends State<CalculatorPage> {
                       // ノート名 (key) が有効かどうかを確認
                       if (enabledNotes[key] ?? false) {
                         // ノートが有効なら、_buildNoteGroup を呼び出して表示
-                        return _buildNoteGroup(key, snapshot.data![key]!, enabledNotes, context);
+                        return _buildNoteGroup(
+                            key, snapshot.data![key]!, enabledNotes, context);
                       } else {
                         // ノートが無効なら、空のウィジェットを返す
                         return const SizedBox.shrink(); // または他の非表示のウィジェット
@@ -204,7 +210,8 @@ class CalculatorPageState extends State<CalculatorPage> {
                   return Center(
                     child: Text(
                       AppLocalizations.of(context)!.calculator_instruction,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                   );

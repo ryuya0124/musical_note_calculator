@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import '../Page/settings_page.dart';
 import 'pageAnimation.dart';
 import 'dart:io';
@@ -51,9 +51,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
             Text(
               tabNames[selectedIndex], // 現在のタブ名を表示
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.normal,
-                color: tabTextColor, // タブ名のテキスト色
-              ),
+                    fontWeight: FontWeight.normal,
+                    color: tabTextColor, // タブ名のテキスト色
+                  ),
             ),
           ],
         ),
@@ -71,10 +71,10 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                 // iOS以外の場合
                 pushPage<void>(
                   context,
-                      (BuildContext context) {
-                    return const SettingsPage();  // SettingsPageに遷移
+                  (BuildContext context) {
+                    return const SettingsPage(); // SettingsPageに遷移
                   },
-                  name: "/root/settings",  // ルート名を設定
+                  name: "/root/settings", // ルート名を設定
                 );
               }
             },

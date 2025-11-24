@@ -6,7 +6,7 @@ import '../UI/app_bar.dart';
 import '../UI/unit_dropdown.dart';
 import '../UI/numeric_input_column.dart';
 import 'licence_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import 'dart:io';
 import '../UI/pageAnimation.dart';
@@ -19,7 +19,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
 
@@ -49,13 +48,16 @@ class SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     decimalValue = context.read<SettingsModel>().numDecimal;
-    decimalsController = TextEditingController(text: decimalValue.toStringAsFixed(0));
+    decimalsController =
+        TextEditingController(text: decimalValue.toStringAsFixed(0));
 
     maxBPM = context.read<SettingsModel>().maxBPM;
     maxBPMController = TextEditingController(text: maxBPM.toString());
 
     deltaValue = context.read<SettingsModel>().deltaValue;
-    deltaValueController = TextEditingController(text: deltaValue.toStringAsFixed(context.read<SettingsModel>().numDecimal));
+    deltaValueController = TextEditingController(
+        text: deltaValue
+            .toStringAsFixed(context.read<SettingsModel>().numDecimal));
 
     useMaterialYou = context.read<SettingsModel>().useMaterialYou;
   }
@@ -101,7 +103,8 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget buildDisplaySettingsSection(BuildContext context, ColorScheme colorScheme) {
+  Widget buildDisplaySettingsSection(
+      BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -125,7 +128,8 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget buildAdvancedSettingsSection(BuildContext context, ColorScheme colorScheme) {
+  Widget buildAdvancedSettingsSection(
+      BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -244,26 +248,26 @@ class SettingsPageState extends State<SettingsPage> {
             onChanged: (bool value) {
               context.read<SettingsModel>().setMaterialYou(value);
             },
-            activeColor: colorScheme.onPrimary, // スイッチがONのときのスライダー色
+            activeThumbColor: colorScheme.onPrimary, // スイッチがONのときのスライダー色
             activeTrackColor: colorScheme.primary, // ON時のトラック色
-            inactiveThumbColor: colorScheme.onSurface.withValues(alpha: 0.6), // OFF時のスライダー色
-            inactiveTrackColor: colorScheme.onSurface.withValues(alpha: 0.3), // OFF時のトラック色
+            inactiveThumbColor:
+                colorScheme.onSurface.withValues(alpha: 0.6), // OFF時のスライダー色
+            inactiveTrackColor:
+                colorScheme.onSurface.withValues(alpha: 0.3), // OFF時のトラック色
           ),
         ]
-
       ],
     );
   }
 
-  Widget buildTimeUnitDropdownSection(BuildContext context, ColorScheme colorScheme) {
+  Widget buildTimeUnitDropdownSection(
+      BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           AppLocalizations.of(context)!.time_unit,
-          style: const TextStyle(
-            fontSize: 16
-          ),
+          style: const TextStyle(fontSize: 16),
         ),
         UnitDropdown(
           selectedUnit: context.watch<SettingsModel>().selectedUnit,
@@ -274,19 +278,18 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  _handleUnitChange(String value){
+  void _handleUnitChange(String value) {
     context.read<SettingsModel>().setUnit(value);
   }
 
-  Widget buildTimeScaleDropdownSection(BuildContext context, ColorScheme colorScheme) {
+  Widget buildTimeScaleDropdownSection(
+      BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           AppLocalizations.of(context)!.timescale,
-          style: const TextStyle(
-            fontSize: 16
-          ),
+          style: const TextStyle(fontSize: 16),
         ),
         UnitDropdown(
           selectedUnit: context.watch<SettingsModel>().selectedTimeScale,
@@ -297,11 +300,12 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  _handleTimeScaleUnitChange(String value){
+  void _handleTimeScaleUnitChange(String value) {
     context.read<SettingsModel>().setTimeScale(value);
   }
 
-  Widget buildNoteSettingsSection(BuildContext context, ColorScheme colorScheme) {
+  Widget buildNoteSettingsSection(
+      BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -318,15 +322,18 @@ class SettingsPageState extends State<SettingsPage> {
           return Container(
             margin: const EdgeInsets.only(left: 8.0),
             child: SwitchListTile(
-              title: Text(AppLocalizations.of(context)!.getTranslation(noteKey)),
+              title:
+                  Text(AppLocalizations.of(context)!.getTranslation(noteKey)),
               value: context.watch<SettingsModel>().enabledNotes[noteKey]!,
               onChanged: (bool value) {
                 context.read<SettingsModel>().toggleNoteEnabled(noteKey);
               },
-              activeColor: colorScheme.onPrimary, // スイッチがONのときのスライダー色
+              activeThumbColor: colorScheme.onPrimary, // スイッチがONのときのスライダー色
               activeTrackColor: colorScheme.primary, // ON時のトラック色
-              inactiveThumbColor: colorScheme.onSurface.withValues(alpha: 0.6), // OFF時のスライダー色
-              inactiveTrackColor: colorScheme.onSurface.withValues(alpha: 0.3), // OFF時のトラック色
+              inactiveThumbColor:
+                  colorScheme.onSurface.withValues(alpha: 0.6), // OFF時のスライダー色
+              inactiveTrackColor:
+                  colorScheme.onSurface.withValues(alpha: 0.3), // OFF時のトラック色
             ),
           );
         })
@@ -334,7 +341,8 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget buildCustomNotesSection(BuildContext context, ColorScheme colorScheme) {
+  Widget buildCustomNotesSection(
+      BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -368,7 +376,8 @@ class SettingsPageState extends State<SettingsPage> {
       itemBuilder: (context, index) {
         final note = settingsModel.customNotes[index];
         return ListTile(
-          title: Text("${note.name} (${note.note}分音符${note.dotted ? " (付点)" : ""})"),
+          title: Text(
+              "${note.name} (${note.note}分音符${note.dotted ? " (付点)" : ""})"),
           trailing: IconButton(
             icon: Icon(Icons.delete, color: colorScheme.error),
             onPressed: () {
@@ -430,9 +439,7 @@ class SettingsPageState extends State<SettingsPage> {
             ),
           ],
         ),
-
         const SizedBox(height: 10),
-
         CheckboxListTile(
           value: isDotted,
           onChanged: (bool? value) {
@@ -443,21 +450,23 @@ class SettingsPageState extends State<SettingsPage> {
           title: Text(AppLocalizations.of(context)!.dotted_note), // 例: "付点"
           controlAffinity: ListTileControlAffinity.leading, // チェックボックスを左側に配置
         ),
-
         ElevatedButton(
           onPressed: isButtonEnabled
               ? () {
-            final String name = nameController.text.trim();
-            final double? value = double.tryParse(valueController.text.trim());
-            if (name.isNotEmpty && value != null) {
-              context.read<SettingsModel>().addCustomNote(name, value, isDotted);
-              nameController.clear();
-              valueController.clear();
-              setState(() {
-                isDotted = false;
-              });
-            }
-          }
+                  final String name = nameController.text.trim();
+                  final double? value =
+                      double.tryParse(valueController.text.trim());
+                  if (name.isNotEmpty && value != null) {
+                    context
+                        .read<SettingsModel>()
+                        .addCustomNote(name, value, isDotted);
+                    nameController.clear();
+                    valueController.clear();
+                    setState(() {
+                      isDotted = false;
+                    });
+                  }
+                }
               : null,
           child: Text(AppLocalizations.of(context)!.add_note),
         ),
@@ -492,16 +501,13 @@ class SettingsPageState extends State<SettingsPage> {
               },
               color: Theme.of(context).colorScheme.primary,
             ),
-
             TextButton(
               onPressed: () {
                 moveGithub(context);
               },
               child: Text(
                 AppLocalizations.of(context)!.view_on_github,
-                style: const TextStyle(
-                  fontSize: 16
-                ),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
           ],
@@ -526,10 +532,10 @@ class SettingsPageState extends State<SettingsPage> {
           // iOS以外の場合
           pushPage<void>(
             context,
-                (BuildContext context) {
-              return const LicencePage();  // SettingsPageに遷移
+            (BuildContext context) {
+              return const LicencePage(); // SettingsPageに遷移
             },
-            name: "/root/settings/licence",  // ルート名を設定
+            name: "/root/settings/licence", // ルート名を設定
           );
         }
       },
@@ -558,11 +564,13 @@ class SettingsPageState extends State<SettingsPage> {
   }
 
   void moveGithub(BuildContext context) async {
-    final Uri url = Uri.parse("https://github.com/ryuya0124/musical_note_calculator");
+    final Uri url =
+        Uri.parse("https://github.com/ryuya0124/musical_note_calculator");
     try {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
-      if (context.mounted) { // BuildContext が有効か確認
+      if (context.mounted) {
+        // BuildContext が有効か確認
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to open the URL: $e')),
         );

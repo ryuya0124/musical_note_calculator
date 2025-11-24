@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../ParamData/settings_model.dart';
 import 'metronome_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../UI/unit_dropdown.dart';
 import '../ParamData/notes.dart';
@@ -37,13 +37,14 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     bpmFocusNode = widget.bpmFocusNode;
 
     bpmController.addListener(_calculateNotes);
-    _notesStreamController = StreamController<List<Map<String, String>>>.broadcast();
+    _notesStreamController =
+        StreamController<List<Map<String, String>>>.broadcast();
     WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
-    _notesStreamController.close();  // StreamControllerを閉じる
+    _notesStreamController.close(); // StreamControllerを閉じる
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -95,13 +96,14 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor) {
     return Expanded(
       child: StreamBuilder<List<Map<String, String>>>(
-        stream: _notesStreamController.stream,  // Streamを監視
+        stream: _notesStreamController.stream, // Streamを監視
         builder: (context, snapshot) {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text(
-                AppLocalizations.of(context)!.home_instruction,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+            return Center(
+                child: Text(
+              AppLocalizations.of(context)!.home_instruction,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ));
           }
 
@@ -121,7 +123,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget buildNoteCard(Map<String, String> note, Color appBarColor, BuildContext context) {
+  Widget buildNoteCard(
+      Map<String, String> note, Color appBarColor, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -191,18 +194,20 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final conversionFactor = selectedUnit == 's'
         ? 1 / 1000.0
         : selectedUnit == 'µs'
-        ? 1000.0
-        : 1.0;
+            ? 1000.0
+            : 1.0;
 
     final notesList = notes.map((note) {
-      final double duration = calculateNoteLength(quarterNoteLengthMs, note.note, isDotted: note.dotted);
+      final double duration = calculateNoteLength(
+          quarterNoteLengthMs, note.note,
+          isDotted: note.dotted);
       return {
         'name': note.name,
         'duration': _formatDuration(duration, conversionFactor),
       };
     }).toList();
 
-    _notesStreamController.add(notesList);  // Streamにデータを流す
+    _notesStreamController.add(notesList); // Streamにデータを流す
   }
 
   String _formatDuration(double duration, double conversionFactor) {

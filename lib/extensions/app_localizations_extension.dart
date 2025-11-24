@@ -1,4 +1,4 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 
 extension AppLocalizationsExtension on AppLocalizations {
   String getTranslation(String key) {

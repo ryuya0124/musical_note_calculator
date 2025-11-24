@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../ParamData/settings_model.dart';
 import '../ParamData/notes.dart';
 import '../UI/bpm_input_section.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 
 class AnmituCheckerPage extends StatefulWidget {
   final TextEditingController bpmController;
@@ -20,7 +20,8 @@ class AnmituCheckerPage extends StatefulWidget {
   AnmituCheckerPageState createState() => AnmituCheckerPageState();
 }
 
-class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindingObserver {
+class AnmituCheckerPageState extends State<AnmituCheckerPage>
+    with WidgetsBindingObserver {
   late TextEditingController bpmController;
   late FocusNode bpmFocusNode;
   late FocusNode noteFocusNode;
@@ -108,14 +109,15 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
               isExpanded: true,
               items: gameJudgmentWindows.keys
                   .map((game) => DropdownMenuItem(
-                value: game,
-                child: Center(child: Text(game)),
-              ))
+                        value: game,
+                        child: Center(child: Text(game)),
+                      ))
                   .toList(),
               onChanged: (value) {
                 setState(() {
                   selectedGame = value!;
-                  selectedJudgment = gameJudgmentWindows[selectedGame]!.keys.first;
+                  selectedJudgment =
+                      gameJudgmentWindows[selectedGame]!.keys.first;
                   _calculateAnmitu();
                 });
               },
@@ -129,11 +131,12 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
             child: DropdownButton<String>(
               value: selectedJudgment,
               isExpanded: true,
-              items: gameJudgmentWindows[selectedGame]!.keys
+              items: gameJudgmentWindows[selectedGame]!
+                  .keys
                   .map((judgment) => DropdownMenuItem(
-                value: judgment,
-                child: Center(child: Text(judgment)),
-              ))
+                        value: judgment,
+                        child: Center(child: Text(judgment)),
+                      ))
                   .toList(),
               onChanged: (value) {
                 setState(() {
@@ -190,14 +193,17 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final resultText = snapshot.data![index];
-              final match = RegExp(r'[-+]?[0-9]*\.?[0-9]+').firstMatch(resultText);
-              final double value = match != null ? double.tryParse(match.group(0)!) ?? 0 : 0;
+              final match =
+                  RegExp(r'[-+]?[0-9]*\.?[0-9]+').firstMatch(resultText);
+              final double value =
+                  match != null ? double.tryParse(match.group(0)!) ?? 0 : 0;
               final resultColor = _getResultColor(value);
 
               return Column(
                 children: [
                   Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     color: resultColor.withOpacity(0.1),
                     elevation: 4,
                     child: ListTile(
@@ -220,16 +226,16 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     );
   }
 
-
-
   // 餡蜜判定結果の計算式
   void _calculateAnmitu() {
     final bpm = double.tryParse(bpmController.text) ?? 0;
-    final judgmentWindow = gameJudgmentWindows[selectedGame]![selectedJudgment]!;
+    final judgmentWindow =
+        gameJudgmentWindows[selectedGame]![selectedJudgment]!;
     final noteType = double.tryParse(noteController.text) ?? 0;
 
     if (bpm <= 0 || noteType <= 0) {
-      _notesStreamController.add([AppLocalizations.of(context)!.invalid_BPM_or_Note_Type]);
+      _notesStreamController
+          .add([AppLocalizations.of(context)!.invalid_BPM_or_Note_Type]);
       return;
     }
 
@@ -237,12 +243,12 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> with WidgetsBindin
     final quarterNoteLengthMs = 60000.0 / bpm;
 
     // 音符の長さを計算（calculateNoteLengthは別実装を想定）
-    final double noteLengthMs = calculateNoteLength(quarterNoteLengthMs, noteType, isDotted: isDotted);
+    final double noteLengthMs =
+        calculateNoteLength(quarterNoteLengthMs, noteType, isDotted: isDotted);
 
     // 餡蜜判定計算式: 判定幅 * 2 - 音符の長さ
     final anmituValue = judgmentWindow * 2 - noteLengthMs;
 
-    final resultColor = _getResultColor(anmituValue);
     final resultTextDetail = _getResultText(anmituValue);
 
     _notesStreamController.add([
