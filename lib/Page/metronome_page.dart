@@ -27,85 +27,66 @@ class MetronomePageState extends State<MetronomePage>
     with WidgetsBindingObserver {
   final _selectedIndex = 4;
   final metronome = Metronome();
-  late double bpm = widget.bpm;
+  late double _currentQuarterBpm;
   late String note = widget.note;
   late String intervalTime = widget.interval;
   int vol = 100;
   bool isPlaying = false;
+  bool _wasPlayingBeforePause = false;
 
   // 拍関連
-  final List<int> beatOptions = [2, 3, 4, 5, 6];
+  final List<int> beatOptions = [1, 2, 3, 4, 5, 6];
   static const int customBeatSentinel = -1;
   int selectedBeatOption = 4;
   int? customBeats;
 
   final _isPlayingController = StreamController<bool>.broadcast();
   final _iconStateController = StreamController<bool>.broadcast();
-
   StreamSubscription<int>? _tickSubscription;
-
-  // 最後に状態を更新した時間を保持
+  bool isLeftIcon = true;
   int lastUpdatedTime = 0;
-
-  String getMetronomeIcon(BuildContext context, bool isLeft) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    if (isLeft) {
-      return isDarkMode
-          ? 'assets/metronome-left-white.png'
-          : 'assets/metronome-left.png';
-    } else {
-      return isDarkMode
-          ? 'assets/metronome-right-white.png'
-          : 'assets/metronome-right.png';
-    }
-  }
 
   // 音源のパス
   final String strongTick = 'metronome_tick_strong.wav';
   final String weakTick = 'metronome_tick_weak.wav';
 
-  bool isLeftIcon = false;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    bpm = convertNoteDurationToBPM(bpm, note);
+    _currentQuarterBpm = convertNoteDurationToBPM(widget.bpm, note);
 
     metronome.init(
       'assets/$weakTick', // 弱拍
       accentedPath: 'assets/$strongTick', // 強拍（1拍目）
-      bpm: bpm.toInt(),
+      bpm: _currentQuarterBpm.toInt(),
       volume: vol,
       enableTickCallback: true,
       timeSignature: selectedBeatOption,
       sampleRate: 44100,
     );
 
-    _tickSubscription = metronome.tickStream.listen((event) {
-      final currentTime = DateTime.now().millisecondsSinceEpoch;
-
-      // 最後の更新から150ms以上経過した場合のみ更新を行う
-      if (currentTime - lastUpdatedTime >= 150) {
-        // アイコンの状態を切り替え
-        isLeftIcon = !isLeftIcon;
-        if (!_iconStateController.isClosed) {
-          _iconStateController.sink.add(isLeftIcon);
-        }
-
-        // 最後に更新した時間を記録
-        lastUpdatedTime = currentTime;
+    _tickSubscription = metronome.tickStream.listen((_) {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      if (now - lastUpdatedTime < 120) {
+        return;
+      }
+      lastUpdatedTime = now;
+      isLeftIcon = !isLeftIcon;
+      if (!_iconStateController.isClosed) {
+        _iconStateController.add(isLeftIcon);
       }
     });
+    _iconStateController.add(isLeftIcon);
   }
 
   @override
   void dispose() {
-    metronome.stop();
-    _tickSubscription?.cancel();
+    stopMetronome();
     metronome.destroy();
     _isPlayingController.close();
     _iconStateController.close();
+    _tickSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -114,19 +95,18 @@ class MetronomePageState extends State<MetronomePage>
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.inactive:
-        stopMetronome();
+        _handleBackgroundTransition();
         break;
 
       case AppLifecycleState.paused:
-        stopMetronome();
+        _handleBackgroundTransition();
         break;
 
       case AppLifecycleState.resumed:
-        if (isPlaying) {
-          stopMetronome();
-        } else {
+        if (_wasPlayingBeforePause) {
           startMetronome();
         }
+        _wasPlayingBeforePause = false;
         break;
 
       case AppLifecycleState.detached:
@@ -134,30 +114,36 @@ class MetronomePageState extends State<MetronomePage>
         break;
 
       case AppLifecycleState.hidden:
-        stopMetronome();
+        _handleBackgroundTransition();
         break;
+    }
+  }
+
+  void _handleBackgroundTransition() {
+    if (isPlaying) {
+      _wasPlayingBeforePause = true;
+      stopMetronome();
     }
   }
 
   void toggleMetronome() {
     if (isPlaying) {
       stopMetronome();
-      isPlaying = false;
     } else {
       startMetronome();
-      isPlaying = true;
     }
   }
 
   void startMetronome() {
     if (isPlaying) return;
 
-    bpm = convertNoteDurationToBPM(widget.bpm, note);
+    _currentQuarterBpm = convertNoteDurationToBPM(widget.bpm, note);
     final beats = _currentBeats;
-    metronome.setBPM(bpm.toInt());
+    metronome.setBPM(_currentQuarterBpm.toInt());
     metronome.setTimeSignature(beats);
     metronome.play();
 
+    isPlaying = true;
     _isPlayingController.sink.add(true);
   }
 
@@ -165,38 +151,47 @@ class MetronomePageState extends State<MetronomePage>
     if (!isPlaying) return;
     metronome.stop();
 
+    isPlaying = false;
     _isPlayingController.sink.add(false);
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBarWidget(selectedIndex: _selectedIndex),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                buildAnimatedIcon(screenHeight, context),
-                const SizedBox(height: 20),
-                buildBpmDisplay(context),
-                const SizedBox(height: 20),
-                buildNoteDisplay(context),
-                const SizedBox(height: 20),
-                buildQuarterNoteEquivalent(context),
-                const SizedBox(height: 20),
-                buildBeatSelector(context),
-                const SizedBox(height: 20),
-                buildToggleButton(context),
-                const SizedBox(height: 20),
-                buildVolumeBar(context),
-                const SizedBox(height: 20),
-              ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+              colorScheme.surface,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildMetronomeVisualizer(context),
+                  const SizedBox(height: 20),
+                  buildBpmDisplay(context),
+                  const SizedBox(height: 12),
+                  buildNoteDisplay(context),
+                  const SizedBox(height: 16),
+                  buildQuarterNoteEquivalent(context),
+                  const SizedBox(height: 28),
+                  buildControlCard(context),
+                ],
+              ),
             ),
           ),
         ),
@@ -204,61 +199,220 @@ class MetronomePageState extends State<MetronomePage>
     );
   }
 
-  Widget buildAnimatedIcon(double screenHeight, BuildContext context) {
-    return StreamBuilder<bool>(
-      stream: _iconStateController.stream,
-      builder: (context, snapshot) {
-        final isLeft = snapshot.data ?? true;
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 100),
-          child: Image.asset(
-            getMetronomeIcon(context, isLeft),
-            key: ValueKey<String>(getMetronomeIcon(context, isLeft)),
-            height: screenHeight * 0.3,
-            gaplessPlayback: true,
-          ),
-        );
-      },
+  Widget buildMetronomeVisualizer(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            colorScheme.surfaceContainerHighest.withValues(alpha: 0.8),
+            colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(36),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: 0.7),
+          width: 3,
+        ),
+      ),
+      child: AspectRatio(
+        aspectRatio: 3 / 2,
+        child: StreamBuilder<bool>(
+          stream: _iconStateController.stream,
+          initialData: isLeftIcon,
+          builder: (context, snapshot) {
+            final showLeft = snapshot.data ?? true;
+            final assetPath = _metronomeAsset(context, showLeft);
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 120),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: Image.asset(
+                assetPath,
+                key: ValueKey<String>(assetPath),
+                fit: BoxFit.contain,
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 
   Widget buildBpmDisplay(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final bpmValue =
+        widget.bpm.toStringAsFixed(context.read<SettingsModel>().numDecimal);
 
-    return Text(
-      '${AppLocalizations.of(context)!.bpm}: ${widget.bpm}',
-      style: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        color: colorScheme.onSurface, // 背景に適したテキスト色
-      ),
+    return Column(
+      children: [
+        Text(
+          AppLocalizations.of(context)!.bpm,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 3,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 4),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: Text(
+            bpmValue,
+            key: ValueKey<String>(bpmValue),
+            style: TextStyle(
+              fontSize: 72,
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget buildNoteDisplay(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Text(
-      '${getLocalizedText(note, context)}: $intervalTime',
-      style: TextStyle(
-        fontSize: 20,
-        fontStyle: FontStyle.italic,
-        color: colorScheme.onSurfaceVariant, // 補助的な色で調整
-      ),
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 8,
+      children: [
+        buildInfoBadge(
+          context,
+          icon: Icons.music_note_rounded,
+          label: getLocalizedText(note, context),
+        ),
+        buildInfoBadge(
+          context,
+          icon: Icons.timelapse_rounded,
+          label: intervalTime,
+        ),
+      ],
     );
   }
 
   Widget buildQuarterNoteEquivalent(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final equivalent = convertNoteDurationToBPM(widget.bpm, note)
+        .toStringAsFixed(context.read<SettingsModel>().numDecimal);
 
-    return Text(
-      AppLocalizations.of(context)!.quarterNoteEquivalent(
-        convertNoteDurationToBPM(widget.bpm, note)
-            .toStringAsFixed(context.read<SettingsModel>().numDecimal),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      decoration: BoxDecoration(
+        color: colorScheme.secondary.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(18),
       ),
-      style: TextStyle(
-        fontSize: 20,
-        color: colorScheme.onSurface, // 背景に適したテキスト色
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.graphic_eq_rounded, size: 20, color: colorScheme.primary),
+          const SizedBox(width: 8),
+          Text(
+            AppLocalizations.of(context)!.quarterNoteEquivalent(equivalent),
+            style: TextStyle(
+              fontSize: 16,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildControlCard(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final localizations = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark
+        ? colorScheme.surfaceContainerHigh.withValues(alpha: 0.4)
+        : colorScheme.surface;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+            blurRadius: 40,
+            offset: const Offset(0, 18),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: buildBeatSelector(context)),
+              const SizedBox(width: 24),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    localizations.volumeLabel.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 14,
+                      letterSpacing: 1.2,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
+                    '$vol%',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          buildVolumeBar(context),
+          const SizedBox(height: 24),
+          buildToggleButton(context),
+        ],
+      ),
+    );
+  }
+
+  Widget buildInfoBadge(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: colorScheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -270,24 +424,34 @@ class MetronomePageState extends State<MetronomePage>
         final isPlaying = snapshot.data ?? false;
         final colorScheme = Theme.of(context).colorScheme;
 
-        return ElevatedButton(
-          onPressed: toggleMetronome,
-          style: ElevatedButton.styleFrom(
-            padding:
-                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
-            textStyle: const TextStyle(fontSize: 18),
-            backgroundColor: isPlaying
-                ? colorScheme.error // 再生中はエラー色（例: 赤）
-                : colorScheme.primary, // 停止中はプライマリ色（例: 青）
-            foregroundColor: colorScheme.onPrimary, // テキスト色（プライマリ色に対する適切な色）
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0), // ボタンの角を丸く
+        final buttonColor =
+            isPlaying ? colorScheme.error : colorScheme.secondaryContainer;
+
+        return SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: toggleMetronome,
+            icon: Icon(isPlaying ? Icons.stop : Icons.play_arrow_rounded),
+            label: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: Text(
+                isPlaying
+                    ? AppLocalizations.of(context)!.stop
+                    : AppLocalizations.of(context)!.start,
+                style: const TextStyle(fontSize: 18, letterSpacing: 1.2),
+              ),
             ),
-          ),
-          child: Text(
-            isPlaying
-                ? AppLocalizations.of(context)!.stop
-                : AppLocalizations.of(context)!.start,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 18.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18.0),
+              ),
+              backgroundColor: buttonColor,
+              foregroundColor: isPlaying
+                  ? colorScheme.onError
+                  : colorScheme.onSecondaryContainer,
+              elevation: 0,
+            ),
           ),
         );
       },
@@ -297,32 +461,28 @@ class MetronomePageState extends State<MetronomePage>
   Widget buildVolumeBar(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Column(
-      children: [
-        Text(
-          'Volume: $vol%',
-          style: TextStyle(
-            fontSize: 20,
-            color: colorScheme.onSurface, // テーマに基づくテキストカラー
-          ),
-        ),
-        Slider(
-          value: vol.toDouble(),
-          min: 0,
-          max: 100,
-          divisions: 100,
-          onChanged: (val) {
-            setState(() {
-              vol = val.toInt();
-            });
-            metronome.setVolume(vol); // 音量を即時に反映させる
-          },
-          activeColor: colorScheme.primary, // スライダーのアクティブ部分の色
-          inactiveColor:
-              colorScheme.onSurface.withValues(alpha: 0.3), // スライダーの非アクティブ部分の色
-          thumbColor: colorScheme.primary, // スライダーのサム（つまみ）の色
-        ),
-      ],
+    return SliderTheme(
+      data: SliderTheme.of(context).copyWith(
+        trackHeight: 14,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
+        overlayShape: SliderComponentShape.noOverlay,
+        activeTrackColor: colorScheme.secondary,
+        inactiveTrackColor: colorScheme.onSurface.withValues(alpha: 0.15),
+        thumbColor: colorScheme.secondary,
+      ),
+      child: Slider(
+        value: vol.toDouble(),
+        min: 0,
+        max: 100,
+        divisions: 100,
+        label: '$vol%',
+        onChanged: (val) {
+          setState(() {
+            vol = val.toInt();
+          });
+          metronome.setVolume(vol);
+        },
+      ),
     );
   }
 
@@ -330,6 +490,13 @@ class MetronomePageState extends State<MetronomePage>
   double convertNoteDurationToBPM(double bpm, String note) {
     final noteData = findNoteData(note);
     return calculateNoteBPM(bpm, noteData, 4);
+  }
+
+  String _metronomeAsset(BuildContext context, bool isLeft) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final position = isLeft ? 'left' : 'right';
+    final colorSuffix = isDarkMode ? '-white' : '';
+    return 'assets/metronome-$position$colorSuffix.png';
   }
 
   String getLocalizedText(String key, BuildContext context) {
@@ -345,6 +512,7 @@ class MetronomePageState extends State<MetronomePage>
 
   Widget buildBeatSelector(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final localizations = AppLocalizations.of(context)!;
 
     // 現在の音符に応じた分母（4分音符なら4, 8分なら8, など）
     final noteData = findNoteData(note);
@@ -368,42 +536,55 @@ class MetronomePageState extends State<MetronomePage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Beat (time signature)',
+          localizations.timeSignatureLabel.toUpperCase(),
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
+            fontSize: 14,
+            letterSpacing: 1.2,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
-              child: DropdownButton<int>(
-                isExpanded: true,
-                value: selectedBeatOption,
-                items: [
-                  ...beatOptions.map(
-                    (b) => DropdownMenuItem<int>(
-                      value: b,
-                      child: Text(formatBeatLabel(b)),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color:
+                      colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<int>(
+                      isExpanded: true,
+                      value: selectedBeatOption,
+                      icon: const Icon(Icons.expand_more_rounded),
+                      items: [
+                        ...beatOptions.map(
+                          (b) => DropdownMenuItem<int>(
+                            value: b,
+                            child: Text(formatBeatLabel(b)),
+                          ),
+                        ),
+                        DropdownMenuItem<int>(
+                          value: customBeatSentinel,
+                          child: Text(localizations.otherOption),
+                        ),
+                      ],
+                      onChanged: (val) {
+                        if (val == null) return;
+                        setState(() {
+                          selectedBeatOption = val;
+                        });
+                        if (isPlaying) {
+                          stopMetronome();
+                          startMetronome();
+                        }
+                      },
                     ),
                   ),
-                  const DropdownMenuItem<int>(
-                    value: customBeatSentinel,
-                    child: Text('Other'),
-                  ),
-                ],
-                onChanged: (val) {
-                  if (val == null) return;
-                  setState(() {
-                    selectedBeatOption = val;
-                  });
-                  if (isPlaying) {
-                    stopMetronome();
-                    startMetronome();
-                  }
-                },
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -412,8 +593,8 @@ class MetronomePageState extends State<MetronomePage>
                 width: 80,
                 child: TextField(
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Beat',
+                  decoration: InputDecoration(
+                    labelText: localizations.beatLabel,
                   ),
                   onChanged: (val) {
                     final parsed = int.tryParse(val);

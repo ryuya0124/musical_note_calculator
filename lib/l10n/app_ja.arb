@@ -78,5 +78,9 @@
   "manageable": "やや簡単",
   "easy": "簡単",
   "veryEasy": "非常に簡単",
-  "note_length": "ノーツ間隔"
+  "note_length": "ノーツ間隔",
+  "volumeLabel": "ボリューム",
+  "timeSignatureLabel": "拍子",
+  "otherOption": "その他",
+  "beatLabel": "拍数"
 }

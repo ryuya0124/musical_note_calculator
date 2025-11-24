@@ -78,5 +78,9 @@
   "manageable": "Manageable",
   "easy": "Easy",
   "veryEasy": "Very Easy",
-  "note_length": "Note Length"
+  "note_length": "Note Length",
+  "volumeLabel": "Volume",
+  "timeSignatureLabel": "Time Signature",
+  "otherOption": "Other",
+  "beatLabel": "Beats"
 }
