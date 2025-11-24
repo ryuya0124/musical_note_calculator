@@ -48,17 +48,6 @@
   "check_anmitu": "Check Anmitsu",
   "invalid_input": "invalid_Input",
   "select_game": "Select a game",
-  "warningMessage": "Setting a high BPM may cause a crash.\nThe metronome feature is in beta.\nThe maximum BPM is {maxBpm}.",
-  "maxBPM": "Metronome Max BPM",
-  "@warningMessage": {
-    "description": "BPM",
-    "placeholders": {
-      "maxBpm": {
-        "type": "String",
-        "example": "400"
-      }
-    }
-  },
   "quarterNoteEquivalent": "Equivalent to a quarter note at BPM {bpm}",
   "@quarterNoteEquivalent": {
     "description": "BPM",

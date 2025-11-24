@@ -57,7 +57,6 @@ class MetronomePageState extends State<MetronomePage>
   // 音源のパス
   final String strongTick = 'metronome_tick_strong.wav';
   final String weakTick = 'metronome_tick_weak.wav';
-  late int maxBpm;
 
   bool isLeftIcon = false;
 
@@ -66,7 +65,6 @@ class MetronomePageState extends State<MetronomePage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     bpm = convertNoteDurationToBPM(bpm, note);
-    maxBpm = context.read<SettingsModel>().maxBPM;
 
     metronome.init(
       'assets/$weakTick',
@@ -146,7 +144,6 @@ class MetronomePageState extends State<MetronomePage>
     if (isPlaying) return;
 
     bpm = convertNoteDurationToBPM(widget.bpm, note);
-    if (bpm >= maxBpm) bpm = maxBpm.toDouble();
     metronome.setBPM(bpm.toInt());
     metronome.play();
 
@@ -185,8 +182,6 @@ class MetronomePageState extends State<MetronomePage>
                 buildToggleButton(context),
                 const SizedBox(height: 20),
                 buildVolumeBar(context),
-                const SizedBox(height: 20),
-                buildWarningSection(context),
                 const SizedBox(height: 20),
               ],
             ),
@@ -283,43 +278,6 @@ class MetronomePageState extends State<MetronomePage>
           ),
         );
       },
-    );
-  }
-
-  // 注釈セクションを関数で定義
-  Widget buildWarningSection(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    // 背景色を調整（テーマのエラー色を薄くする）
-    final adjustedBackgroundColor = colorScheme.error.withValues(alpha: 0.1);
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          border:
-              Border.all(color: colorScheme.error, width: 2), // ボーダー色はそのままエラー色
-          borderRadius: BorderRadius.circular(8),
-          color: adjustedBackgroundColor, // 薄くした背景色
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.warning, color: colorScheme.error), // アイコン色
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                AppLocalizations.of(context)!.warningMessage(maxBpm
-                    .toStringAsFixed(context.read<SettingsModel>().numDecimal)),
-                style: TextStyle(
-                  color: colorScheme.onSurface, // 読みやすいテキスト色
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

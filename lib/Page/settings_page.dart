@@ -26,10 +26,6 @@ class SettingsPageState extends State<SettingsPage> {
   late TextEditingController decimalsController = TextEditingController();
   final FocusNode decimalsFocusNode = FocusNode();
 
-  late int maxBPM;
-  late TextEditingController maxBPMController = TextEditingController();
-  final FocusNode maxBPMFocusNode = FocusNode();
-
   late double deltaValue;
   late TextEditingController deltaValueController = TextEditingController();
   final FocusNode deltaValueFocusNode = FocusNode();
@@ -51,9 +47,6 @@ class SettingsPageState extends State<SettingsPage> {
     decimalsController =
         TextEditingController(text: decimalValue.toStringAsFixed(0));
 
-    maxBPM = context.read<SettingsModel>().maxBPM;
-    maxBPMController = TextEditingController(text: maxBPM.toString());
-
     deltaValue = context.read<SettingsModel>().deltaValue;
     deltaValueController = TextEditingController(
         text: deltaValue
@@ -68,8 +61,6 @@ class SettingsPageState extends State<SettingsPage> {
     valueController.dispose();
     decimalsController.dispose();
     decimalsFocusNode.dispose();
-    maxBPMController.dispose();
-    maxBPMFocusNode.dispose();
     super.dispose();
   }
 
@@ -173,37 +164,6 @@ class SettingsPageState extends State<SettingsPage> {
               }
             });
             context.read<SettingsModel>().setNumDecimal(decimalValue);
-          },
-        ),
-
-        const SizedBox(height: 20),
-
-        //最大BPM
-        NumericInputColumnWidget(
-          controller: maxBPMController,
-          focusNode: maxBPMFocusNode,
-          titleText: AppLocalizations.of(context)!.maxBPM,
-          onChanged: (value) {
-            setState(() {
-              maxBPM = int.tryParse(value) ?? 500;
-            });
-            context.read<SettingsModel>().setMaxBPM(maxBPM);
-          },
-          onIncrement: () {
-            setState(() {
-              maxBPM += context.read<SettingsModel>().deltaValue.toInt();
-              maxBPMController.text = maxBPM.toString();
-            });
-            context.read<SettingsModel>().setMaxBPM(maxBPM);
-          },
-          onDecrement: () {
-            setState(() {
-              if (maxBPM > 0) {
-                maxBPM -= context.read<SettingsModel>().deltaValue.toInt();
-                maxBPMController.text = maxBPM.toString();
-              }
-            });
-            context.read<SettingsModel>().setMaxBPM(maxBPM);
           },
         ),
 

@@ -48,17 +48,6 @@
   "select_game": "ゲームを選択",
   "check_anmitu": "餡蜜チェック",
   "invalid_input": "無効な入力",
-  "warningMessage": "高速なBPMに設定するとクラッシュする可能性があります。\nメトロノーム機能はベータ版です。\n最大BPMは{maxBpm}です。",
-  "maxBPM": "メトロノームの最大BPM",
-  "@warningMessage": {
-    "description": "BPM",
-    "placeholders": {
-      "maxBpm": {
-        "type": "String",
-        "example": "400"
-      }
-    }
-  },
   "quarterNoteEquivalent": "BPM {bpm} の 4分音符相当",
   "@quarterNoteEquivalent": {
     "description": "BPM",

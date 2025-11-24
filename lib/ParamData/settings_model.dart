@@ -7,8 +7,6 @@ class SettingsModel extends ChangeNotifier {
   String selectedTimeScale = '1s';
   //小数の桁数設定
   int numDecimal = 2;
-  //最大BPMの設定
-  int maxBPM = 500;
   //+-ボタンの増減値
   double deltaValue = 1;
   //Material You
@@ -53,9 +51,12 @@ class SettingsModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     // カスタムノートの保存
-    final List<String> customNoteNames = customNotes.map((note) => note.name).toList();
-    final List<String> customNoteValues = customNotes.map((note) => note.note.toString()).toList();
-    final List<String> customNoteDotted = customNotes.map((note) => note.dotted.toString()).toList();
+    final List<String> customNoteNames =
+        customNotes.map((note) => note.name).toList();
+    final List<String> customNoteValues =
+        customNotes.map((note) => note.note.toString()).toList();
+    final List<String> customNoteDotted =
+        customNotes.map((note) => note.dotted.toString()).toList();
 
     prefs.setStringList('customNoteNames', customNoteNames);
     prefs.setStringList('customNoteValues', customNoteValues);
@@ -63,7 +64,8 @@ class SettingsModel extends ChangeNotifier {
 
     // 音符の状態を保存
     final List<String> noteKeys = enabledNotes.keys.toList();
-    final List<String> noteValues = enabledNotes.values.map((e) => e.toString()).toList();
+    final List<String> noteValues =
+        enabledNotes.values.map((e) => e.toString()).toList();
 
     prefs.setStringList('enabledNotesKeys', noteKeys);
     prefs.setStringList('enabledNotesValues', noteValues);
@@ -74,9 +76,6 @@ class SettingsModel extends ChangeNotifier {
 
     //小数の桁数の保存
     prefs.setInt('numDecimal', numDecimal);
-
-    //最大BPMの保存
-    prefs.setInt('maxBPM', maxBPM);
 
     //+-ボタンの増減値
     prefs.setDouble('deltaValue', deltaValue);
@@ -90,11 +89,16 @@ class SettingsModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     // カスタムノートの読み込み
-    final List<String>? customNoteNames = prefs.getStringList('customNoteNames');
-    final List<String>? customNoteValues = prefs.getStringList('customNoteValues');
-    final List<String>? customNoteDotted = prefs.getStringList('customNoteDotted');
+    final List<String>? customNoteNames =
+        prefs.getStringList('customNoteNames');
+    final List<String>? customNoteValues =
+        prefs.getStringList('customNoteValues');
+    final List<String>? customNoteDotted =
+        prefs.getStringList('customNoteDotted');
 
-    if (customNoteNames != null && customNoteValues != null && customNoteDotted != null) {
+    if (customNoteNames != null &&
+        customNoteValues != null &&
+        customNoteDotted != null) {
       customNotes = [];
       for (int i = 0; i < customNoteNames.length; i++) {
         final double noteValue = double.tryParse(customNoteValues[i]) ?? 4;
@@ -123,16 +127,13 @@ class SettingsModel extends ChangeNotifier {
     //小数の桁数を読み込む
     numDecimal = prefs.getInt('numDecimal') ?? 2;
 
-    //最大BPMを読み込む
-    maxBPM = prefs.getInt('maxBPM') ?? 500;
-
     //+-ボタンの増減値
     deltaValue = prefs.getDouble('deltaValue') ?? 1;
 
     //Material You
-    if(isDynamicColorAvailable){
+    if (isDynamicColorAvailable) {
       useMaterialYou = prefs.getBool('useMaterialYou') ?? true;
-    }else{
+    } else {
       useMaterialYou = prefs.getBool('useMaterialYou') ?? false;
     }
 
@@ -156,13 +157,6 @@ class SettingsModel extends ChangeNotifier {
   // 小数の桁数の変更
   void setNumDecimal(int num) {
     numDecimal = num;
-    _saveSettings(); // 設定を保存
-    notifyListeners();
-  }
-
-  // 最大BPMの変更
-  void setMaxBPM(int num) {
-    maxBPM = num;
     _saveSettings(); // 設定を保存
     notifyListeners();
   }
