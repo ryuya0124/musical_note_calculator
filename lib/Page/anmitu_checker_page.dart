@@ -1,10 +1,11 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../ParamData/settings_model.dart';
-import '../ParamData/notes.dart';
-import '../UI/bpm_input_section.dart';
 import 'package:musical_note_calculator/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+
+import '../ParamData/judgment.dart';
+import '../ParamData/notes.dart';
+import '../ParamData/settings_model.dart';
+import '../UI/bpm_input_section.dart';
 
 class AnmituCheckerPage extends StatefulWidget {
   final TextEditingController bpmController;
@@ -25,27 +26,14 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
   late TextEditingController bpmController;
   late FocusNode bpmFocusNode;
   late FocusNode noteFocusNode;
-  late String selectedGame;
-  late String selectedJudgment;
-  bool isDotted = false;
-
-  // 結果表示用のStreamController（List<String>型）
-  late StreamController<List<String>> _notesStreamController;
   final TextEditingController noteController = TextEditingController();
 
-  // ゲームと判定幅の設定
-  final Map<String, Map<String, double>> gameJudgmentWindows = {
-    'Game A': {
-      'Perfect': 25.0,
-      'Good': 41.667,
-      'Bad': 100.0,
-    },
-    'Game B': {
-      'Perfect': 20.0,
-      'Great': 35.0,
-      'Miss': 75.0,
-    },
-  };
+  bool isDotted = false;
+  String? selectedGame;
+  String? selectedEarlyPresetId;
+  String? selectedLatePresetId;
+  String? _statusMessage;
+  List<_ResultRow> _resultRows = [];
 
   @override
   void initState() {
@@ -53,213 +41,317 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
     bpmController = widget.bpmController;
     bpmFocusNode = widget.bpmFocusNode;
     noteFocusNode = FocusNode();
-    selectedGame = gameJudgmentWindows.keys.first;
-    selectedJudgment = gameJudgmentWindows[selectedGame]!.keys.first;
-
-    _notesStreamController = StreamController<List<String>>.broadcast();
     WidgetsBinding.instance.addObserver(this);
 
-    // 入力値が変化したら、結果を再計算する
-    noteController.addListener(() {
-      _calculateAnmitu();
-    });
-    bpmController.addListener(() {
+    noteController.addListener(_calculateAnmitu);
+    bpmController.addListener(_calculateAnmitu);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _calculateAnmitu();
     });
   }
 
   @override
   void dispose() {
+    noteController.removeListener(_calculateAnmitu);
+    bpmController.removeListener(_calculateAnmitu);
     noteController.dispose();
-    _notesStreamController.close();
+    noteFocusNode.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final settingsModel = context.watch<SettingsModel>();
     final colorScheme = Theme.of(context).colorScheme;
+    final presetMap = settingsModel.visibleJudgmentPresetsByGame;
+    final selection = _resolveSelection(presetMap, syncState: true);
+
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: colorScheme.surface,
-        body: Column(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                buildNoteInputSection(),
+                const SizedBox(height: 16),
+                buildGameSwitchSection(selection, presetMap),
+                const SizedBox(height: 16),
+                buildResultSection(colorScheme),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildNoteInputSection() {
+    final loc = AppLocalizations.of(context)!;
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        children: [
+          BpmInputSection(
+            bpmController: noteController,
+            bpmFocusNode: noteFocusNode,
+            label: loc.input_notes,
+          ),
+          SwitchListTile(
+            value: isDotted,
+            onChanged: (value) {
+              setState(() {
+                isDotted = value;
+              });
+              _calculateAnmitu();
+            },
+            title: Text(loc.dotted_note),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildGameSwitchSection(
+    _SelectionSnapshot selection,
+    Map<String, List<JudgmentPreset>> grouped,
+  ) {
+    final loc = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final gameItems = grouped.keys.toList();
+    final hasPresets = selection.game != null && selection.presets.isNotEmpty;
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildNoteInputSection(),
-            buildGameSwitchSection(),
-            buildResultList(),
+            Text(
+              loc.judgment_presets,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            if (hasPresets) ...[
+              DropdownButtonFormField<String>(
+                value: selection.game,
+                decoration: InputDecoration(
+                  labelText: loc.select_game,
+                  border: const OutlineInputBorder(),
+                ),
+                items: gameItems
+                    .map((game) => DropdownMenuItem(
+                          value: game,
+                          child: Text(game),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() {
+                    selectedGame = value;
+                    selectedEarlyPresetId = null;
+                    selectedLatePresetId = null;
+                  });
+                  _calculateAnmitu();
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selection.earlyPreset?.id,
+                decoration: InputDecoration(
+                  labelText: loc.early_window_label,
+                  border: const OutlineInputBorder(),
+                ),
+                items: selection.presets
+                    .map(
+                      (preset) => DropdownMenuItem(
+                        value: preset.id,
+                        child: Text(preset.label),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() {
+                    selectedEarlyPresetId = value;
+                  });
+                  _calculateAnmitu();
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selection.latePreset?.id,
+                decoration: InputDecoration(
+                  labelText: loc.late_window_label,
+                  border: const OutlineInputBorder(),
+                ),
+                items: selection.presets
+                    .map(
+                      (preset) => DropdownMenuItem(
+                        value: preset.id,
+                        child: Text(preset.label),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() {
+                    selectedLatePresetId = value;
+                  });
+                  _calculateAnmitu();
+                },
+              ),
+            ] else ...[
+              Text(
+                loc.no_presets_available,
+                style: TextStyle(color: colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                loc.custom_preset_section_title,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  // ゲームと判定幅の選択セクション
-  Widget buildGameSwitchSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: DropdownButton<String>(
-              value: selectedGame,
-              isExpanded: true,
-              items: gameJudgmentWindows.keys
-                  .map((game) => DropdownMenuItem(
-                        value: game,
-                        child: Center(child: Text(game)),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedGame = value!;
-                  selectedJudgment =
-                      gameJudgmentWindows[selectedGame]!.keys.first;
-                  _calculateAnmitu();
-                });
-              },
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: DropdownButton<String>(
-              value: selectedJudgment,
-              isExpanded: true,
-              items: gameJudgmentWindows[selectedGame]!
-                  .keys
-                  .map((judgment) => DropdownMenuItem(
-                        value: judgment,
-                        child: Center(child: Text(judgment)),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedJudgment = value!;
-                  _calculateAnmitu();
-                });
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  Widget buildResultSection(ColorScheme colorScheme) {
+    final loc = AppLocalizations.of(context)!;
+    final message = _statusMessage ??
+        (_resultRows.isEmpty ? loc.no_Results_Available : null);
 
-  // 音符入力セクション
-  Widget buildNoteInputSection() {
-    return Column(
-      children: [
-        // StreamBuilderは不要。BpmInputSectionはTextEditingControllerで管理されるので直接返す
-        BpmInputSection(
-          bpmController: noteController,
-          bpmFocusNode: noteFocusNode,
-          label: AppLocalizations.of(context)!.input_notes,
-        ),
-        CheckboxListTile(
-          value: isDotted,
-          onChanged: (value) => setState(() {
-            isDotted = value ?? false;
-            _calculateAnmitu();
-          }),
-          title: Text(AppLocalizations.of(context)!.dotted_note),
-          controlAffinity: ListTileControlAffinity.leading,
-        ),
-      ],
-    );
-  }
-
-  // 餡蜜判定結果リスト
-  Widget buildResultList() {
-    return Expanded(
-      child: StreamBuilder<List<String>>(
-        stream: _notesStreamController.stream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Text(
-                AppLocalizations.of(context)!.no_Results_Available,
-                style: const TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final resultText = snapshot.data![index];
-              final match =
-                  RegExp(r'[-+]?[0-9]*\.?[0-9]+').firstMatch(resultText);
-              final double value =
-                  match != null ? double.tryParse(match.group(0)!) ?? 0 : 0;
-              final resultColor = _getResultColor(value);
-
-              return Column(
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: message != null
+            ? _buildPlaceholder(message, colorScheme)
+            : Column(
                 children: [
-                  Card(
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    color: resultColor.withOpacity(0.1),
-                    elevation: 4,
-                    child: ListTile(
-                      title: Text(
-                        resultText,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: resultColor,
-                        ),
-                      ),
-                    ),
-                  ),
+                  for (int i = 0; i < _resultRows.length; i++) ...[
+                    _ResultTile(row: _resultRows[i]),
+                    if (i < _resultRows.length - 1)
+                      const Divider(height: 24, thickness: 0.5),
+                  ],
                 ],
-              );
-            },
-          );
-        },
+              ),
       ),
     );
   }
 
-  // 餡蜜判定結果の計算式
+  Widget _buildPlaceholder(String message, ColorScheme colorScheme) {
+    return SizedBox(
+      width: double.infinity,
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(color: colorScheme.onSurfaceVariant),
+      ),
+    );
+  }
+
   void _calculateAnmitu() {
+    if (!mounted) return;
+    final settingsModel = context.read<SettingsModel>();
+    final selection =
+        _resolveSelection(settingsModel.visibleJudgmentPresetsByGame);
+    final earlyPreset = selection.earlyPreset;
+    final latePreset = selection.latePreset ?? earlyPreset;
     final bpm = double.tryParse(bpmController.text) ?? 0;
-    final judgmentWindow =
-        gameJudgmentWindows[selectedGame]![selectedJudgment]!;
     final noteType = double.tryParse(noteController.text) ?? 0;
 
-    if (bpm <= 0 || noteType <= 0) {
-      _notesStreamController
-          .add([AppLocalizations.of(context)!.invalid_BPM_or_Note_Type]);
+    if (earlyPreset == null ||
+        latePreset == null ||
+        bpm <= 0 ||
+        noteType <= 0) {
+      setState(() {
+        _statusMessage = earlyPreset == null || latePreset == null
+            ? AppLocalizations.of(context)!.no_presets_available
+            : AppLocalizations.of(context)!.invalid_BPM_or_Note_Type;
+        _resultRows = [];
+      });
       return;
     }
 
-    // 4分音符の長さ (ms) を計算
     final quarterNoteLengthMs = 60000.0 / bpm;
+    final noteLengthMs = calculateNoteLength(
+      quarterNoteLengthMs,
+      noteType,
+      isDotted: isDotted,
+    );
 
-    // 音符の長さを計算（calculateNoteLengthは別実装を想定）
-    final double noteLengthMs =
-        calculateNoteLength(quarterNoteLengthMs, noteType, isDotted: isDotted);
+    final double windowEarly = earlyPreset.earlyMs;
+    final double windowLate = latePreset.lateMs;
+    final totalWindow = windowEarly + windowLate;
+    final anmituValue = totalWindow - noteLengthMs;
+    final color = _getResultColor(anmituValue);
+    final loc = AppLocalizations.of(context)!;
+    final decimals = settingsModel.numDecimal;
 
-    // 餡蜜判定計算式: 判定幅 * 2 - 音符の長さ
-    final anmituValue = judgmentWindow * 2 - noteLengthMs;
-
-    final resultTextDetail = _getResultText(anmituValue);
-
-    _notesStreamController.add([
-      '${AppLocalizations.of(context)!.timingWindow}: ${judgmentWindow.toStringAsFixed(context.read<SettingsModel>().numDecimal)} ms',
-      '${AppLocalizations.of(context)!.note_length}: $noteLengthMs ms',
-      '${AppLocalizations.of(context)!.anmitsu_value}: ${anmituValue.toStringAsFixed(context.read<SettingsModel>().numDecimal)} ms',
-      '${AppLocalizations.of(context)!.difficulty}: $resultTextDetail',
-    ]);
+    setState(() {
+      _statusMessage = null;
+      _resultRows = [
+        _ResultRow(
+          title: loc.selected_preset,
+          value:
+              '${selection.game ?? ''} - ${earlyPreset.label} / ${latePreset.label}',
+        ),
+        _ResultRow(
+          title: loc.timingWindow,
+          value:
+              '+${windowLate.toStringAsFixed(decimals)} ms / -${windowEarly.toStringAsFixed(decimals)} ms',
+        ),
+        _ResultRow(
+          title: loc.late_window_label,
+          value:
+              '+${windowLate.toStringAsFixed(decimals)} ms (${latePreset.label})',
+        ),
+        _ResultRow(
+          title: loc.early_window_label,
+          value:
+              '-${windowEarly.toStringAsFixed(decimals)} ms (${earlyPreset.label})',
+        ),
+        _ResultRow(
+          title: loc.total_window_label,
+          value: '${totalWindow.toStringAsFixed(decimals)} ms',
+        ),
+        _ResultRow(
+          title: loc.note_length,
+          value: '${noteLengthMs.toStringAsFixed(decimals)} ms',
+        ),
+        _ResultRow(
+          title: loc.anmitsu_value,
+          value: '${anmituValue.toStringAsFixed(decimals)} ms',
+          valueColor: color,
+        ),
+        _ResultRow(
+          title: loc.difficulty,
+          value: _getResultText(anmituValue),
+          valueColor: color,
+        ),
+      ];
+    });
   }
 
-  // 難易度に応じた色を取得
   Color _getResultColor(double value) {
     if (value <= 0) return Colors.red;
     if (value <= 10) return Colors.orange;
@@ -269,7 +361,6 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
     return Colors.blue;
   }
 
-  // 難易度に応じたテキストを取得
   String _getResultText(double value) {
     if (value <= 0) return AppLocalizations.of(context)!.impossible;
     if (value <= 10) return AppLocalizations.of(context)!.veryHard;
@@ -278,4 +369,144 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
     if (value <= 40) return AppLocalizations.of(context)!.easy;
     return AppLocalizations.of(context)!.veryEasy;
   }
+
+  _SelectionSnapshot _resolveSelection(
+    Map<String, List<JudgmentPreset>> grouped, {
+    bool syncState = false,
+  }) {
+    if (grouped.isEmpty) {
+      if (syncState) {
+        _syncSelection(null, null, null);
+      }
+      return const _SelectionSnapshot(
+        game: null,
+        presets: [],
+        earlyPreset: null,
+        latePreset: null,
+      );
+    }
+
+    final keys = grouped.keys.toList();
+    final resolvedGame =
+        (selectedGame != null && grouped.containsKey(selectedGame))
+            ? selectedGame!
+            : keys.first;
+    final presets = grouped[resolvedGame] ?? [];
+
+    JudgmentPreset? resolvedEarly;
+    JudgmentPreset? resolvedLate;
+    if (presets.isNotEmpty) {
+      resolvedEarly =
+          _findPresetById(presets, selectedEarlyPresetId) ?? presets.first;
+      resolvedLate =
+          _findPresetById(presets, selectedLatePresetId) ?? resolvedEarly;
+    }
+
+    if (syncState &&
+        (resolvedGame != selectedGame ||
+            resolvedEarly?.id != selectedEarlyPresetId ||
+            resolvedLate?.id != selectedLatePresetId)) {
+      _syncSelection(resolvedGame, resolvedEarly, resolvedLate);
+    }
+
+    return _SelectionSnapshot(
+      game: resolvedGame,
+      presets: presets,
+      earlyPreset: resolvedEarly,
+      latePreset: resolvedLate ?? resolvedEarly,
+    );
+  }
+
+  void _syncSelection(
+    String? nextGame,
+    JudgmentPreset? nextEarly,
+    JudgmentPreset? nextLate,
+  ) {
+    if (nextGame == selectedGame &&
+        nextEarly?.id == selectedEarlyPresetId &&
+        nextLate?.id == selectedLatePresetId) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        selectedGame = nextGame;
+        selectedEarlyPresetId = nextEarly?.id;
+        selectedLatePresetId = nextLate?.id;
+      });
+      _calculateAnmitu();
+    });
+  }
+
+  JudgmentPreset? _findPresetById(
+      List<JudgmentPreset> presets, String? presetId) {
+    if (presetId == null) return null;
+    for (final preset in presets) {
+      if (preset.id == presetId) {
+        return preset;
+      }
+    }
+    return null;
+  }
+}
+
+class _ResultRow {
+  final String title;
+  final String value;
+  final Color? valueColor;
+
+  const _ResultRow({
+    required this.title,
+    required this.value,
+    this.valueColor,
+  });
+}
+
+class _ResultTile extends StatelessWidget {
+  final _ResultRow row;
+
+  const _ResultTile({required this.row});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            row.title,
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Text(
+            row.value,
+            textAlign: TextAlign.end,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: row.valueColor ?? theme.colorScheme.onSurface,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SelectionSnapshot {
+  final String? game;
+  final List<JudgmentPreset> presets;
+  final JudgmentPreset? earlyPreset;
+  final JudgmentPreset? latePreset;
+
+  const _SelectionSnapshot({
+    required this.game,
+    required this.presets,
+    required this.earlyPreset,
+    required this.latePreset,
+  });
 }

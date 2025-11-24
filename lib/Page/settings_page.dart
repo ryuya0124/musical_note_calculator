@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../ParamData/settings_model.dart';
+import '../ParamData/judgment.dart';
 import '../UI/app_bar.dart';
 import '../UI/unit_dropdown.dart';
 import '../UI/numeric_input_column.dart';
@@ -21,6 +22,14 @@ class SettingsPage extends StatefulWidget {
 class SettingsPageState extends State<SettingsPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
+
+  final TextEditingController presetGameController = TextEditingController();
+  final TextEditingController presetLabelController = TextEditingController();
+  final TextEditingController presetEarlyController =
+      TextEditingController(text: '50');
+  final TextEditingController presetLateController =
+      TextEditingController(text: '50');
+  bool linkWindowValues = true;
 
   late int decimalValue;
   late TextEditingController decimalsController = TextEditingController();
@@ -61,6 +70,12 @@ class SettingsPageState extends State<SettingsPage> {
     valueController.dispose();
     decimalsController.dispose();
     decimalsFocusNode.dispose();
+    deltaValueController.dispose();
+    deltaValueFocusNode.dispose();
+    presetGameController.dispose();
+    presetLabelController.dispose();
+    presetEarlyController.dispose();
+    presetLateController.dispose();
     super.dispose();
   }
 
@@ -115,6 +130,8 @@ class SettingsPageState extends State<SettingsPage> {
         buildNoteSettingsSection(context, colorScheme),
         const SizedBox(height: 20),
         buildCustomNotesSection(context, colorScheme), // カスタムノート追加
+        const SizedBox(height: 20),
+        buildJudgmentPresetSection(context, colorScheme),
       ],
     );
   }
@@ -313,6 +330,362 @@ class SettingsPageState extends State<SettingsPage> {
         buildNoteInputSection(context, colorScheme),
       ],
     );
+  }
+
+  Widget buildJudgmentPresetSection(
+      BuildContext context, ColorScheme colorScheme) {
+    final settingsModel = context.watch<SettingsModel>();
+    final grouped = settingsModel.judgmentPresetsByGame;
+    final loc = AppLocalizations.of(context)!;
+    final decimals = settingsModel.numDecimal;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          loc.judgment_presets,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (grouped.isEmpty)
+          Text(
+            loc.no_presets_available,
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
+        ...grouped.entries.map(
+          (MapEntry<String, List<JudgmentPreset>> entry) => Card(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            child: ExpansionTile(
+              title: Text(entry.key),
+              children: entry.value
+                  .map(
+                    (preset) => ListTile(
+                      title: Text(preset.label),
+                      subtitle: Text(
+                        'Late +${preset.lateMs.toStringAsFixed(decimals)} ms / Early -${preset.earlyMs.toStringAsFixed(decimals)} ms | ${loc.total_window_label}: ${preset.totalWindowMs.toStringAsFixed(decimals)} ms',
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Tooltip(
+                            message: loc.preset_visibility_toggle,
+                            child: Switch.adaptive(
+                              value: !context
+                                  .watch<SettingsModel>()
+                                  .isPresetHidden(preset.id),
+                              onChanged: (value) {
+                                context
+                                    .read<SettingsModel>()
+                                    .setPresetVisibility(preset.id, value);
+                              },
+                              activeColor: colorScheme.primary,
+                            ),
+                          ),
+                          if (preset.isCustom) ...[
+                            IconButton(
+                              tooltip: loc.edit_preset,
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                _showEditPresetDialog(preset);
+                              },
+                            ),
+                            IconButton(
+                              tooltip: loc.delete,
+                              icon:
+                                  Icon(Icons.delete, color: colorScheme.error),
+                              onPressed: () {
+                                context
+                                    .read<SettingsModel>()
+                                    .removeCustomJudgmentPreset(preset.id);
+                              },
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        buildCustomPresetForm(context, colorScheme),
+      ],
+    );
+  }
+
+  Widget buildCustomPresetForm(BuildContext context, ColorScheme colorScheme) {
+    final loc = AppLocalizations.of(context)!;
+    final bool isButtonEnabled = presetGameController.text.trim().isNotEmpty &&
+        presetLabelController.text.trim().isNotEmpty &&
+        double.tryParse(presetEarlyController.text.trim()) != null &&
+        (linkWindowValues ||
+            double.tryParse(presetLateController.text.trim()) != null);
+
+    return Card(
+      margin: const EdgeInsets.only(top: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              loc.custom_preset_section_title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: presetGameController,
+              decoration: InputDecoration(
+                labelText: loc.game_name_label,
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colorScheme.primary),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                ),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: presetLabelController,
+              decoration: InputDecoration(
+                labelText: loc.judgment_name_label,
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colorScheme.primary),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                ),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: presetEarlyController,
+                    decoration: InputDecoration(
+                      labelText: loc.early_window_label,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.primary),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color:
+                                colorScheme.onSurface.withValues(alpha: 0.5)),
+                      ),
+                    ),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (_) {
+                      if (linkWindowValues) {
+                        presetLateController.text = presetEarlyController.text;
+                      }
+                      setState(() {});
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                if (!linkWindowValues)
+                  Expanded(
+                    child: TextField(
+                      controller: presetLateController,
+                      decoration: InputDecoration(
+                        labelText: loc.late_window_label,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: colorScheme.primary),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color:
+                                  colorScheme.onSurface.withValues(alpha: 0.5)),
+                        ),
+                      ),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+              ],
+            ),
+            SwitchListTile(
+              value: linkWindowValues,
+              title: Text(loc.link_window_values),
+              onChanged: (value) {
+                setState(() {
+                  linkWindowValues = value;
+                  if (value) {
+                    presetLateController.text = presetEarlyController.text;
+                  }
+                });
+              },
+              contentPadding: EdgeInsets.zero,
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: isButtonEnabled ? _handleAddPreset : null,
+                child: Text(loc.add_preset),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleAddPreset() {
+    final game = presetGameController.text.trim();
+    final label = presetLabelController.text.trim();
+    final early = double.tryParse(presetEarlyController.text.trim());
+    final late = linkWindowValues
+        ? early
+        : double.tryParse(presetLateController.text.trim());
+
+    if (game.isEmpty || label.isEmpty || early == null || late == null) {
+      return;
+    }
+
+    context.read<SettingsModel>().addJudgmentPreset(
+          game: game,
+          label: label,
+          earlyMs: early,
+          lateMs: late,
+        );
+
+    setState(() {
+      presetGameController.clear();
+      presetLabelController.clear();
+      presetEarlyController.text = '50';
+      presetLateController.text = '50';
+      linkWindowValues = true;
+    });
+    FocusScope.of(context).unfocus();
+  }
+
+  Future<void> _showEditPresetDialog(JudgmentPreset preset) async {
+    final loc = AppLocalizations.of(context)!;
+    final labelController = TextEditingController(text: preset.label);
+    final earlyController =
+        TextEditingController(text: preset.earlyMs.toString());
+    final lateController =
+        TextEditingController(text: preset.lateMs.toString());
+    bool linkValues = (preset.earlyMs == preset.lateMs);
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setStateDialog) {
+            final isValid = labelController.text.trim().isNotEmpty &&
+                double.tryParse(earlyController.text.trim()) != null &&
+                (linkValues ||
+                    double.tryParse(lateController.text.trim()) != null);
+
+            return AlertDialog(
+              title: Text(loc.edit_preset),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: labelController,
+                      decoration: InputDecoration(
+                        labelText: loc.judgment_name_label,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: earlyController,
+                      decoration: InputDecoration(
+                        labelText: loc.early_window_label,
+                      ),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (_) {
+                        if (linkValues) {
+                          lateController.text = earlyController.text;
+                        }
+                        setStateDialog(() {});
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    if (!linkValues)
+                      TextField(
+                        controller: lateController,
+                        decoration: InputDecoration(
+                          labelText: loc.late_window_label,
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        onChanged: (_) => setStateDialog(() {}),
+                      ),
+                    SwitchListTile(
+                      value: linkValues,
+                      title: Text(loc.link_window_values),
+                      contentPadding: EdgeInsets.zero,
+                      onChanged: (value) {
+                        setStateDialog(() {
+                          linkValues = value;
+                          if (value) {
+                            lateController.text = earlyController.text;
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(loc.cancel),
+                ),
+                ElevatedButton(
+                  onPressed: isValid
+                      ? () {
+                          final early =
+                              double.parse(earlyController.text.trim());
+                          final late = linkValues
+                              ? early
+                              : double.parse(lateController.text.trim());
+                          context
+                              .read<SettingsModel>()
+                              .updateCustomJudgmentPreset(
+                                presetId: preset.id,
+                                label: labelController.text.trim(),
+                                earlyMs: early,
+                                lateMs: late,
+                              );
+                          Navigator.of(dialogContext).pop();
+                        }
+                      : null,
+                  child: Text(loc.save_changes),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    labelController.dispose();
+    earlyController.dispose();
+    lateController.dispose();
   }
 
   Widget buildTitleSection(BuildContext context, ColorScheme colorScheme) {

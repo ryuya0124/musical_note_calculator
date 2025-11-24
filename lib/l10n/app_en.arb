@@ -82,5 +82,21 @@
   "volumeLabel": "Volume",
   "timeSignatureLabel": "Time Signature",
   "otherOption": "Other",
-  "beatLabel": "Beats"
+  "beatLabel": "Beats",
+  "judgment_presets": "Judgment presets",
+  "judgment_name_label": "Judgment name",
+  "no_presets_available": "No presets available yet",
+  "custom_preset_section_title": "Add custom preset",
+  "game_name_label": "Game name",
+  "early_window_label": "Early window (ms)",
+  "late_window_label": "Late window (ms)",
+  "link_window_values": "Use the same value for early/late",
+  "add_preset": "Add preset",
+  "preset_visibility_toggle": "Toggle preset visibility",
+  "edit_preset": "Edit preset",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "save_changes": "Save changes",
+  "selected_preset": "Selected preset",
+  "total_window_label": "Total timing window"
 }

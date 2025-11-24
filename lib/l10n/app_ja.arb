@@ -82,5 +82,21 @@
   "volumeLabel": "ボリューム",
   "timeSignatureLabel": "拍子",
   "otherOption": "その他",
-  "beatLabel": "拍数"
+  "beatLabel": "拍数",
+  "judgment_presets": "判定プリセット",
+  "judgment_name_label": "判定名",
+  "no_presets_available": "プリセットはまだありません",
+  "custom_preset_section_title": "カスタムプリセットを追加",
+  "game_name_label": "ゲーム名",
+  "early_window_label": "早判定幅 (ms)",
+  "late_window_label": "遅判定幅 (ms)",
+  "link_window_values": "早/遅判定幅を同じ値にする",
+  "add_preset": "プリセットを追加",
+  "preset_visibility_toggle": "プリセットの表示切替",
+  "edit_preset": "プリセットを編集",
+  "delete": "削除",
+  "cancel": "キャンセル",
+  "save_changes": "変更を保存",
+  "selected_preset": "選択中のプリセット",
+  "total_window_label": "判定幅合計"
 }

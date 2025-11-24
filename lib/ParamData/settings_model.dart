@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'notes.dart';
+import 'judgment.dart';
 
 class SettingsModel extends ChangeNotifier {
   String selectedUnit = 'ms';
@@ -12,6 +15,10 @@ class SettingsModel extends ChangeNotifier {
   //Material You
   bool useMaterialYou = false;
   bool isDynamicColorAvailable = false;
+
+  // 判定プリセット
+  List<JudgmentPreset> customJudgmentPresets = [];
+  Set<String> hiddenJudgmentPresetIds = {};
 
   // 動的カラー利用可否を設定
   void setDynamicColorAvailability(bool isAvailable) {
@@ -44,6 +51,49 @@ class SettingsModel extends ChangeNotifier {
 
   SettingsModel() {
     _loadSettings();
+  }
+
+  List<JudgmentPreset> get allJudgmentPresets => [
+        ...defaultJudgmentPresets,
+        ...customJudgmentPresets,
+      ];
+
+  List<JudgmentPreset> get visibleJudgmentPresets => allJudgmentPresets
+      .where((preset) => !hiddenJudgmentPresetIds.contains(preset.id))
+      .toList();
+
+  Map<String, List<JudgmentPreset>> get judgmentPresetsByGame =>
+      _groupPresets(allJudgmentPresets);
+
+  Map<String, List<JudgmentPreset>> get visibleJudgmentPresetsByGame =>
+      _groupPresets(visibleJudgmentPresets);
+
+  Map<String, List<JudgmentPreset>> _groupPresets(
+      List<JudgmentPreset> presets) {
+    final Map<String, List<JudgmentPreset>> grouped = {};
+    for (final preset in presets) {
+      grouped.putIfAbsent(preset.game, () => []).add(preset);
+    }
+    final sortedKeys = grouped.keys.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    final Map<String, List<JudgmentPreset>> sorted = {};
+    for (final key in sortedKeys) {
+      final entries = grouped[key]!
+        ..sort(
+            (a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
+      sorted[key] = entries;
+    }
+    return sorted;
+  }
+
+  JudgmentPreset? findJudgmentPresetById(String? id) {
+    if (id == null) return null;
+    for (final preset in allJudgmentPresets) {
+      if (preset.id == id) {
+        return preset;
+      }
+    }
+    return null;
   }
 
   // カスタムノートと設定を保存
@@ -82,6 +132,18 @@ class SettingsModel extends ChangeNotifier {
 
     //Material You
     prefs.setBool('useMaterialYou', useMaterialYou);
+
+    // 判定プリセット
+    prefs.setStringList(
+      'customJudgmentPresets',
+      customJudgmentPresets
+          .map((preset) => jsonEncode(preset.toJson()))
+          .toList(),
+    );
+    prefs.setStringList(
+      'hiddenJudgmentPresetIds',
+      hiddenJudgmentPresetIds.toList(),
+    );
   }
 
   // SharedPreferencesから設定を読み込む
@@ -136,6 +198,19 @@ class SettingsModel extends ChangeNotifier {
     } else {
       useMaterialYou = prefs.getBool('useMaterialYou') ?? false;
     }
+
+    final List<String>? presetJson =
+        prefs.getStringList('customJudgmentPresets');
+    customJudgmentPresets = [];
+    if (presetJson != null) {
+      customJudgmentPresets = presetJson
+          .map((entry) => JudgmentPreset.fromJson(
+              jsonDecode(entry) as Map<String, dynamic>))
+          .toList();
+    }
+
+    hiddenJudgmentPresetIds =
+        prefs.getStringList('hiddenJudgmentPresetIds')?.toSet() ?? {};
 
     notifyListeners();
   }
@@ -206,6 +281,66 @@ class SettingsModel extends ChangeNotifier {
     removeNoteData(noteName);
     _saveSettings(); // 保存
     notifyListeners();
+  }
+
+  void addJudgmentPreset({
+    required String game,
+    required String label,
+    required double earlyMs,
+    required double lateMs,
+  }) {
+    final preset = JudgmentPreset.custom(
+      game: game.trim(),
+      label: label.trim(),
+      earlyMs: earlyMs,
+      lateMs: lateMs,
+    );
+    customJudgmentPresets.add(preset);
+    hiddenJudgmentPresetIds.remove(preset.id);
+    _saveSettings();
+    notifyListeners();
+  }
+
+  void removeCustomJudgmentPreset(String presetId) {
+    customJudgmentPresets
+        .removeWhere((preset) => preset.id == presetId && preset.isCustom);
+    hiddenJudgmentPresetIds.remove(presetId);
+    _saveSettings();
+    notifyListeners();
+  }
+
+  void setPresetVisibility(String presetId, bool isVisible) {
+    if (isVisible) {
+      hiddenJudgmentPresetIds.remove(presetId);
+    } else {
+      hiddenJudgmentPresetIds.add(presetId);
+    }
+    _saveSettings();
+    notifyListeners();
+  }
+
+  bool isPresetHidden(String presetId) {
+    return hiddenJudgmentPresetIds.contains(presetId);
+  }
+
+  void updateCustomJudgmentPreset({
+    required String presetId,
+    required String label,
+    required double earlyMs,
+    required double lateMs,
+  }) {
+    for (int i = 0; i < customJudgmentPresets.length; i++) {
+      if (customJudgmentPresets[i].id == presetId) {
+        customJudgmentPresets[i] = customJudgmentPresets[i].copyWith(
+          label: label.trim(),
+          earlyMs: earlyMs,
+          lateMs: lateMs,
+        );
+        _saveSettings();
+        notifyListeners();
+        break;
+      }
+    }
   }
 
   bool stringToBool(String input) {

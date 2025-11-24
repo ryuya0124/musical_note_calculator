@@ -1,60 +1,227 @@
-// ゲームの判定幅データを管理するクラス
-class GameJudgmentData {
-  final String judgmentName; // 判定名
-  final double timeWindow;  // 判定の許容時間(ms)
+import 'dart:math';
 
-  GameJudgmentData(this.judgmentName, this.timeWindow);
-}
+/// 音楽ゲームの判定幅プリセット
+class JudgmentPreset {
+  final String id;
+  final String game;
+  final String label;
+  final double earlyMs;
+  final double lateMs;
+  final bool isCustom;
 
-final Map<String, List<GameJudgmentData>> gameJudgmentWindows = {
-  'Game A': [
-    GameJudgmentData('Perfect', 25.0),
-    GameJudgmentData('Good', 41.667),
-    GameJudgmentData('Bad', 100.0),
-  ],
-  'Game B': [
-    GameJudgmentData('Perfect', 20.0),
-    GameJudgmentData('Great', 35.0),
-    GameJudgmentData('Miss', 75.0),
-  ],
-};
+  const JudgmentPreset({
+    required this.id,
+    required this.game,
+    required this.label,
+    required this.earlyMs,
+    required this.lateMs,
+    this.isCustom = false,
+  })  : assert(earlyMs >= 0),
+        assert(lateMs >= 0);
 
-/// ゲームと判定を追加
-void addGame(String gameName, List<GameJudgmentData> judgments) {
-  gameJudgmentWindows[gameName] = judgments;
-}
+  double get totalWindowMs => earlyMs + lateMs;
 
-/// ゲームの判定を更新
-void updateJudgment(String gameName, String judgment, double value) {
-  if (gameJudgmentWindows.containsKey(gameName)) {
-    final judgments = gameJudgmentWindows[gameName]!;
-    for (var j in judgments) {
-      if (j.judgmentName == judgment) {
-        judgments[judgments.indexOf(j)] = GameJudgmentData(judgment, value);
-        break;
-      }
-    }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'game': game,
+        'label': label,
+        'earlyMs': earlyMs,
+        'lateMs': lateMs,
+        'isCustom': isCustom,
+      };
+
+  factory JudgmentPreset.fromJson(Map<String, dynamic> json) => JudgmentPreset(
+        id: json['id'] as String,
+        game: json['game'] as String,
+        label: json['label'] as String,
+        earlyMs: (json['earlyMs'] as num).toDouble(),
+        lateMs: (json['lateMs'] as num).toDouble(),
+        isCustom: json['isCustom'] as bool? ?? true,
+      );
+
+  JudgmentPreset copyWith({
+    String? id,
+    String? game,
+    String? label,
+    double? earlyMs,
+    double? lateMs,
+    bool? isCustom,
+  }) {
+    return JudgmentPreset(
+      id: id ?? this.id,
+      game: game ?? this.game,
+      label: label ?? this.label,
+      earlyMs: earlyMs ?? this.earlyMs,
+      lateMs: lateMs ?? this.lateMs,
+      isCustom: isCustom ?? this.isCustom,
+    );
+  }
+
+  factory JudgmentPreset.custom({
+    required String game,
+    required String label,
+    required double earlyMs,
+    required double lateMs,
+  }) {
+    final seed = DateTime.now().microsecondsSinceEpoch;
+    final salt = Random().nextInt(1 << 16);
+    return JudgmentPreset(
+      id: 'custom_${seed}_$salt',
+      game: game,
+      label: label,
+      earlyMs: earlyMs,
+      lateMs: lateMs,
+      isCustom: true,
+    );
   }
 }
 
-/// ゲームの判定を削除
-void removeJudgment(String gameName, String judgment) {
-  gameJudgmentWindows[gameName]?.removeWhere((j) => j.judgmentName == judgment);
-}
-
-/// ゲームごとの判定を削除
-void removeGame(String gameName) {
-  gameJudgmentWindows.remove(gameName);
-}
-
-/// 指定された時間がどの判定に属するかを取得
-String? getJudgment(String gameName, double timeDifference) {
-  if (!gameJudgmentWindows.containsKey(gameName)) return null;
-
-  for (var judgment in gameJudgmentWindows[gameName]!) {
-    if (timeDifference <= judgment.timeWindow) {
-      return judgment.judgmentName;
-    }
-  }
-  return null;
-}
+const List<JudgmentPreset> defaultJudgmentPresets = [
+  JudgmentPreset(
+    id: 'proseca_white_notes',
+    game: 'プロセカ',
+    label: '白 ノーツ / 緑 ロング始点 / フリック',
+    earlyMs: 41.6,
+    lateMs: 41.6,
+  ),
+  JudgmentPreset(
+    id: 'proseca_yellow_notes',
+    game: 'プロセカ',
+    label: '黄 ノーツ / ロング始点',
+    earlyMs: 55.0,
+    lateMs: 55.0,
+  ),
+  JudgmentPreset(
+    id: 'proseca_yellow_flick',
+    game: 'プロセカ',
+    label: '黄 フリック',
+    earlyMs: 58.3,
+    lateMs: 58.3,
+  ),
+  JudgmentPreset(
+    id: 'proseca_yellow_long_end',
+    game: 'プロセカ',
+    label: '緑 / 黄 ロング終点 / 終点フリック',
+    earlyMs: 58.3,
+    lateMs: 66.6,
+  ),
+  JudgmentPreset(
+    id: 'yumeste_perfect_plus',
+    game: 'ユメステ',
+    label: 'PERFECT+',
+    earlyMs: 25.0,
+    lateMs: 25.0,
+  ),
+  JudgmentPreset(
+    id: 'yumeste_perfect',
+    game: 'ユメステ',
+    label: 'PERFECT',
+    earlyMs: 40.0,
+    lateMs: 40.0,
+  ),
+  JudgmentPreset(
+    id: 'garupa_perfect',
+    game: 'ガルパ',
+    label: 'PERFECT',
+    earlyMs: 41.67,
+    lateMs: 41.67,
+  ),
+  JudgmentPreset(
+    id: 'd4dj_internal_perfect',
+    game: 'D4DJ グルミク',
+    label: 'PERFECT (内部)',
+    earlyMs: 25.0,
+    lateMs: 25.0,
+  ),
+  JudgmentPreset(
+    id: 'd4dj_perfect',
+    game: 'D4DJ グルミク',
+    label: 'PERFECT',
+    earlyMs: 50.0,
+    lateMs: 50.0,
+  ),
+  JudgmentPreset(
+    id: 'deemo_default',
+    game: 'Deemo',
+    label: 'Default',
+    earlyMs: 50.0,
+    lateMs: 50.0,
+  ),
+  JudgmentPreset(
+    id: 'arcaea_internal_pure',
+    game: 'Arcaea',
+    label: 'PURE (内部)',
+    earlyMs: 25.0,
+    lateMs: 25.0,
+  ),
+  JudgmentPreset(
+    id: 'arcaea_pure',
+    game: 'Arcaea',
+    label: 'PURE',
+    earlyMs: 50.0,
+    lateMs: 50.0,
+  ),
+  JudgmentPreset(
+    id: 'takumi_rainbow_just',
+    game: 'TAKUMI³',
+    label: '虹JUST',
+    earlyMs: 40.0,
+    lateMs: 40.0,
+  ),
+  JudgmentPreset(
+    id: 'takumi_just',
+    game: 'TAKUMI³',
+    label: 'JUST',
+    earlyMs: 60.0,
+    lateMs: 60.0,
+  ),
+  JudgmentPreset(
+    id: 'cytus_tp_perfect',
+    game: 'Cytus/Cytus II',
+    label: 'TP PERFECT',
+    earlyMs: 70.0,
+    lateMs: 70.0,
+  ),
+  JudgmentPreset(
+    id: 'kalpa_perfect',
+    game: 'KALPA',
+    label: 'PERFECT',
+    earlyMs: 67.0,
+    lateMs: 67.0,
+  ),
+  JudgmentPreset(
+    id: 'phigros_normal_perfect',
+    game: 'Phigros',
+    label: '通常 Perfect',
+    earlyMs: 80.0,
+    lateMs: 80.0,
+  ),
+  JudgmentPreset(
+    id: 'phigros_challenge_perfect',
+    game: 'Phigros',
+    label: '課題 Perfect',
+    earlyMs: 40.0,
+    lateMs: 40.0,
+  ),
+  JudgmentPreset(
+    id: 'mltd_om_perfect',
+    game: 'ミリシタ',
+    label: 'PERFECT (OM)',
+    earlyMs: 28.0,
+    lateMs: 28.0,
+  ),
+  JudgmentPreset(
+    id: 'mltd_mm_perfect',
+    game: 'ミリシタ',
+    label: 'PERFECT (MM以下)',
+    earlyMs: 50.0,
+    lateMs: 50.0,
+  ),
+  JudgmentPreset(
+    id: 'deresute_perfect',
+    game: 'デレステ',
+    label: 'PERFECT (Mas以上)',
+    earlyMs: 70.0,
+    lateMs: 70.0,
+  ),
+];
