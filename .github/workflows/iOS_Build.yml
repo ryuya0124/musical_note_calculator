@@ -50,5 +50,5 @@ jobs:
     - name: Upload IPA as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: musical-note-calculator-ipa
+        name: musical-note-calculator.ipa
         path: build/ios/ipa/musical_note_calculator.ipa  # 変更後のIPAをアップロード
