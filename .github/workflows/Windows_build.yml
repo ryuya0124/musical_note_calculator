@@ -9,10 +9,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Cache Flutter SDK
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.pub-cache
@@ -29,14 +29,11 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
 
-    - name: Generate localization files
-      run: flutter gen-l10n  # ローカライズファイルを生成
-
     - name: Build Windows app (release)
       run: flutter build windows --release
 
     - name: Upload Windows executable as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: musical-note-calculator
         path: build\windows\x64\runner\Release\

@@ -9,10 +9,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3  # リポジトリをチェックアウト
+      uses: actions/checkout@v4  # リポジトリをチェックアウト
 
     - name: Cache Flutter SDK
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.pub-cache
@@ -29,8 +29,6 @@ jobs:
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
       
-    - name: Generate localization files
-      run: flutter gen-l10n  # ローカライズファイルを生成
 
     - name: Build iOS app (debug)
       run: flutter build ios --release --no-codesign  # iOSアプリのリリースビルド
@@ -50,7 +48,7 @@ jobs:
         mv build/ios/ipa/Runner.ipa build/ios/ipa/musical_note_calculator.ipa
 
     - name: Upload IPA as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: musical-note-calculator-ipa
         path: build/ios/ipa/musical_note_calculator.ipa  # 変更後のIPAをアップロード

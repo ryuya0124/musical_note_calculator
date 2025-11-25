@@ -9,10 +9,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3  # リポジトリをチェックアウト
+      uses: actions/checkout@v4  # リポジトリをチェックアウト
 
     - name: Cache Flutter SDK
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.pub-cache
@@ -28,9 +28,6 @@ jobs:
 
     - name: Install dependencies
       run: flutter pub get  # 依存関係をインストール
-      
-    - name: Generate localization files
-      run: flutter gen-l10n  # ローカライズファイルを生成
 
     - name: Build Android app (release)
       run: flutter build apk --release # Androidアプリのreleaseビルド
@@ -39,7 +36,7 @@ jobs:
       run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/musical_note_calculator.apk  # APKの名前を変更
 
     - name: Upload APK as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: musical_note_calculator.apk
         path: build/app/outputs/flutter-apk/musical_note_calculator.apk  # 変更後のAPKをアップロード

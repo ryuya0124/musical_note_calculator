@@ -92,9 +92,9 @@ const List<JudgmentPreset> defaultJudgmentPresets = [
     lateMs: 41.6,
   ),
   JudgmentPreset(
-    id: 'proseca_white_flick',
+    id: 'proseca_red_flick',
     game: 'プロセカ',
-    label: '白 フリック',
+    label: '赤 フリック',
     earlyMs: 41.6,
     lateMs: 41.6,
   ),
