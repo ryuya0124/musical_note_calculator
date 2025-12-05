@@ -98,5 +98,12 @@
   "cancel": "キャンセル",
   "save_changes": "変更を保存",
   "selected_preset": "選択中のプリセット",
-  "total_window_label": "判定幅合計"
+  "total_window_label": "判定幅合計",
+  "viewTable": "表",
+  "viewDiagram": "図",
+  "note1JudgmentWindow": "ノーツ1の判定幅",
+  "note2JudgmentWindow": "ノーツ2の判定幅",
+  "overlapArea": "重なり範囲",
+  "anmitsuPossibleDesc": "判定幅が重なっているため、餡蜜が可能です",
+  "anmitsuImpossibleDesc": "判定幅が重なっていないため、餡蜜は不可能です"
 }

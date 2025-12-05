@@ -98,5 +98,12 @@
   "cancel": "Cancel",
   "save_changes": "Save changes",
   "selected_preset": "Selected preset",
-  "total_window_label": "Total timing window"
+  "total_window_label": "Total timing window",
+  "viewTable": "Table",
+  "viewDiagram": "Diagram",
+  "note1JudgmentWindow": "Note 1 Judgment Window",
+  "note2JudgmentWindow": "Note 2 Judgment Window",
+  "overlapArea": "Overlap Area",
+  "anmitsuPossibleDesc": "The judgment windows overlap, so anmitsu is possible",
+  "anmitsuImpossibleDesc": "The judgment windows do not overlap, so anmitsu is impossible"
 }
