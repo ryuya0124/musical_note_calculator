@@ -446,22 +446,22 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
         _ResultRow(
           title: loc.selected_preset,
           value:
-              '${selection.game ?? ''} - ${earlyPreset.label} / ${latePreset.label}',
+              '${selection.game ?? ''}\n${earlyPreset.label} / ${latePreset.label}',
         ),
         _ResultRow(
           title: loc.timingWindow,
           value:
-              '+${windowLate.toStringAsFixed(decimals)} ms / -${windowEarly.toStringAsFixed(decimals)} ms',
-        ),
-        _ResultRow(
-          title: loc.late_window_label,
-          value:
-              '+${windowLate.toStringAsFixed(decimals)} ms (${latePreset.label})',
+              '-${windowEarly.toStringAsFixed(decimals)} ms / +${windowLate.toStringAsFixed(decimals)} ms',
         ),
         _ResultRow(
           title: loc.early_window_label,
           value:
               '-${windowEarly.toStringAsFixed(decimals)} ms (${earlyPreset.label})',
+        ),
+        _ResultRow(
+          title: loc.late_window_label,
+          value:
+              '+${windowLate.toStringAsFixed(decimals)} ms (${latePreset.label})',
         ),
         _ResultRow(
           title: loc.total_window_label,
