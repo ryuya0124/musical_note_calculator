@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       upload_to_appstore:
-        description: 'TestFlightにアップロードする（要シークレット設定）'
+        description: 'TestFlightにアップロードする'
         required: true
         default: 'false'
         type: choice
