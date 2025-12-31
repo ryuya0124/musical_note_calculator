@@ -12,8 +12,7 @@ platform :ios do
   lane :sync_certificates do
     # Git認証情報を含むURL（CI環境のみ）
     git_url = if ENV['MATCH_GIT_BASIC_AUTHORIZATION']
-      auth = Base64.decode64(ENV['MATCH_GIT_BASIC_AUTHORIZATION'])
-      "https://#{auth}@github.com/ryuya0124/Apple_Certificates"
+      "https://#{ENV['MATCH_GIT_BASIC_AUTHORIZATION']}@github.com/ryuya0124/Apple_Certificates"
     else
       "https://github.com/ryuya0124/Apple_Certificates"
     end
