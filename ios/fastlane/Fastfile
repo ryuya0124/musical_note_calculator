@@ -10,11 +10,32 @@ platform :ios do
   # ============================================================
   desc "証明書とプロビジョニングプロファイルを同期"
   lane :sync_certificates do
-    match(
-      git_url: "https://github.com/ryuya0124/Apple_Certificates",
-      type: "appstore",
-      readonly: is_ci
-    )
+    if is_ci
+      # CI環境用: 一時的なKeychainを作成
+      create_keychain(
+        name: "ci_keychain",
+        password: ENV["MATCH_PASSWORD"],
+        default_keychain: true,
+        unlock: true,
+        timeout: 3600,
+        lock_when_sleeps: false
+      )
+      
+      match(
+        git_url: "https://github.com/ryuya0124/Apple_Certificates",
+        type: "appstore",
+        readonly: true,
+        keychain_name: "ci_keychain",
+        keychain_password: ENV["MATCH_PASSWORD"]
+      )
+    else
+      # ローカル環境用
+      match(
+        git_url: "https://github.com/ryuya0124/Apple_Certificates",
+        type: "appstore",
+        readonly: false
+      )
+    end
   end
 
   # ============================================================
