@@ -22,12 +22,11 @@ platform :mac do
       )
       
       match(
-        git_url: "https://github.com/ryuya0124/Apple_Certificates",
         type: "appstore",
-        platform: "macos",
         readonly: true,
         keychain_name: "ci_keychain",
-        keychain_password: ENV["MATCH_PASSWORD"]
+        keychain_password: ENV["MATCH_PASSWORD"],
+        additional_cert_types: ["mac_installer_distribution"]
       )
     else
       # ローカル環境用: API Key認証を使用
@@ -42,7 +41,8 @@ platform :mac do
         type: "appstore",
         platform: "macos",
         readonly: true,
-        api_key: api_key
+        api_key: api_key,
+        additional_cert_types: ["mac_installer_distribution"]
       )
     end
   end
@@ -194,7 +194,7 @@ platform :mac do
   desc "ローカルからTestFlightにビルドをアップロード"
   lane :local_testflight do
     # 証明書を同期
-    sync_certificates
+
 
     # プロジェクトルートのパスを取得（macos/fastlane から2階層上）
     project_root = File.expand_path("../..", __dir__)
@@ -213,21 +213,21 @@ platform :mac do
     end
 
     # pubspec.yamlのビルド番号をInfo.plistに直接設定（インクリメントなし）
-    update_info_plist(
-      plist_path: "Runner/Info.plist",
-      block: proc do |plist|
-        plist["CFBundleVersion"] = build_number
-        plist["CFBundleShortVersionString"] = version_name
-      end
-    )
-    UI.message("📝 Info.plist を更新: バージョン #{version_name}, ビルド番号 #{build_number}")
 
+
+    # Appをビルド
     # Appをビルド
     build_mac_app(
       scheme: "Runner",
       export_method: "app-store",
+      export_options: {
+        provisioningProfiles: { 
+          "net.ryuya-dev.mnc" => "match AppStore net.ryuya-dev.mnc macos"
+        }
+      },
       output_directory: "../build/macos/Build/Products/Release",
-      output_name: "musical_note_calculator.pkg"
+      output_name: "musical_note_calculator",
+      clean: false
     )
 
     # ローカル用のApp Store Connect API認証設定

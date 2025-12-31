@@ -46,3 +46,4 @@ app.*.map.json
 
 # l10nの自動生成ファイルを無視
 lib/l10n/app_localizations*.dart
+macos/fastlane/api_key.json
