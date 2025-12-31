@@ -74,12 +74,61 @@ platform :ios do
   # ============================================================
   desc "ビルド済みIPAをTestFlightにアップロード"
   lane :upload_testflight do
+    # プロジェクトルートのパスを取得（ios/fastlane から2階層上）
+    project_root = File.expand_path("../..", __dir__)
+    pubspec_path = File.join(project_root, "pubspec.yaml")
+    
+    # pubspec.yamlからバージョン情報を取得
+    pubspec_content = File.read(pubspec_path)
+    version_match = pubspec_content.match(/version:\s*(\d+\.\d+\.\d+)\+(\d+)/)
+    
+    if version_match
+      version_name = version_match[1]
+      build_number = version_match[2]
+      UI.message("📦 pubspec.yaml から取得: バージョン #{version_name}, ビルド番号 #{build_number}")
+    else
+      version_name = "不明"
+      build_number = "不明"
+    end
+
     # App Store Connect API認証設定
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
       issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
       key_content: Base64.decode64(ENV["APP_STORE_CONNECT_API_KEY_CONTENT"]),
       is_key_content_base64: false
+    )
+
+    # TestFlightにアップロード（エラーハンドリング付き）
+    begin
+      pilot(
+        api_key: api_key,
+        ipa: "../build/ios/ipa/musical_note_calculator.ipa",
+        skip_waiting_for_build_processing: true
+      )
+      UI.success("✅ TestFlightへのアップロード完了")
+    rescue => e
+      if e.message.include?("redundant binary upload") || e.message.include?("already exists") || e.message.include?("This build already exists") || e.message.include?("has already been uploaded")
+        UI.user_error!("❌ ビルド番号 #{build_number} は既にTestFlightにアップロード済みです！\n\n" \
+          "📝 解決方法: pubspec.yaml の version を更新してください。\n" \
+          "   現在: version: #{version_name}+#{build_number}\n" \
+          "   変更例: version: #{version_name}+#{build_number.to_i + 1}")
+      else
+        raise e
+      end
+    end
+  end
+
+  # ============================================================
+  # ローカル用: TestFlightへのアップロードのみ（ビルド済みIPAを使用）
+  # ============================================================
+  desc "ローカルからビルド済みIPAをTestFlightにアップロード"
+  lane :upload_local do
+    # ローカル用のApp Store Connect API認証設定
+    api_key = app_store_connect_api_key(
+      key_id: "7LK8SRK8KU",
+      issuer_id: "714bd8a7-7a2b-4efb-893d-c5eb74b71125",
+      key_filepath: "/Users/ryuya/Documents/apple_cert/AuthKey_7LK8SRK8KU.p8"
     )
 
     # TestFlightにアップロード
@@ -89,7 +138,7 @@ platform :ios do
       skip_waiting_for_build_processing: true
     )
 
-    UI.success("TestFlightへのアップロード完了")
+    UI.success("ローカルからTestFlightへのアップロード完了")
   end
 
   # ============================================================
@@ -117,10 +166,31 @@ platform :ios do
     # 証明書を同期
     sync_certificates
 
-    # ビルド番号を自動インクリメント
-    increment_build_number(
-      xcodeproj: "Runner.xcodeproj"
+    # プロジェクトルートのパスを取得（ios/fastlane から2階層上）
+    project_root = File.expand_path("../..", __dir__)
+    pubspec_path = File.join(project_root, "pubspec.yaml")
+    
+    # pubspec.yamlからバージョン情報を取得
+    pubspec_content = File.read(pubspec_path)
+    version_match = pubspec_content.match(/version:\s*(\d+\.\d+\.\d+)\+(\d+)/)
+    
+    if version_match
+      version_name = version_match[1]
+      build_number = version_match[2]
+      UI.message("📦 pubspec.yaml から取得: バージョン #{version_name}, ビルド番号 #{build_number}")
+    else
+      UI.user_error!("❌ pubspec.yaml からバージョン情報を取得できませんでした。version: X.Y.Z+N の形式で指定されているか確認してください。")
+    end
+
+    # pubspec.yamlのビルド番号をInfo.plistに直接設定（インクリメントなし）
+    update_info_plist(
+      plist_path: "Runner/Info.plist",
+      block: proc do |plist|
+        plist["CFBundleVersion"] = build_number
+        plist["CFBundleShortVersionString"] = version_name
+      end
     )
+    UI.message("📝 Info.plist を更新: バージョン #{version_name}, ビルド番号 #{build_number}")
 
     # IPAをビルド
     build_app(
@@ -137,13 +207,23 @@ platform :ios do
       key_filepath: "/Users/ryuya/Documents/apple_cert/AuthKey_7LK8SRK8KU.p8"
     )
 
-    # TestFlightにアップロード
-    pilot(
-      api_key: api_key,
-      ipa: "../build/ios/ipa/musical_note_calculator.ipa",
-      skip_waiting_for_build_processing: true
-    )
-
-    UI.success("ローカルからTestFlightへのアップロード完了")
+    # TestFlightにアップロード（エラーハンドリング付き）
+    begin
+      pilot(
+        api_key: api_key,
+        ipa: "../build/ios/ipa/musical_note_calculator.ipa",
+        skip_waiting_for_build_processing: true
+      )
+      UI.success("✅ ローカルからTestFlightへのアップロード完了")
+    rescue => e
+      if e.message.include?("redundant binary upload") || e.message.include?("already exists") || e.message.include?("This build already exists")
+        UI.user_error!("❌ ビルド番号 #{build_number} は既にTestFlightにアップロード済みです！\n\n" \
+          "📝 解決方法: pubspec.yaml の version を更新してください。\n" \
+          "   現在: version: #{version_name}+#{build_number}\n" \
+          "   変更例: version: #{version_name}+#{build_number.to_i + 1}")
+      else
+        raise e
+      end
+    end
   end
 end

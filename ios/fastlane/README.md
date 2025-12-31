@@ -39,6 +39,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ビルド済みIPAをTestFlightにアップロード
 
+### ios upload_local
+
+```sh
+[bundle exec] fastlane ios upload_local
+```
+
+ローカルからビルド済みIPAをTestFlightにアップロード
+
 ### ios beta
 
 ```sh
