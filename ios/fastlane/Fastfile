@@ -12,8 +12,7 @@ platform :ios do
   lane :sync_certificates do
     match(
       type: "appstore",
-      readonly: is_ci,
-      git_basic_authorization: ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+      readonly: is_ci
     )
   end
 
