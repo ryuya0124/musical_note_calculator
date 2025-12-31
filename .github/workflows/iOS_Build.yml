@@ -1,15 +1,24 @@
-name: Flutter iOS Build
+name: Flutter iOS Build with Fastlane
 
 on:
-  workflow_dispatch:  # 手動でトリガーできるようにする
+  workflow_dispatch:
+    inputs:
+      upload_to_appstore:
+        description: 'TestFlightにアップロードする（要シークレット設定）'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 jobs:
   build:
-    runs-on: macos-latest  # macOS環境でビルド
+    runs-on: macos-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4  # リポジトリをチェックアウト
+      uses: actions/checkout@v4
 
     - name: Cache Flutter SDK
       uses: actions/cache@v4
@@ -27,28 +36,70 @@ jobs:
         flutter-version: '3.38.3'
 
     - name: Install dependencies
-      run: flutter pub get  # 依存関係をインストール
-      
+      run: flutter pub get
 
-    - name: Build iOS app (debug)
-      run: flutter build ios --release --no-codesign  # iOSアプリのリリースビルド
+    # ============================================================
+    # 署名なしビルド（常に実行 - アーティファクト用）
+    # ============================================================
+    - name: Build iOS app (no codesign)
+      run: flutter build ios --release --no-codesign
 
-    - name: Create Payload folder and move app
+    - name: Create unsigned IPA
       run: |
         mkdir -p build/ios/ipa/Payload
-        mv build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
-
-    - name: Zip Payload folder to create IPA
-      run: |
+        cp -r build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
         cd build/ios/ipa
-        zip -r Runner.ipa Payload
+        zip -r musical_note_calculator_unsigned.ipa Payload
+        rm -rf Payload
 
-    - name: Rename IPA file
-      run: |
-        mv build/ios/ipa/Runner.ipa build/ios/ipa/musical_note_calculator.ipa
-
-    - name: Upload IPA as artifact
+    - name: Upload unsigned IPA as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: musical-note-calculator.ipa
-        path: build/ios/ipa/musical_note_calculator.ipa  # 変更後のIPAをアップロード
+        name: musical-note-calculator-unsigned.ipa
+        path: build/ios/ipa/musical_note_calculator_unsigned.ipa
+        if-no-files-found: warn
+
+    # ============================================================
+    # TestFlightアップロード（オプション）
+    # ============================================================
+    
+    - name: Setup Ruby
+      if: ${{ inputs.upload_to_appstore == 'true' }}
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: false
+
+    - name: Install Fastlane
+      if: ${{ inputs.upload_to_appstore == 'true' }}
+      run: |
+        cd ios
+        gem install bundler
+        bundle config set --local path 'vendor/bundle'
+        bundle install
+
+    - name: Setup Git for Match
+      if: ${{ inputs.upload_to_appstore == 'true' }}
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+
+    - name: Build and upload to TestFlight with Fastlane
+      if: ${{ inputs.upload_to_appstore == 'true' }}
+      env:
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+      run: |
+        cd ios
+        bundle exec fastlane beta
+
+    - name: Upload signed IPA as artifact
+      if: ${{ inputs.upload_to_appstore == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: musical-note-calculator-signed.ipa
+        path: build/ios/ipa/musical_note_calculator.ipa
+        if-no-files-found: warn

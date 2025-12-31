@@ -1,0 +1,75 @@
+# ============================================================
+# Fastfile - iOS App Store Connect デプロイ自動化
+# ============================================================
+
+default_platform(:ios)
+
+platform :ios do
+  # ============================================================
+  # 事前処理: 証明書とプロビジョニングプロファイルを取得
+  # ============================================================
+  desc "証明書とプロビジョニングプロファイルを同期"
+  lane :sync_certificates do
+    match(
+      type: "appstore",
+      readonly: is_ci,
+      git_basic_authorization: ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+    )
+  end
+
+  # ============================================================
+  # TestFlightへのアップロード
+  # ============================================================
+  desc "TestFlightにビルドをアップロード"
+  lane :beta do
+    # 証明書を同期
+    sync_certificates
+
+    # App Store Connect API認証設定
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: Base64.decode64(ENV["APP_STORE_CONNECT_API_KEY_CONTENT"]),
+      is_key_content_base64: false
+    )
+
+    # ビルド番号を自動インクリメント
+    increment_build_number(
+      xcodeproj: "Runner.xcodeproj"
+    )
+
+    # IPAをビルド
+    build_app(
+      scheme: "Runner",
+      export_method: "app-store",
+      output_directory: "../build/ios/ipa",
+      output_name: "musical_note_calculator.ipa"
+    )
+
+    # TestFlightにアップロード
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  # ============================================================
+  # App Store Connectへのアップロード（リリース用）
+  # ============================================================
+  desc "App Store Connectにビルドをアップロード"
+  lane :release do
+    # betaと同じだが、将来的にメタデータ更新などを追加可能
+    beta
+  end
+
+  # ============================================================
+  # 署名なしビルド（GitHub Actions用）
+  # ============================================================
+  desc "署名なしIPAをビルド"
+  lane :build_unsigned do
+    # Flutterビルドを実行
+    sh("flutter", "build", "ios", "--release", "--no-codesign")
+    
+    UI.success("署名なしビルド完了")
+  end
+end
