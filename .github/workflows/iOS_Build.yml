@@ -116,6 +116,9 @@ jobs:
         echo "https://${MATCH_GIT_BASIC_AUTHORIZATION_PLAIN}@github.com" > ~/.git-credentials
         git config --global credential.helper store
 
+    - name: Build Flutter iOS (no codesign)
+      run: flutter build ios --release --no-codesign
+
     - name: Build signed IPA with Fastlane
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
