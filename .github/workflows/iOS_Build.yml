@@ -104,22 +104,17 @@ jobs:
 
     - name: Setup Git and Match credentials
       env:
-        MATCH_GIT_TOKEN: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
       run: |
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
-        # GitHubユーザー名とトークンを組み合わせる
-        GITHUB_USERNAME="ryuya0124"
-        MATCH_GIT_BASIC_AUTHORIZATION_PLAIN="${GITHUB_USERNAME}:${MATCH_GIT_TOKEN}"
-        # デバッグ: 認証情報の長さを確認（セキュリティのため実際の値は表示しない）
+        # Base64デコードしてプレーンテキストを取得
+        MATCH_GIT_BASIC_AUTHORIZATION_PLAIN=$(echo -n "${MATCH_GIT_BASIC_AUTHORIZATION}" | base64 --decode)
+        # デバッグ: 認証情報の長さを確認
         echo "Auth plain length: ${#MATCH_GIT_BASIC_AUTHORIZATION_PLAIN}"
         # Git認証情報を設定（プレーンテキスト形式: username:token）
         echo "https://${MATCH_GIT_BASIC_AUTHORIZATION_PLAIN}@github.com" > ~/.git-credentials
         git config --global credential.helper store
-        # Fastlane Match用にBase64エンコードした認証情報を環境変数に設定
-        MATCH_GIT_BASIC_AUTHORIZATION_BASE64=$(echo -n "${MATCH_GIT_BASIC_AUTHORIZATION_PLAIN}" | base64)
-        echo "Auth base64 length: ${#MATCH_GIT_BASIC_AUTHORIZATION_BASE64}"
-        echo "MATCH_GIT_BASIC_AUTHORIZATION=${MATCH_GIT_BASIC_AUTHORIZATION_BASE64}" >> $GITHUB_ENV
 
     - name: Build signed IPA with Fastlane
       env:
@@ -129,14 +124,6 @@ jobs:
         APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
       run: |
-        # デバッグ: 環境変数の確認
-        echo "MATCH_GIT_BASIC_AUTHORIZATION length: ${#MATCH_GIT_BASIC_AUTHORIZATION}"
-        # GitHubユーザー名とトークンを組み合わせる
-        GITHUB_USERNAME="ryuya0124"
-        MATCH_GIT_BASIC_AUTHORIZATION_PLAIN="${GITHUB_USERNAME}:${MATCH_GIT_BASIC_AUTHORIZATION}"
-        # Fastlane Match用にBase64エンコード
-        export MATCH_GIT_BASIC_AUTHORIZATION=$(echo -n "${MATCH_GIT_BASIC_AUTHORIZATION_PLAIN}" | base64)
-        echo "Final auth base64 length: ${#MATCH_GIT_BASIC_AUTHORIZATION}"
         cd ios
         bundle exec fastlane build_signed
 
