@@ -1,0 +1,14 @@
+git_url("https://github.com/ryuya0124/Apple_Certificates")
+
+storage_mode("git")
+
+type("appstore") # App Store用の証明書とプロビジョニングプロファイル
+
+app_identifier("net.ryuya-dev.mnc")
+
+platform("macos") # macOS用
+
+# CI環境用のGit認証（環境変数 MATCH_GIT_BASIC_AUTHORIZATION から読み込み）
+if ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+  git_basic_authorization(ENV["MATCH_GIT_BASIC_AUTHORIZATION"])
+end

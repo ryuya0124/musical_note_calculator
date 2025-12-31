@@ -1,10 +1,10 @@
 # ============================================================
-# Fastfile - iOS App Store Connect デプロイ自動化
+# Fastfile - macOS App Store Connect デプロイ自動化
 # ============================================================
 
-default_platform(:ios)
+default_platform(:mac)
 
-platform :ios do
+platform :mac do
   # ============================================================
   # 事前処理: 証明書とプロビジョニングプロファイルを取得
   # ============================================================
@@ -24,6 +24,7 @@ platform :ios do
       match(
         git_url: "https://github.com/ryuya0124/Apple_Certificates",
         type: "appstore",
+        platform: "macos",
         readonly: true,
         keychain_name: "ci_keychain",
         keychain_password: ENV["MATCH_PASSWORD"]
@@ -39,6 +40,7 @@ platform :ios do
       match(
         git_url: "https://github.com/ryuya0124/Apple_Certificates",
         type: "appstore",
+        platform: "macos",
         readonly: true,
         api_key: api_key
       )
@@ -46,35 +48,30 @@ platform :ios do
   end
 
   # ============================================================
-  # 署名ありIPAビルド（アップロードなし）
+  # 署名ありAppビルド（アップロードなし）
   # ============================================================
-  desc "署名ありIPAをビルド"
+  desc "署名ありAppをビルド"
   lane :build_signed do
     # 証明書を同期
     sync_certificates
 
-    # ビルド番号を自動インクリメント
-    increment_build_number(
-      xcodeproj: "Runner.xcodeproj"
-    )
-
-    # IPAをビルド
-    build_app(
+    # Appをビルド
+    build_mac_app(
       scheme: "Runner",
       export_method: "app-store",
-      output_directory: "../build/ios/ipa",
-      output_name: "musical_note_calculator.ipa"
+      output_directory: "../build/macos/Build/Products/Release",
+      output_name: "musical_note_calculator.pkg"
     )
 
-    UI.success("署名ありIPAビルド完了: build/ios/ipa/musical_note_calculator.ipa")
+    UI.success("署名ありAppビルド完了")
   end
 
   # ============================================================
-  # TestFlightへのアップロード（ビルド済みIPAを使用）
+  # TestFlightへのアップロード（ビルド済みAppを使用）CI用
   # ============================================================
-  desc "ビルド済みIPAをTestFlightにアップロード"
+  desc "ビルド済みAppをTestFlightにアップロード"
   lane :upload_testflight do
-    # プロジェクトルートのパスを取得（ios/fastlane から2階層上）
+    # プロジェクトルートのパスを取得（macos/fastlane から2階層上）
     project_root = File.expand_path("../..", __dir__)
     pubspec_path = File.join(project_root, "pubspec.yaml")
     
@@ -103,7 +100,7 @@ platform :ios do
     begin
       pilot(
         api_key: api_key,
-        ipa: "../build/ios/ipa/musical_note_calculator.ipa",
+        pkg: "../build/macos/Build/Products/Release/musical_note_calculator.pkg",
         skip_waiting_for_build_processing: true
       )
       UI.success("✅ TestFlightへのアップロード完了")
@@ -111,7 +108,7 @@ platform :ios do
       error_msg = e.message.to_s
       if error_msg.include?("redundant binary upload") || 
          error_msg.include?("already exists") || 
-         error_msg.include?("This build already exists") || 
+         error_msg.include?("This build already exists") ||
          error_msg.include?("has already been uploaded") ||
          error_msg.include?("must be higher than") ||
          error_msg.include?("DUPLICATE") ||
@@ -127,10 +124,27 @@ platform :ios do
   end
 
   # ============================================================
-  # ローカル用: TestFlightへのアップロードのみ（ビルド済みIPAを使用）
+  # ローカル用: TestFlightへのアップロードのみ（ビルド済みAppを使用）
   # ============================================================
-  desc "ローカルからビルド済みIPAをTestFlightにアップロード"
+  desc "ローカルからビルド済みAppをTestFlightにアップロード"
   lane :upload_local do
+    # プロジェクトルートのパスを取得（macos/fastlane から2階層上）
+    project_root = File.expand_path("../..", __dir__)
+    pubspec_path = File.join(project_root, "pubspec.yaml")
+    
+    # pubspec.yamlからバージョン情報を取得
+    pubspec_content = File.read(pubspec_path)
+    version_match = pubspec_content.match(/version:\s*(\d+\.\d+\.\d+)\+(\d+)/)
+    
+    if version_match
+      version_name = version_match[1]
+      build_number = version_match[2]
+      UI.message("📦 pubspec.yaml から取得: バージョン #{version_name}, ビルド番号 #{build_number}")
+    else
+      version_name = "不明"
+      build_number = "不明"
+    end
+
     # ローカル用のApp Store Connect API認証設定
     api_key = app_store_connect_api_key(
       key_id: "7LK8SRK8KU",
@@ -138,31 +152,40 @@ platform :ios do
       key_filepath: "/Users/ryuya/Documents/apple_cert/AuthKey_7LK8SRK8KU.p8"
     )
 
-    # TestFlightにアップロード
-    pilot(
-      api_key: api_key,
-      ipa: "../build/ios/ipa/musical_note_calculator.ipa",
-      skip_waiting_for_build_processing: true
-    )
-
-    UI.success("ローカルからTestFlightへのアップロード完了")
+    # TestFlightにアップロード（エラーハンドリング付き）
+    begin
+      pilot(
+        api_key: api_key,
+        pkg: "../build/macos/Build/Products/Release/musical_note_calculator.pkg",
+        skip_waiting_for_build_processing: true
+      )
+      UI.success("✅ ローカルからTestFlightへのアップロード完了")
+    rescue => e
+      error_msg = e.message.to_s
+      if error_msg.include?("redundant binary upload") || 
+         error_msg.include?("already exists") || 
+         error_msg.include?("This build already exists") ||
+         error_msg.include?("has already been uploaded") ||
+         error_msg.include?("must be higher than") ||
+         error_msg.include?("DUPLICATE") ||
+         error_msg.include?("has already been used")
+        UI.user_error!("❌ ビルド番号 #{build_number} は既にTestFlightにアップロード済みです！\n\n" \
+          "📝 解決方法: pubspec.yaml の version を更新してください。\n" \
+          "   現在: version: #{version_name}+#{build_number}\n" \
+          "   変更例: version: #{version_name}+#{build_number.to_i + 1}")
+      else
+        raise e
+      end
+    end
   end
 
   # ============================================================
-  # TestFlightへのビルド+アップロード（従来のbetaレーン）
+  # TestFlightへのビルド+アップロード（従来のbetaレーン）CI用
   # ============================================================
   desc "TestFlightにビルドをアップロード"
   lane :beta do
     build_signed
     upload_testflight
-  end
-
-  # ============================================================
-  # App Store Connectへのアップロード（リリース用）
-  # ============================================================
-  desc "App Store Connectにビルドをアップロード"
-  lane :release do
-    beta
   end
 
   # ============================================================
@@ -173,7 +196,7 @@ platform :ios do
     # 証明書を同期
     sync_certificates
 
-    # プロジェクトルートのパスを取得（ios/fastlane から2階層上）
+    # プロジェクトルートのパスを取得（macos/fastlane から2階層上）
     project_root = File.expand_path("../..", __dir__)
     pubspec_path = File.join(project_root, "pubspec.yaml")
     
@@ -199,17 +222,12 @@ platform :ios do
     )
     UI.message("📝 Info.plist を更新: バージョン #{version_name}, ビルド番号 #{build_number}")
 
-    # ビルドキャッシュをクリーン（重要: 古いビルド結果を使わないようにする）
-    UI.message("🧹 ビルドキャッシュをクリーン中...")
-    xcclean(scheme: "Runner")
-
-    # IPAをビルド
-    build_app(
+    # Appをビルド
+    build_mac_app(
       scheme: "Runner",
       export_method: "app-store",
-      output_directory: "../build/ios/ipa",
-      output_name: "musical_note_calculator.ipa",
-      clean: true
+      output_directory: "../build/macos/Build/Products/Release",
+      output_name: "musical_note_calculator.pkg"
     )
 
     # ローカル用のApp Store Connect API認証設定
@@ -223,7 +241,7 @@ platform :ios do
     begin
       pilot(
         api_key: api_key,
-        ipa: "../build/ios/ipa/musical_note_calculator.ipa",
+        pkg: "../build/macos/Build/Products/Release/musical_note_calculator.pkg",
         skip_waiting_for_build_processing: true
       )
       UI.success("✅ ローカルからTestFlightへのアップロード完了")

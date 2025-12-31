@@ -2,9 +2,22 @@ name: Flutter macOS Build
 
 on:
   workflow_dispatch:
+    inputs:
+      upload_to_testflight:
+        description: 'TestFlightにアップロードする'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 jobs:
-  build:
+  # ============================================================
+  # Job 1: 署名なしビルド
+  # ============================================================
+  build-unsigned:
+    name: 署名なしmacOSビルド
     runs-on: macos-latest
 
     steps:
@@ -32,10 +45,100 @@ jobs:
     - name: Build macOS app (release)
       run: flutter build macos --release
 
-    - name: Upload macOS executable as artifact
+    - name: Upload macOS app as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: musical-note-calculator
+        name: musical-note-calculator-unsigned
         path: build/macos/Build/Products/Release/
         if-no-files-found: warn
         include-hidden-files: true
+
+  # ============================================================
+  # Job 2: 署名ありビルド + TestFlightアップロード（選択式）
+  # ============================================================
+  build-signed-and-upload:
+    name: 署名ありmacOSビルド & TestFlightアップロード
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Cache Flutter SDK
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.pub-cache
+          ~/.flutter
+        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-flutter-
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.38.3'
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: false
+
+    - name: Install Fastlane
+      run: |
+        cd macos
+        gem install bundler -v 2.5.0
+        bundle config set --local path 'vendor/bundle'
+        bundle install
+
+    - name: Setup Git and Match credentials
+      env:
+        MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        # Base64デコードしてプレーンテキストを取得
+        MATCH_GIT_BASIC_AUTHORIZATION_PLAIN=$(echo -n "${MATCH_GIT_BASIC_AUTHORIZATION}" | base64 --decode)
+        # デバッグ: 認証情報の長さを確認
+        echo "Auth plain length: ${#MATCH_GIT_BASIC_AUTHORIZATION_PLAIN}"
+        # Git認証情報を設定（プレーンテキスト形式: username:token）
+        echo "https://${MATCH_GIT_BASIC_AUTHORIZATION_PLAIN}@github.com" > ~/.git-credentials
+        git config --global credential.helper store
+
+    - name: Build Flutter macOS (no codesign)
+      run: flutter build macos --release
+
+    - name: Build signed App with Fastlane
+      env:
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+      run: |
+        cd macos
+        bundle exec fastlane build_signed
+
+    - name: Upload signed App as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: musical-note-calculator-signed
+        path: build/macos/Build/Products/Release/
+        if-no-files-found: warn
+        include-hidden-files: true
+
+    - name: Upload to TestFlight
+      if: ${{ inputs.upload_to_testflight == 'true' }}
+      env:
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+      run: |
+        cd macos
+        bundle exec fastlane upload_testflight
