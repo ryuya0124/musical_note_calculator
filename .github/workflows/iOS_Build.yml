@@ -103,9 +103,14 @@ jobs:
         bundle install
 
     - name: Setup Git for Match
+      env:
+        MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
       run: |
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
+        # Git認証情報を設定（username:token形式）
+        git config --global credential.helper store
+        echo "https://${MATCH_GIT_BASIC_AUTHORIZATION}@github.com" > ~/.git-credentials
 
     - name: Build signed IPA with Fastlane
       env:
