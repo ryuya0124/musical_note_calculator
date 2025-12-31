@@ -6,5 +6,7 @@ type("appstore") # App Store用の証明書とプロビジョニングプロフ�
 
 app_identifier("net.ryuya-dev.mnc")
 
-# For all available options run `fastlane match --help`
-# The docs are available on https://docs.fastlane.tools/actions/match
+# CI環境用のGit認証（環境変数 MATCH_GIT_BASIC_AUTHORIZATION から読み込み）
+if ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+  git_basic_authorization(ENV["MATCH_GIT_BASIC_AUTHORIZATION"])
+end
