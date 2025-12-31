@@ -98,7 +98,7 @@ jobs:
     - name: Install Fastlane
       run: |
         cd ios
-        gem install bundler
+        gem install bundler -v 2.5.0
         bundle config set --local path 'vendor/bundle'
         bundle install
 
