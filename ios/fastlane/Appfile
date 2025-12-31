@@ -1,5 +1,5 @@
 app_identifier("net.ryuya-dev.mnc") # Bundle ID
-apple_id("ryuya0124+dev@icloud.com") # Apple IDメールアドレス（任意）
+apple_id("ryuya0124.dev@icloud.com") # Apple IDメールアドレス（任意）
 
 team_id("FZ35ZF3CZV") # Developer Portal Team ID
 

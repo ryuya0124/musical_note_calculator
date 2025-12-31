@@ -11,6 +11,7 @@ platform :ios do
   desc "証明書とプロビジョニングプロファイルを同期"
   lane :sync_certificates do
     match(
+      git_url: "https://github.com/ryuya0124/Apple_Certificates",
       type: "appstore",
       readonly: is_ci
     )
