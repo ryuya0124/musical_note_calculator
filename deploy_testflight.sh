@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# TestFlightアップロードスクリプト
+# iOS TestFlightアップロードスクリプト
 # 使い方: ./deploy_testflight.sh
 # ============================================================
 
@@ -22,15 +22,53 @@ BUILD_NUMBER=$(echo "$VERSION" | cut -d'+' -f2)
 
 echo -e "${YELLOW}📦 pubspec.yaml から取得: バージョン ${VERSION_NAME}, ビルド番号 ${BUILD_NUMBER}${NC}"
 
-# iosディレクトリでfastlaneを実行
-echo -e "${YELLOW}🚀 fastlane local_testflight を実行中...${NC}"
+# 最初に証明書を同期
+echo -e "${YELLOW}🔐 証明書を同期中...${NC}"
+cd ios
+fastlane sync_certificates
+cd ..
+
+# Info.plistを直接書き換え（Xcodeの自動インクリメントを回避）
+echo -e "${YELLOW}🔧 Info.plistのビルド番号を直接設定中...${NC}"
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${BUILD_NUMBER}" ios/Runner/Info.plist
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${VERSION_NAME}" ios/Runner/Info.plist
+
+# ビルドキャッシュをクリーン
+echo -e "${YELLOW}🧹 ビルドキャッシュをクリーン中...${NC}"
+flutter clean
+flutter pub get
+
+# Flutter でIPAをビルド（pubspec.yamlのビルド番号を使用）
+echo -e "${YELLOW}🔨 Flutter IPAをビルド中...${NC}"
+flutter build ipa --release --build-number="${BUILD_NUMBER}" --build-name="${VERSION_NAME}" --export-options-plist=ios/ExportOptions.plist
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}❌ ビルドに失敗しました${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ ビルド完了${NC}"
+
+# ビルドされたIPAのビルド番号を確認
+echo -e "${YELLOW}🔍 IPAのビルド番号を確認中...${NC}"
+IPA_BUILD_NUMBER=$(unzip -p build/ios/ipa/*.ipa Payload/Runner.app/Info.plist | plutil -p - | grep CFBundleVersion | sed 's/.*=> "//' | sed 's/"//')
+echo -e "   IPAのビルド番号: ${IPA_BUILD_NUMBER}"
+
+if [ "$IPA_BUILD_NUMBER" != "$BUILD_NUMBER" ]; then
+    echo -e "${RED}❌ エラー: IPAのビルド番号(${IPA_BUILD_NUMBER})がpubspec.yaml(${BUILD_NUMBER})と異なります！${NC}"
+    echo -e "${YELLOW}   ビルドを中止します。${NC}"
+    exit 1
+fi
+
+# fastlaneでTestFlightにアップロード
+echo -e "${YELLOW}🚀 TestFlightにアップロード中...${NC}"
 cd ios
 
-OUTPUT=$(fastlane local_testflight 2>&1) || {
+OUTPUT=$(fastlane upload_local 2>&1) || {
     EXIT_CODE=$?
     
     # ビルド番号重複エラーチェック
-    if echo "$OUTPUT" | grep -qE "(redundant binary upload|already exists|This build already exists|has already been uploaded)"; then
+    if echo "$OUTPUT" | grep -qE "(redundant binary upload|already exists|This build already exists|has already been uploaded|must be higher than|DUPLICATE|has already been used)"; then
         echo ""
         echo -e "${RED}❌ ビルド番号 ${BUILD_NUMBER} は既にTestFlightにアップロード済みです！${NC}"
         echo ""

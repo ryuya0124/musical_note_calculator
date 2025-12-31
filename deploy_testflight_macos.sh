@@ -22,6 +22,17 @@ BUILD_NUMBER=$(echo "$VERSION" | cut -d'+' -f2)
 
 echo -e "${YELLOW}📦 pubspec.yaml から取得: バージョン ${VERSION_NAME}, ビルド番号 ${BUILD_NUMBER}${NC}"
 
+# FlutterでmacOSアプリをビルド
+echo -e "${YELLOW}🔨 Flutter macOS アプリをビルド中...${NC}"
+flutter build macos --release
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}❌ ビルドに失敗しました${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ ビルド完了${NC}"
+
 # macosディレクトリでfastlaneを実行
 echo -e "${YELLOW}🚀 fastlane local_testflight を実行中...${NC}"
 cd macos
@@ -30,7 +41,7 @@ OUTPUT=$(fastlane local_testflight 2>&1) || {
     EXIT_CODE=$?
     
     # ビルド番号重複エラーチェック
-    if echo "$OUTPUT" | grep -qE "(redundant binary upload|already exists|This build already exists|has already been uploaded)"; then
+    if echo "$OUTPUT" | grep -qE "(redundant binary upload|already exists|This build already exists|has already been uploaded|must be higher than|DUPLICATE|has already been used)"; then
         echo ""
         echo -e "${RED}❌ ビルド番号 ${BUILD_NUMBER} は既にTestFlightにアップロード済みです！${NC}"
         echo ""
