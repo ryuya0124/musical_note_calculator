@@ -42,8 +42,20 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
 
-    - name: Build macOS app (release)
-      run: flutter build macos --release
+    - name: Build macOS app (unsigned)
+      run: |
+        # Flutter設定とPod install
+        flutter build macos --config-only
+        cd macos && pod install && cd ..
+        # 署名なしでビルド
+        xcodebuild -workspace macos/Runner.xcworkspace \
+          -scheme Runner \
+          -configuration Release \
+          -derivedDataPath build/macos \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          ONLY_ACTIVE_ARCH=NO
 
     - name: Upload macOS app as artifact
       uses: actions/upload-artifact@v4
