@@ -65,6 +65,32 @@ platform :mac do
     # 証明書を同期
     sync_certificates
 
+    # プロジェクトルートのパスを取得（macos/fastlane から2階層上）
+    project_root = File.expand_path("../..", __dir__)
+    pubspec_path = File.join(project_root, "pubspec.yaml")
+    
+    # pubspec.yamlからバージョン情報を取得
+    pubspec_content = File.read(pubspec_path)
+    version_match = pubspec_content.match(/version:\s*(\d+\.\d+\.\d+)\+(\d+)/)
+    
+    if version_match
+      version_name = version_match[1]
+      build_number = version_match[2]
+      UI.message("📦 pubspec.yaml から取得: バージョン #{version_name}, ビルド番号 #{build_number}")
+    else
+      UI.user_error!("pubspec.yaml からバージョン情報を取得できませんでした")
+    end
+
+    # Info.plistを更新
+    update_info_plist(
+      plist_path: "Runner/Info.plist",
+      block: proc do |plist|
+        plist["CFBundleVersion"] = build_number
+        plist["CFBundleShortVersionString"] = version_name
+      end
+    )
+    UI.message("📝 Info.plist を更新: バージョン #{version_name}, ビルド番号 #{build_number}")
+
     # Appをビルド
     build_mac_app(
       scheme: "Runner",
