@@ -70,7 +70,7 @@ platform :mac do
       scheme: "Runner",
       export_method: "app-store",
       output_directory: "../build/macos/Build/Products/Release",
-      output_name: "musical_note_calculator.pkg"
+      output_name: "musical_note_calculator"
     )
 
     UI.success("署名ありAppビルド完了")
