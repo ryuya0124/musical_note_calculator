@@ -109,10 +109,21 @@ jobs:
         echo "https://${MATCH_GIT_BASIC_AUTHORIZATION_PLAIN}@github.com" > ~/.git-credentials
         git config --global credential.helper store
 
-    - name: Build Flutter macOS (no codesign)
+    - name: Sync certificates with Fastlane
+      env:
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+      run: |
+        cd macos
+        bundle exec fastlane sync_certificates
+
+    - name: Build Flutter macOS (release)
       run: flutter build macos --release
 
-    - name: Build signed App with Fastlane
+    - name: Build signed pkg with Fastlane
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
