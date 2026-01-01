@@ -21,11 +21,21 @@ platform :mac do
         lock_when_sleeps: false
       )
       
+      # CI環境用のAPI Key設定
+      api_key = app_store_connect_api_key(
+        key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+        issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+        key_content: ENV["APP_STORE_CONNECT_API_KEY_CONTENT"],
+        is_key_content_base64: true
+      )
+
       match(
         type: "appstore",
+        platform: "macos",
         readonly: true,
         keychain_name: "ci_keychain",
         keychain_password: ENV["MATCH_PASSWORD"],
+        api_key: api_key,
         additional_cert_types: ["mac_installer_distribution"]
       )
     else
