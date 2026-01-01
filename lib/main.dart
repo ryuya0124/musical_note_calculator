@@ -9,10 +9,16 @@ import 'Theme/custom_theme.dart';
 import 'Theme/materialDark.dart';
 import 'Theme/materialLight.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // SettingsModelを作成して初期化
+  final settingsModel = SettingsModel();
+  await settingsModel.initialize();
+  
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => SettingsModel(),
+    ChangeNotifierProvider.value(
+      value: settingsModel,
       child: const MyApp(),
     ),
   );

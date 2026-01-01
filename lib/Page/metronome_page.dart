@@ -56,15 +56,21 @@ class MetronomePageState extends State<MetronomePage>
     WidgetsBinding.instance.addObserver(this);
     _currentQuarterBpm = convertNoteDurationToBPM(widget.bpm, note);
 
-    metronome.init(
-      'assets/$weakTick', // 弱拍
-      accentedPath: 'assets/$strongTick', // 強拍（1拍目）
-      bpm: _currentQuarterBpm.toInt(),
-      volume: vol,
-      enableTickCallback: true,
-      timeSignature: selectedBeatOption,
-      sampleRate: 44100,
-    );
+    try {
+      metronome.init(
+        'assets/$weakTick', // 弱拍
+        accentedPath: 'assets/$strongTick', // 強拍（1拍目）
+        bpm: _currentQuarterBpm.toInt(),
+        volume: vol,
+        enableTickCallback: true,
+        timeSignature: selectedBeatOption,
+        sampleRate: 44100,
+      );
+    } catch (e) {
+      // iOS 25などで音声ファイルの読み込みに失敗した場合のエラーハンドリング
+      // エラーが発生してもアプリはクラッシュせず、メトロノームは無音で動作する
+      debugPrint('Metronome initialization failed: $e');
+    }
 
     _tickSubscription = metronome.tickStream.listen((_) {
       final now = DateTime.now().millisecondsSinceEpoch;

@@ -49,8 +49,11 @@ class SettingsModel extends ChangeNotifier {
     'thirty_second_note': true,
   };
 
-  SettingsModel() {
-    _loadSettings();
+  SettingsModel();
+
+  // 初期化メソッド（外部から呼び出す）
+  Future<void> initialize() async {
+    await _loadSettings();
   }
 
   List<JudgmentPreset> get allJudgmentPresets => [
