@@ -61,7 +61,7 @@ dev_dependencies:
 
 # アプリアイコン設定
 flutter_launcher_icons:
-  android: true
+  android: "launcher_icon"
   ios: false  # iOSはXcodeで手動設定
   image_path: "assets/icon/icon/icon_no_bg.png"
   adaptive_icon_background: "assets/icon/icon/icon_bg.PNG"

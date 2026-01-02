@@ -1,4 +1,4 @@
-package io.github.ryuya0124.musical.note.calculator;
+package net.ryuya_dev.mnc;
 
 import io.flutter.embedding.android.FlutterActivity;
 
