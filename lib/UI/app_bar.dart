@@ -31,6 +31,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
     final colorScheme = Theme.of(context).colorScheme;
 
+    // タブレット判定（画面幅600px以上）
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+
     // テキストの色をダークテーマ・ライトテーマに合わせて設定
     final titleTextColor = colorScheme.primary; // タイトルのテキスト色
     final tabTextColor = colorScheme.onSurface; // タブ名のテキスト色
@@ -50,14 +53,17 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   .titleLarge
                   ?.copyWith(color: titleTextColor), // タイトルのテキスト色
             ),
-            const SizedBox(width: 8), // タイトルとタブ名の間隔を調整
-            Text(
-              tabNames[selectedIndex], // 現在のタブ名を表示
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.normal,
-                    color: tabTextColor, // タブ名のテキスト色
-                  ),
-            ),
+            // タブレットの場合はタブ名を非表示
+            if (!isTablet) ...[
+              const SizedBox(width: 8), // タイトルとタブ名の間隔を調整
+              Text(
+                tabNames[selectedIndex], // 現在のタブ名を表示
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.normal,
+                      color: tabTextColor, // タブ名のテキスト色
+                    ),
+              ),
+            ],
           ],
         ),
         actions: [
