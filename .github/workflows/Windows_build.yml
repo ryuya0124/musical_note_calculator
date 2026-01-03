@@ -35,7 +35,7 @@ jobs:
     - name: Upload Windows executable as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: musical-note-calculator
+        name: rytmica-windows
         path: build\windows\x64\runner\Release\
         if-no-files-found: warn
         include-hidden-files: true

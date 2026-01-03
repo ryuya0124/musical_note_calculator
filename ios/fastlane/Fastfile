@@ -63,10 +63,10 @@ platform :ios do
       scheme: "Runner",
       export_method: "app-store",
       output_directory: "../build/ios/ipa",
-      output_name: "musical_note_calculator.ipa"
+      output_name: "Rytmica.ipa"
     )
 
-    UI.success("署名ありIPAビルド完了: build/ios/ipa/musical_note_calculator.ipa")
+    UI.success("署名ありIPAビルド完了: build/ios/ipa/Rytmica.ipa")
   end
 
   # ============================================================
@@ -103,7 +103,7 @@ platform :ios do
     begin
       pilot(
         api_key: api_key,
-        ipa: "../build/ios/ipa/musical_note_calculator.ipa",
+        ipa: "../build/ios/ipa/Rytmica.ipa",
         skip_waiting_for_build_processing: true
       )
       UI.success("✅ TestFlightへのアップロード完了")
@@ -141,7 +141,7 @@ platform :ios do
     # TestFlightにアップロード
     pilot(
       api_key: api_key,
-      ipa: "../build/ios/ipa/musical_note_calculator.ipa",
+      ipa: "../build/ios/ipa/Rytmica.ipa",
       skip_waiting_for_build_processing: true
     )
 
@@ -208,7 +208,7 @@ platform :ios do
       scheme: "Runner",
       export_method: "app-store",
       output_directory: "../build/ios/ipa",
-      output_name: "musical_note_calculator.ipa",
+      output_name: "Rytmica.ipa",
       clean: true
     )
 
@@ -223,7 +223,7 @@ platform :ios do
     begin
       pilot(
         api_key: api_key,
-        ipa: "../build/ios/ipa/musical_note_calculator.ipa",
+        ipa: "../build/ios/ipa/Rytmica.ipa",
         skip_waiting_for_build_processing: true
       )
       UI.success("✅ ローカルからTestFlightへのアップロード完了")

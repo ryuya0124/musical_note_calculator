@@ -50,14 +50,14 @@ jobs:
         mkdir -p build/ios/ipa/Payload
         cp -r build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
         cd build/ios/ipa
-        zip -r musical_note_calculator_unsigned.ipa Payload
+        zip -r Rytmica_unsigned.ipa Payload
         rm -rf Payload
 
     - name: Upload unsigned IPA as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: musical-note-calculator-unsigned.ipa
-        path: build/ios/ipa/musical_note_calculator_unsigned.ipa
+        name: rytmica-ios-unsigned
+        path: build/ios/ipa/Rytmica_unsigned.ipa
         if-no-files-found: warn
 
   # ============================================================
@@ -133,8 +133,8 @@ jobs:
     - name: Upload signed IPA as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: musical-note-calculator-signed.ipa
-        path: build/ios/ipa/musical_note_calculator.ipa
+        name: rytmica-ios-signed
+        path: build/ios/ipa/Rytmica.ipa
         if-no-files-found: warn
 
     - name: Upload to TestFlight
