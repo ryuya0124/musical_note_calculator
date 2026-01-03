@@ -105,5 +105,7 @@
   "note2JudgmentWindow": "ノーツ2の判定幅",
   "overlapArea": "重なり範囲",
   "anmitsuPossibleDesc": "判定幅が重なっているため、餡蜜が可能です",
-  "anmitsuImpossibleDesc": "判定幅が重なっていないため、餡蜜は不可能です"
+  "anmitsuImpossibleDesc": "判定幅が重なっていないため、餡蜜は不可能です",
+  "privacy_policy": "プライバシーポリシー",
+  "support": "サポート"
 }

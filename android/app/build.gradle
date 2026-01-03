@@ -28,6 +28,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // サポートする言語を指定（OS設定画面での言語選択を有効化）
+        resConfigs "en", "ja"
     }
 
     buildTypes {

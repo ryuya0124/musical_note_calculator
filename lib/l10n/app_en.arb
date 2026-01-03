@@ -105,5 +105,7 @@
   "note2JudgmentWindow": "Note 2 Judgment Window",
   "overlapArea": "Overlap Area",
   "anmitsuPossibleDesc": "The judgment windows overlap, so anmitsu is possible",
-  "anmitsuImpossibleDesc": "The judgment windows do not overlap, so anmitsu is impossible"
+  "anmitsuImpossibleDesc": "The judgment windows do not overlap, so anmitsu is impossible",
+  "privacy_policy": "Privacy Policy",
+  "support": "Support"
 }

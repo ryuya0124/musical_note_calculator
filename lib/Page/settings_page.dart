@@ -847,6 +847,10 @@ class SettingsPageState extends State<SettingsPage> {
         ),
         const SizedBox(height: 20),
         buildLicenceLink(context, colorScheme),
+        const SizedBox(height: 10),
+        buildPrivacyPolicyLink(context, colorScheme),
+        const SizedBox(height: 10),
+        buildSupportLink(context, colorScheme),
       ],
     );
   }
@@ -909,5 +913,81 @@ class SettingsPageState extends State<SettingsPage> {
         );
       }
     }
+  }
+
+  // プライバシーポリシー
+  Widget buildPrivacyPolicyLink(BuildContext context, ColorScheme colorScheme) {
+    return GestureDetector(
+      onTap: () async {
+        final Uri url = Uri.parse("https://mnc.ryuya-dev.net/privacy");
+        try {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to open the URL: $e')),
+            );
+          }
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10.0),
+        child: Row(
+          children: [
+            Icon(
+              Icons.privacy_tip,
+              color: colorScheme.primary,
+              size: 28,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              AppLocalizations.of(context)!.privacy_policy,
+              style: TextStyle(
+                fontSize: 16,
+                color: colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // サポート
+  Widget buildSupportLink(BuildContext context, ColorScheme colorScheme) {
+    return GestureDetector(
+      onTap: () async {
+        final Uri url = Uri.parse("https://mnc.ryuya-dev.net/support");
+        try {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to open the URL: $e')),
+            );
+          }
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10.0),
+        child: Row(
+          children: [
+            Icon(
+              Icons.support_agent,
+              color: colorScheme.primary,
+              size: 28,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              AppLocalizations.of(context)!.support,
+              style: TextStyle(
+                fontSize: 16,
+                color: colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
