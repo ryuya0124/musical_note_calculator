@@ -1,4 +1,4 @@
-# musical_note_calculator
+# Rytmica
 
 **BPMや音符関連の計算をするアプリ**
 

@@ -1,6 +1,6 @@
 {
-    "name": "musical_note_calculator",
-    "short_name": "musical_note_calculator",
+    "name": "Rytmica",
+    "short_name": "Rytmica",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
