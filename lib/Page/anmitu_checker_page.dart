@@ -316,22 +316,41 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
     final message = _statusMessage ??
         (_resultRows.isEmpty ? loc.no_Results_Available : null);
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: message != null
-            ? _buildPlaceholder(message, colorScheme)
-            : Column(
-                children: [
-                  for (int i = 0; i < _resultRows.length; i++) ...[
-                    _ResultTile(row: _resultRows[i]),
-                    if (i < _resultRows.length - 1)
-                      const Divider(height: 24, thickness: 0.5),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colorScheme.primaryContainer.withOpacity(0.3),
+            colorScheme.secondaryContainer.withOpacity(0.2),
+          ],
+        ),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.2),
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: message != null
+              ? _buildPlaceholder(message, colorScheme)
+              : Column(
+                  children: [
+                    for (int i = 0; i < _resultRows.length; i++) ...[
+                      _ResultTile(row: _resultRows[i]),
+                      if (i < _resultRows.length - 1)
+                        Divider(
+                          height: 24,
+                          thickness: 0.5,
+                          color: colorScheme.outline.withOpacity(0.3),
+                        ),
+                    ],
                   ],
-                ],
-              ),
+                ),
+        ),
       ),
     );
   }
@@ -342,38 +361,68 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
     final decimals = settingsModel.numDecimal;
 
     if (_calcResult == null) {
-      return Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: _buildPlaceholder(loc.no_Results_Available, colorScheme),
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              colorScheme.tertiaryContainer.withOpacity(0.3),
+              colorScheme.secondaryContainer.withOpacity(0.2),
+            ],
+          ),
+          border: Border.all(
+            color: colorScheme.outline.withOpacity(0.2),
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: _buildPlaceholder(loc.no_Results_Available, colorScheme),
+          ),
         ),
       );
     }
 
     final result = _calcResult!;
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              loc.viewDiagram,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            _JudgmentDiagram(
-              result: result,
-              decimals: decimals,
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colorScheme.tertiaryContainer.withOpacity(0.3),
+            colorScheme.secondaryContainer.withOpacity(0.2),
           ],
+        ),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.2),
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                loc.viewDiagram,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              _JudgmentDiagram(
+                result: result,
+                decimals: decimals,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -688,16 +737,30 @@ class _JudgmentDiagram extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 図の描画（ClipRectで完全に領域を分離）
+        // 図の描画（モダンなグラデーション背景付き）
         Container(
           decoration: BoxDecoration(
-            border: Border.all(color: colorScheme.outlineVariant),
-            borderRadius: BorderRadius.circular(8),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                colorScheme.surfaceContainerHighest,
+                colorScheme.surfaceContainer,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(16),
             child: AspectRatio(
-              aspectRatio: 1.2, // 横:縦 = 1.2:1 で動的にサイズ調整
+              aspectRatio: 1.2,
               child: _DiagramCanvas(
                 result: result,
                 decimals: decimals,
@@ -707,14 +770,14 @@ class _JudgmentDiagram extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
 
-        // 凡例
+        // 凡例（ピル型のモダンなデザイン）
         _buildLegend(context, colorScheme, loc),
 
         const SizedBox(height: 16),
 
-        // 結果テキスト
+        // 結果テキスト（グラデーション背景）
         _buildResultInfo(context, colorScheme, loc),
       ],
     );
@@ -745,44 +808,88 @@ class _JudgmentDiagram extends StatelessWidget {
   Widget _buildResultInfo(
       BuildContext context, ColorScheme colorScheme, AppLocalizations loc) {
     final theme = Theme.of(context);
+    final isPositive = result.anmituValue > 0;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: result.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: result.color.withValues(alpha: 0.3),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            result.color.withOpacity(0.15),
+            result.color.withOpacity(0.05),
+          ],
         ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: result.color.withOpacity(0.4),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: result.color.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                loc.overlapArea,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+              // 結果アイコン
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: result.color.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isPositive ? Icons.check_circle_outline : Icons.cancel_outlined,
+                  color: result.color,
+                  size: 24,
                 ),
               ),
-              Text(
-                '${result.anmituValue.toStringAsFixed(decimals)} ms',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: result.color,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      loc.overlapArea,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${result.anmituValue.toStringAsFixed(decimals)} ms',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: result.color,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            result.anmituValue > 0
-                ? loc.anmitsuPossibleDesc
-                : loc.anmitsuImpossibleDesc,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: colorScheme.surface.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              isPositive
+                  ? loc.anmitsuPossibleDesc
+                  : loc.anmitsuImpossibleDesc,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -802,24 +909,45 @@ class _LegendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.grey.shade400),
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withOpacity(0.5),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.4),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ],
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -957,7 +1085,7 @@ class _JudgmentDiagramPainterVertical extends CustomPainter {
       '2',
     );
 
-    // 重なりエリアの描画
+    // 重なりエリアの描画（モダンなグロー効果付き）
     if (overlapMs > 0) {
       final note1LateEnd = note1CenterY + note1LateHeight;
       final note2EarlyStart = note2CenterY - note2EarlyHeight;
@@ -965,43 +1093,51 @@ class _JudgmentDiagramPainterVertical extends CustomPainter {
       final overlapTop = note2EarlyStart;
       final overlapBottom = note1LateEnd;
 
-      final overlapPaint = Paint()
-        ..color = Colors.red.shade300.withValues(alpha: 0.6)
-        ..style = PaintingStyle.fill;
-
-      canvas.drawRect(
+      // 角丸矩形で重なりエリアを描画
+      const overlapRadius = 8.0;
+      final overlapRRect = RRect.fromRectAndRadius(
         Rect.fromLTWH(
-          note1X - noteWidth / 2,
+          note1X - noteWidth / 2 + 4,
           overlapTop,
-          note2X - note1X + noteWidth,
+          note2X - note1X + noteWidth - 8,
           overlapBottom - overlapTop,
         ),
-        overlapPaint,
+        const Radius.circular(overlapRadius),
       );
 
+      // グロー効果（シャドウ）
+      final glowPaint = Paint()
+        ..color = Colors.red.shade400.withOpacity(0.4)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+      canvas.drawRRect(overlapRRect, glowPaint);
+
+      // グラデーション塗りつぶし
+      final overlapGradient = Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.red.shade300.withOpacity(0.7),
+            Colors.red.shade500.withOpacity(0.5),
+          ],
+        ).createShader(overlapRRect.outerRect);
+      canvas.drawRRect(overlapRRect, overlapGradient);
+
+      // ボーダー
       final borderPaint = Paint()
         ..color = Colors.red.shade600
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
+      canvas.drawRRect(overlapRRect, borderPaint);
 
-      canvas.drawRect(
-        Rect.fromLTWH(
-          note1X - noteWidth / 2,
-          overlapTop,
-          note2X - note1X + noteWidth,
-          overlapBottom - overlapTop,
-        ),
-        borderPaint,
-      );
-
-      // 許容範囲のms表示
+      // 許容範囲のms表示（バッジスタイル）
       final overlapText = '${result.anmituValue.toStringAsFixed(decimals)} ms';
       final overlapTextPainter = TextPainter(
         text: TextSpan(
           text: overlapText,
           style: TextStyle(
-            color: Colors.red.shade800,
-            fontSize: 12,
+            color: Colors.white,
+            fontSize: 11,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -1009,25 +1145,37 @@ class _JudgmentDiagramPainterVertical extends CustomPainter {
       );
       overlapTextPainter.layout();
 
-      // テキストの背景
-      final textX = note2X + noteWidth / 2 + 8;
-      final textY =
-          (overlapTop + overlapBottom) / 2 - overlapTextPainter.height / 2;
+      // バッジの位置
+      final badgeCenterX = (note1X + note2X) / 2;
+      final badgeCenterY = (overlapTop + overlapBottom) / 2;
 
-      final bgPaint = Paint()
-        ..color = colorScheme.surface
-        ..style = PaintingStyle.fill;
-      canvas.drawRect(
-        Rect.fromLTWH(
-          textX - 4,
-          textY - 2,
-          overlapTextPainter.width + 8,
-          overlapTextPainter.height + 4,
+      // バッジ背景
+      final badgeRRect = RRect.fromRectAndRadius(
+        Rect.fromCenter(
+          center: Offset(badgeCenterX, badgeCenterY),
+          width: overlapTextPainter.width + 16,
+          height: overlapTextPainter.height + 10,
         ),
-        bgPaint,
+        const Radius.circular(12),
       );
 
-      overlapTextPainter.paint(canvas, Offset(textX, textY));
+      // バッジシャドウ
+      final badgeShadow = Paint()
+        ..color = Colors.red.shade900.withOpacity(0.3)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+      canvas.drawRRect(badgeRRect.shift(const Offset(0, 2)), badgeShadow);
+
+      // バッジ本体
+      final badgePaint = Paint()..color = Colors.red.shade600;
+      canvas.drawRRect(badgeRRect, badgePaint);
+
+      overlapTextPainter.paint(
+        canvas,
+        Offset(
+          badgeCenterX - overlapTextPainter.width / 2,
+          badgeCenterY - overlapTextPainter.height / 2,
+        ),
+      );
     }
 
     // ノーツ間隔の矢印を描画（縦向き）
@@ -1045,73 +1193,124 @@ class _JudgmentDiagramPainterVertical extends CustomPainter {
     String label,
     String noteNumber,
   ) {
-    final windowPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
+    // 角丸矩形の半径
+    const borderRadius = 12.0;
 
-    final borderPaint = Paint()
-      ..color = Colors.grey.shade600
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    // 判定幅の矩形（縦向き：上が早判定、下が遅判定）
-    final rect = Rect.fromLTWH(
-      x - width / 2,
-      centerY - earlyHeight,
-      width,
-      earlyHeight + lateHeight,
+    // 判定幅の角丸矩形（縦向き：上が早判定、下が遅判定）
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+        x - width / 2,
+        centerY - earlyHeight,
+        width,
+        earlyHeight + lateHeight,
+      ),
+      const Radius.circular(borderRadius),
     );
 
-    // 背景色で塗りつぶし
-    canvas.drawRect(rect, windowPaint);
+    // グラデーション塗りつぶし
+    final gradientPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          color.withOpacity(0.9),
+          color.withOpacity(0.5),
+        ],
+      ).createShader(rrect.outerRect);
 
-    // 斜線パターンを追加
-    _drawDiagonalPattern(canvas, rect, Colors.white.withValues(alpha: 0.3));
+    // シャドウ効果
+    final shadowPaint = Paint()
+      ..color = color.withOpacity(0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+    canvas.drawRRect(
+      rrect.shift(const Offset(0, 4)),
+      shadowPaint,
+    );
 
-    canvas.drawRect(rect, borderPaint);
+    // 背景を描画
+    canvas.drawRRect(rrect, gradientPaint);
 
-    // ノーツを四角形で描画（白い背景＋黒い枠）
-    const noteHeight = 16.0;
-    final notePaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+    // ボーダー（グロー効果）
+    final borderPaint = Paint()
+      ..color = color.withOpacity(0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawRRect(rrect, borderPaint);
 
-    final noteBorderPaint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    // ノーツの四角形
-    final noteRect = RRect.fromRectAndRadius(
+    // ノーツを角丸長方形で描画（グラデーション背景）
+    const noteHeight = 18.0;
+    final noteRRect = RRect.fromRectAndRadius(
       Rect.fromCenter(
         center: Offset(x, centerY),
-        width: width - 10,
+        width: width - 12,
         height: noteHeight,
       ),
-      const Radius.circular(2),
+      const Radius.circular(6),
     );
-    canvas.drawRRect(noteRect, notePaint);
-    canvas.drawRRect(noteRect, noteBorderPaint);
 
-    // ノーツラベル
+    // ノーツのグラデーション
+    final noteGradient = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.white,
+          Colors.grey.shade200,
+        ],
+      ).createShader(noteRRect.outerRect);
+
+    // ノーツのシャドウ
+    final noteShadow = Paint()
+      ..color = Colors.black.withOpacity(0.2)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+    canvas.drawRRect(noteRRect.shift(const Offset(0, 2)), noteShadow);
+
+    canvas.drawRRect(noteRRect, noteGradient);
+
+    final noteBorderPaint = Paint()
+      ..color = colorScheme.outline
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    canvas.drawRRect(noteRRect, noteBorderPaint);
+
+    // ノーツラベル（バッジスタイル）
+    final labelText = 'Note $noteNumber';
     final textPainter = TextPainter(
       text: TextSpan(
-        text: 'Note $noteNumber',
+        text: labelText,
         style: TextStyle(
           color: colorScheme.onSurface,
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.bold,
         ),
       ),
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
+
+    // ラベルの背景バッジ
+    final badgeRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(
+        center: Offset(x, centerY - earlyHeight - 16),
+        width: textPainter.width + 16,
+        height: textPainter.height + 8,
+      ),
+      const Radius.circular(10),
+    );
+    final badgePaint = Paint()..color = colorScheme.surfaceContainerHighest;
+    canvas.drawRRect(badgeRect, badgePaint);
+    final badgeBorder = Paint()
+      ..color = colorScheme.outline.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    canvas.drawRRect(badgeRect, badgeBorder);
+
     textPainter.paint(
       canvas,
-      Offset(x - textPainter.width / 2, centerY - earlyHeight - 20),
+      Offset(x - textPainter.width / 2, centerY - earlyHeight - 16 - textPainter.height / 2),
     );
 
-    // プリセットラベル
+    // プリセットラベル（下部）
     final presetPainter = TextPainter(
       text: TextSpan(
         text: label,
@@ -1125,7 +1324,7 @@ class _JudgmentDiagramPainterVertical extends CustomPainter {
     presetPainter.layout();
     presetPainter.paint(
       canvas,
-      Offset(x - presetPainter.width / 2, centerY + lateHeight + 8),
+      Offset(x - presetPainter.width / 2, centerY + lateHeight + 10),
     );
   }
 
@@ -1158,28 +1357,30 @@ class _JudgmentDiagramPainterVertical extends CustomPainter {
     double startY,
     double endY,
   ) {
-    final arrowX = size.width * 0.5;
+    // 矢印を右側に配置（オーバーラップエリアと被らないように）
+    final arrowX = size.width * 0.88;
     final arrowPaint = Paint()
       ..color = colorScheme.primary
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    // ノーツ1の横線（端から端まで）
+    // ノーツ1の横線（短めに）
     final linePaint = Paint()
-      ..color = colorScheme.primary.withValues(alpha: 0.5)
-      ..strokeWidth = 1
+      ..color = colorScheme.primary.withValues(alpha: 0.4)
+      ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
+    // 点線風に短い線で描画
     canvas.drawLine(
-      Offset(0, startY),
-      Offset(size.width, startY),
+      Offset(arrowX - 20, startY),
+      Offset(arrowX + 20, startY),
       linePaint,
     );
 
-    // ノーツ2の横線（端から端まで）
+    // ノーツ2の横線
     canvas.drawLine(
-      Offset(0, endY),
-      Offset(size.width, endY),
+      Offset(arrowX - 20, endY),
+      Offset(arrowX + 20, endY),
       linePaint,
     );
 
@@ -1203,14 +1404,14 @@ class _JudgmentDiagramPainterVertical extends CustomPainter {
       arrowPaint,
     );
 
-    // 間隔のテキスト
+    // 間隔のテキスト（矢印の左側に配置）
     final intervalText = '${result.noteLengthMs.toStringAsFixed(decimals)} ms';
     final textPainter = TextPainter(
       text: TextSpan(
         text: intervalText,
         style: TextStyle(
           color: colorScheme.primary,
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -1218,7 +1419,8 @@ class _JudgmentDiagramPainterVertical extends CustomPainter {
     );
     textPainter.layout();
 
-    final textX = arrowX + 15;
+    // 矢印の左側に配置
+    final textX = arrowX - textPainter.width - 12;
     final textY = (startY + endY) / 2 - textPainter.height / 2;
 
     // 背景を描画

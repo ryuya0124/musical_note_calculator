@@ -162,71 +162,113 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  // 定数のBorderRadius（パフォーマンス最適化）
+  // パフォーマンス最適化: 静的定数
   static const _cardBorderRadius = BorderRadius.all(Radius.circular(16));
-  static const _badgeBorderRadius = BorderRadius.all(Radius.circular(12));
+  static const _iconBorderRadius = BorderRadius.all(Radius.circular(12));
+  static const _arrowBorderRadius = BorderRadius.all(Radius.circular(10));
+  static const _cardPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 14);
+  static const _cardMargin = EdgeInsets.symmetric(vertical: 6, horizontal: 16);
+  static const _iconSize = 44.0;
+  static const _musicIcon = Icon(Icons.music_note_rounded, size: 24);
+  static const _arrowIcon = Icon(Icons.arrow_forward_ios_rounded, size: 16);
+
 
   Widget buildNoteCard(
       Map<String, String> note, Color appBarColor, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return RepaintBoundary(
-      child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
+      child: Container(
+        margin: _cardMargin,
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHigh,
           borderRadius: _cardBorderRadius,
+          border: Border.all(
+            color: colorScheme.outline.withOpacity(0.12),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
-        color: colorScheme.surfaceContainerHigh,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MetronomePage(
-                  bpm: double.parse(bpmController.text),
-                  note: note['name']!,
-                  interval: note['duration']!,
-                ),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context)!.getTranslation(note['name']!),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: colorScheme.onSurface,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: _cardBorderRadius,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MetronomePage(
+                    bpm: double.parse(bpmController.text),
+                    note: note['name']!,
+                    interval: note['duration']!,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              );
+            },
+            child: Padding(
+              padding: _cardPadding,
+              child: Row(
+                children: [
+                  // 音楽アイコン
+                  Container(
+                    width: _iconSize,
+                    height: _iconSize,
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
-                      borderRadius: _badgeBorderRadius,
+                      borderRadius: _iconBorderRadius,
                     ),
-                    child: Text(
-                      note['duration']!,
-                      style: TextStyle(
-                        color: colorScheme.onPrimaryContainer,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                    child: IconTheme(
+                      data: IconThemeData(color: colorScheme.onPrimaryContainer),
+                      child: _musicIcon,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 14),
+                  // テキスト部分
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.getTranslation(note['name']!),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: colorScheme.onSurface,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          note['duration']!,
+                          style: TextStyle(
+                            color: colorScheme.primary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 矢印アイコン
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest,
+                      borderRadius: _arrowBorderRadius,
+                    ),
+                    child: IconTheme(
+                      data: IconThemeData(color: colorScheme.onSurfaceVariant),
+                      child: _arrowIcon,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

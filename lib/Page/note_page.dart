@@ -178,55 +178,79 @@ class NotePageState extends State<NotePage> {
     );
   }
 
-  // 定数のBorderRadius（パフォーマンス最適化）
+  // パフォーマンス最適化: 静的定数
   static const _cardBorderRadius = BorderRadius.all(Radius.circular(16));
-  static const _badgeBorderRadius = BorderRadius.all(Radius.circular(12));
+  static const _iconBorderRadius = BorderRadius.all(Radius.circular(12));
+  static const _cardPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 14);
+  static const _cardMargin = EdgeInsets.symmetric(vertical: 6, horizontal: 16);
+  static const _iconSize = 44.0;
+  static const _frequencyIcon = Icon(Icons.graphic_eq_rounded, size: 24);
 
   Widget buildNoteCard(
       Map<String, String> note, Color appBarColor, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return RepaintBoundary(
-      child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
+      child: Container(
+        margin: _cardMargin,
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHigh,
           borderRadius: _cardBorderRadius,
+          border: Border.all(
+            color: colorScheme.outline.withOpacity(0.12),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
-        color: colorScheme.surfaceContainerHigh,
-        clipBehavior: Clip.antiAlias,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: _cardPadding,
           child: Row(
             children: [
-              Expanded(
-                child: Text(
-                  AppLocalizations.of(context)!.getTranslation(note['name']!),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: colorScheme.onSurface,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              // 周波数アイコン
+              Container(
+                width: _iconSize,
+                height: _iconSize,
+                decoration: BoxDecoration(
+                  color: colorScheme.secondaryContainer,
+                  borderRadius: _iconBorderRadius,
+                ),
+                child: IconTheme(
+                  data: IconThemeData(color: colorScheme.onSecondaryContainer),
+                  child: _frequencyIcon,
                 ),
               ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer,
-                    borderRadius: _badgeBorderRadius,
-                  ),
-                  child: Text(
-                    note['duration']!,
-                    style: TextStyle(
-                      color: colorScheme.onPrimaryContainer,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+              const SizedBox(width: 14),
+              // テキスト部分
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.getTranslation(note['name']!),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: colorScheme.onSurface,
+                        letterSpacing: 0.1,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                    const SizedBox(height: 4),
+                    Text(
+                      note['duration']!,
+                      style: TextStyle(
+                        color: colorScheme.secondary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
             ],
