@@ -151,14 +151,16 @@ class CalculatorPageState extends State<CalculatorPage> {
                         child: _speedIcon,
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        'BPM: $bpm',
-                        style: TextStyle(
-                          color: colorScheme.tertiary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                      Flexible(
+                        child: Text(
+                          'BPM: $bpm',
+                          style: TextStyle(
+                            color: colorScheme.tertiary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -223,49 +225,10 @@ class CalculatorPageState extends State<CalculatorPage> {
                 _toggleExpansion(title, expanded);
               },
                 children: [
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      // 画面幅（constraints.maxWidth）に基づいて列数を決定
-                      final width = constraints.maxWidth;
-                      
-                      final int crossAxisCount;
-                      if (width >= 800) {
-                        crossAxisCount = 3;
-                      } else if (width >= 500) {
-                         crossAxisCount = 2;
-                      } else {
-                        crossAxisCount = 1;
-                      }
-
-                      if (crossAxisCount == 1) {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: enabledNotesList.length,
-                          itemBuilder: (context, index) {
-                            return _buildNoteCard(enabledNotesList[index]['note']!,
-                                enabledNotesList[index]['bpm']!, context);
-                          },
-                        );
-                      }
-
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          childAspectRatio: 2.8,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        itemCount: enabledNotesList.length,
-                        itemBuilder: (context, index) {
-                          return _buildNoteCard(enabledNotesList[index]['note']!,
-                              enabledNotesList[index]['bpm']!, context);
-                        },
-                      );
-                    },
+                  Column(
+                    children: enabledNotesList.map((note) {
+                      return _buildNoteCard(note['note']!, note['bpm']!, context);
+                    }).toList(),
                   ),
                 ],
               );

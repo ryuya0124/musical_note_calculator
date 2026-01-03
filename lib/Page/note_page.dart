@@ -155,34 +155,31 @@ class NotePageState extends State<NotePage> {
                     crossAxisCount = 1;
                   }
 
-                if (crossAxisCount == 1) {
-                  // 1列の場合は従来のListViewを使用
-                  return ListView.builder(
-                    cacheExtent: 500,
-                    itemCount: filteredNotes.length,
-                    itemBuilder: (context, index) {
-                      return buildNoteCard(filteredNotes[index], appBarColor, context);
-                    },
-                  );
-                }
+                  // カラムごとにリストを分割して、それぞれのカラムで縦に並べる
+                  final List<List<Map<String, String>>> columns =
+                      List.generate(crossAxisCount, (_) => []);
 
-                // 2列以上の場合はGridViewを使用
-                return GridView.builder(
-                  cacheExtent: 500,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    childAspectRatio: 2.8,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemCount: filteredNotes.length,
-                  itemBuilder: (context, index) {
-                    return buildNoteCard(filteredNotes[index], appBarColor, context);
-                  },
-                );
-              },
-            ),
+                  for (var i = 0; i < filteredNotes.length; i++) {
+                    columns[i % crossAxisCount].add(filteredNotes[i]);
+                  }
+
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: List.generate(crossAxisCount, (colIndex) {
+                        return Expanded(
+                          child: Column(
+                            children: columns[colIndex].map((note) {
+                              return buildNoteCard(note, appBarColor, context);
+                            }).toList(),
+                          ),
+                        );
+                      }),
+                    ),
+                  );
+                },
+              ),
     );
   }
 
