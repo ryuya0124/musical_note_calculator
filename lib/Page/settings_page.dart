@@ -42,7 +42,7 @@ class SettingsPageState extends State<SettingsPage> {
   late bool useMaterialYou;
 
   bool isDotted = false; // 付点音符フラグ
-  final int _selectedIndex = 4;
+  final int _selectedIndex = 5;
 
   //単位選択
   List<String> units = ['auto', 's', 'ms', 'µs'];
