@@ -784,6 +784,32 @@ class MetronomePainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height * 0.95);
     final rodLength = size.height * 0.85;
 
+    // --- メトロノーム本体 (Body) ---
+    final bodyPath = Path();
+    final double bodyBottomWidth = size.width * 0.6;
+    final double bodyTopWidth = size.width * 0.25;
+    final double bodyHeight = size.height * 0.9;
+    final double bodyBottomY = size.height;
+
+    bodyPath.moveTo(size.width / 2 - bodyTopWidth / 2, size.height - bodyHeight); // Top Left
+    bodyPath.lineTo(size.width / 2 + bodyTopWidth / 2, size.height - bodyHeight); // Top Right
+    bodyPath.lineTo(size.width / 2 + bodyBottomWidth / 2, bodyBottomY); // Bottom Right
+    bodyPath.lineTo(size.width / 2 - bodyBottomWidth / 2, bodyBottomY); // Bottom Left
+    bodyPath.close();
+
+    // 本体の塗りと枠線
+    final Paint bodyPaint = Paint()
+      ..color = onSurfaceColor.withValues(alpha: 0.05)
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(bodyPath, bodyPaint);
+
+    final Paint bodyBorderPaint = Paint()
+      ..color = onSurfaceColor.withValues(alpha: 0.1)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+    canvas.drawPath(bodyPath, bodyBorderPaint);
+
+    // --- 振り子 (Pendulum) ---
     // 棒 (Rod) のスタイル
     final Paint rodPaint = Paint()
       ..color = onSurfaceColor.withValues(alpha: 0.8)
