@@ -150,6 +150,7 @@ class NotePageState extends State<NotePage> {
                 if (crossAxisCount == 1) {
                   // 1列の場合は従来のListViewを使用
                   return ListView.builder(
+                    cacheExtent: 500,
                     itemCount: filteredNotes.length,
                     itemBuilder: (context, index) {
                       return buildNoteCard(filteredNotes[index], appBarColor, context);
@@ -159,6 +160,7 @@ class NotePageState extends State<NotePage> {
 
                 // 2列以上の場合はGridViewを使用
                 return GridView.builder(
+                  cacheExtent: 500,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
@@ -176,45 +178,58 @@ class NotePageState extends State<NotePage> {
     );
   }
 
+  // 定数のBorderRadius（パフォーマンス最適化）
+  static const _cardBorderRadius = BorderRadius.all(Radius.circular(16));
+  static const _badgeBorderRadius = BorderRadius.all(Radius.circular(12));
 
   Widget buildNoteCard(
       Map<String, String> note, Color appBarColor, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-          width: 1,
+    return RepaintBoundary(
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: _cardBorderRadius,
         ),
-      ),
-      color: colorScheme.surfaceContainerHigh,
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        title: Text(
-          AppLocalizations.of(context)!.getTranslation(note['name']!),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: colorScheme.primaryContainer.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            note['duration']!,
-            style: TextStyle(
-              color: colorScheme.primary,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+        color: colorScheme.surfaceContainerHigh,
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.getTranslation(note['name']!),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: colorScheme.onSurface,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: _badgeBorderRadius,
+                  ),
+                  child: Text(
+                    note['duration']!,
+                    style: TextStyle(
+                      color: colorScheme.onPrimaryContainer,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

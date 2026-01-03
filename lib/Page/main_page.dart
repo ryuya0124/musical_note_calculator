@@ -122,13 +122,20 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final isWideScreen = screenWidth >= 600;
-    final isExtendedRail = screenWidth >= 800;
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    // 最短辺を使用してスマホとタブレットを区別
+    // スマホは縦持ちで最短辺が360-430dp程度、タブレットは600dp以上
+    final shortestSide = mediaQuery.size.shortestSide;
+    // タブレット判定: 最短辺が600dp以上
+    final isTablet = shortestSide >= 600;
+    // NavigationRailのラベル展開: 横幅が1000dp以上
+    final isExtendedRail = screenWidth >= 1000;
     final colorScheme = Theme.of(context).colorScheme;
 
-    // 大画面（600dp以上）: NavigationRail + メインコンテンツ
-    if (isWideScreen) {
+    // タブレット（最短辺600dp以上）: NavigationRail + メインコンテンツ
+    if (isTablet) {
+
       return Scaffold(
         appBar: AppBarWidget(
           selectedIndex: _selectedIndex,

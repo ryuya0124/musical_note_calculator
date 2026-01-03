@@ -78,45 +78,58 @@ class CalculatorPageState extends State<CalculatorPage> {
     _notesStreamController.add(calculatedNotes);
   }
 
+  // 定数のBorderRadius（パフォーマンス最適化）
+  static const _cardBorderRadius = BorderRadius.all(Radius.circular(16));
+  static const _badgeBorderRadius = BorderRadius.all(Radius.circular(12));
+
   // カード内で音符の計算結果を表示
   Widget _buildNoteCard(String note, String bpm, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      margin:
-          const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-          width: 1,
+    return RepaintBoundary(
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: _cardBorderRadius,
         ),
-      ),
-      color: colorScheme.surfaceContainerHigh,
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        title: Text(
-          AppLocalizations.of(context)!.getTranslation(note),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: colorScheme.primaryContainer.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            'BPM: $bpm',
-            style: TextStyle(
-              color: colorScheme.primary,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+        color: colorScheme.surfaceContainerHigh,
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.getTranslation(note),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: colorScheme.onSurface,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: _badgeBorderRadius,
+                  ),
+                  child: Text(
+                    'BPM: $bpm',
+                    style: TextStyle(
+                      color: colorScheme.onPrimaryContainer,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -146,50 +159,48 @@ class CalculatorPageState extends State<CalculatorPage> {
       return enabledNotes[note['note']] ?? false;
     }).toList();
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-          width: 1,
+    return RepaintBoundary(
+      child: Card(
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: _cardBorderRadius,
         ),
-      ),
-      color: colorScheme.surfaceContainer,
-      margin: const EdgeInsets.symmetric(
-          horizontal: 16.0, vertical: 10.0),
-      child: StreamBuilder<bool>(
-        stream: _getExpansionStream(title),
-        initialData: false,
-        builder: (context, snapshot) {
-          final isExpanded = snapshot.data ?? false;
+        color: colorScheme.surfaceContainer,
+        clipBehavior: Clip.antiAlias,
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+        child: StreamBuilder<bool>(
+          stream: _getExpansionStream(title),
+          initialData: false,
+          builder: (context, snapshot) {
+            final isExpanded = snapshot.data ?? false;
 
-          return ExpansionTile(
-            title: Text(
-              AppLocalizations.of(context)!.getTranslation(title),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: colorScheme.onSurface,
+            return ExpansionTile(
+              title: Text(
+                AppLocalizations.of(context)!.getTranslation(title),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: colorScheme.onSurface,
+                ),
               ),
-            ),
-            trailing: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
-            onExpansionChanged: (bool expanded) {
-              _toggleExpansion(title, expanded);
-            },
-            children: [
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: enabledNotesList.length,
-                itemBuilder: (context, index) {
-                  return _buildNoteCard(enabledNotesList[index]['note']!,
-                      enabledNotesList[index]['bpm']!, context);
-                },
-              ),
-            ],
-          );
-        },
+              trailing: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
+              onExpansionChanged: (bool expanded) {
+                _toggleExpansion(title, expanded);
+              },
+              children: [
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: enabledNotesList.length,
+                  itemBuilder: (context, index) {
+                    return _buildNoteCard(enabledNotesList[index]['note']!,
+                        enabledNotesList[index]['bpm']!, context);
+                  },
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -238,6 +249,7 @@ class CalculatorPageState extends State<CalculatorPage> {
                       if (crossAxisCount == 1) {
                         // 1列の場合は従来のListViewを使用
                         return ListView(
+                          cacheExtent: 500,
                           children: filteredEntries
                               .map((entry) => _buildNoteGroup(
                                   entry.key, entry.value, enabledNotes, context))
@@ -247,10 +259,11 @@ class CalculatorPageState extends State<CalculatorPage> {
 
                       // 2列以上の場合はGridViewを使用
                       return GridView.builder(
+                        cacheExtent: 500,
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
-                          childAspectRatio: 1.5, // ExpansionTile用に縦長に
+                          childAspectRatio: 1.5,
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
                         ),

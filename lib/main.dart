@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'Page/main_page.dart'; // MainScreenのインポート
 import 'ParamData/settings_model.dart'; // SettingsModelのインポート
@@ -8,6 +9,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'Theme/custom_theme.dart';
 import 'Theme/materialDark.dart';
 import 'Theme/materialLight.dart';
+import 'dart:io';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +25,52 @@ void main() async {
     ),
   );
 }
+
+/// 画面回転の制御を行うウィジェット
+class OrientationController extends StatefulWidget {
+  final Widget child;
+  const OrientationController({super.key, required this.child});
+
+  @override
+  State<OrientationController> createState() => _OrientationControllerState();
+}
+
+class _OrientationControllerState extends State<OrientationController> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _setOrientations();
+  }
+
+  void _setOrientations() {
+    // デスクトップ（Windows/macOS/Linux）は常に回転許可
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      return;
+    }
+
+    // モバイル（Android/iOS）はデバイスサイズで判定
+    final shortestSide = MediaQuery.of(context).size.shortestSide;
+    final isTablet = shortestSide >= 600;
+
+    if (isTablet) {
+      // タブレット（iPad/Androidタブレット）: 回転許可
+      SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    } else {
+      // スマホ（iPhone/Androidスマホ）: 縦固定
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -76,7 +124,9 @@ class MyApp extends StatelessWidget {
                       ),
                     ),
               debugShowCheckedModeBanner: false,
-              home: const MainScreen(),
+              home: const OrientationController(
+                child: MainScreen(),
+              ),
             );
           },
         );

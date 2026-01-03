@@ -7,7 +7,6 @@ import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../UI/unit_dropdown.dart';
 import '../ParamData/notes.dart';
-import 'package:animations/animations.dart';
 
 class HomePage extends StatefulWidget {
   final TextEditingController bpmController; // bpmControllerを保持
@@ -27,7 +26,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   late FocusNode bpmFocusNode;
   late String selectedUnit;
   late StreamController<List<Map<String, String>>> _notesStreamController;
-  List<String> units = ['s', 'ms', 'µs'];
+  List<String> units = ['auto', 's', 'ms', 'µs'];
 
   @override
   void initState() {
@@ -133,6 +132,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               if (crossAxisCount == 1) {
                 // 1列の場合は従来のListViewを使用
                 return ListView.builder(
+                  cacheExtent: 500, // スクロール最適化
                   itemCount: filteredNotes.length,
                   itemBuilder: (context, index) {
                     return buildNoteCard(filteredNotes[index], appBarColor, context);
@@ -142,6 +142,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
               // 2列以上の場合はGridViewを使用
               return GridView.builder(
+                cacheExtent: 500, // スクロール最適化
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
@@ -161,63 +162,74 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+  // 定数のBorderRadius（パフォーマンス最適化）
+  static const _cardBorderRadius = BorderRadius.all(Radius.circular(16));
+  static const _badgeBorderRadius = BorderRadius.all(Radius.circular(12));
 
   Widget buildNoteCard(
       Map<String, String> note, Color appBarColor, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 0, // フラットデザインでボーダーを活かす
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-          width: 1,
+    return RepaintBoundary(
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: _cardBorderRadius,
         ),
-      ),
-      color: colorScheme.surfaceContainerHigh, // 背景と差別化された色
-      child: OpenContainer(
-        transitionType: ContainerTransitionType.fade,
-        closedElevation: 0.0,
-        closedColor: Colors.transparent, // 遷移前に透明に
-        transitionDuration: const Duration(milliseconds: 300),
-        closedBuilder: (BuildContext _, VoidCallback openContainer) {
-          return ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            title: Text(
-              AppLocalizations.of(context)!.getTranslation(note['name']!),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                note['duration']!,
-                style: TextStyle(
-                  color: colorScheme.primary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+        color: colorScheme.surfaceContainerHigh,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MetronomePage(
+                  bpm: double.parse(bpmController.text),
+                  note: note['name']!,
+                  interval: note['duration']!,
                 ),
               ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.getTranslation(note['name']!),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: colorScheme.onSurface,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: _badgeBorderRadius,
+                    ),
+                    child: Text(
+                      note['duration']!,
+                      style: TextStyle(
+                        color: colorScheme.onPrimaryContainer,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            onTap: openContainer, // タップでアニメーションを開始
-          );
-        },
-        openBuilder: (BuildContext context, VoidCallback _) {
-          return MetronomePage(
-            bpm: double.parse(bpmController.text),
-            note: note['name']!,
-            interval: note['duration']!,
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -243,26 +255,41 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
 
     final quarterNoteLengthMs = 60000.0 / bpm;
-    final conversionFactor = selectedUnit == 's'
-        ? 1 / 1000.0
-        : selectedUnit == 'µs'
-            ? 1000.0
-            : 1.0;
 
     final notesList = notes.map((note) {
-      final double duration = calculateNoteLength(
+      final double durationMs = calculateNoteLength(
           quarterNoteLengthMs, note.note,
           isDotted: note.dotted);
+
+      // auto選択時は値に応じて適切な単位を自動選択
+      String displayUnit;
+      double conversionFactor;
+      if (selectedUnit == 'auto') {
+        if (durationMs >= 1000) {
+          displayUnit = 's';
+          conversionFactor = 1 / 1000.0;
+        } else if (durationMs >= 1) {
+          displayUnit = 'ms';
+          conversionFactor = 1.0;
+        } else {
+          displayUnit = 'µs';
+          conversionFactor = 1000.0;
+        }
+      } else {
+        displayUnit = selectedUnit;
+        conversionFactor = selectedUnit == 's'
+            ? 1 / 1000.0
+            : selectedUnit == 'µs'
+                ? 1000.0
+                : 1.0;
+      }
+
       return {
         'name': note.name,
-        'duration': _formatDuration(duration, conversionFactor),
+        'duration': '${(durationMs * conversionFactor).toStringAsFixed(context.read<SettingsModel>().numDecimal)} $displayUnit',
       };
     }).toList();
 
-    _notesStreamController.add(notesList); // Streamにデータを流す
-  }
-
-  String _formatDuration(double duration, double conversionFactor) {
-    return '${(duration * conversionFactor).toStringAsFixed(context.read<SettingsModel>().numDecimal)} $selectedUnit';
+    _notesStreamController.add(notesList);
   }
 }

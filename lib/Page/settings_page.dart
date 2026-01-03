@@ -45,7 +45,7 @@ class SettingsPageState extends State<SettingsPage> {
   final int _selectedIndex = 4;
 
   //単位選択
-  List<String> units = ['s', 'ms', 'µs'];
+  List<String> units = ['auto', 's', 'ms', 'µs'];
   //単位選択
   List<String> timeScaleUnits = ['1s', '100ms', '10ms'];
 
@@ -78,6 +78,10 @@ class SettingsPageState extends State<SettingsPage> {
     presetLateController.dispose();
     super.dispose();
   }
+
+  // 定数のBorderRadius（パフォーマンス最適化）
+  static const _sectionCardBorderRadius = BorderRadius.all(Radius.circular(16));
+
   /// 統一されたセクションカードウィジェット
   Widget buildSectionCard({
     required BuildContext context,
@@ -86,33 +90,32 @@ class SettingsPageState extends State<SettingsPage> {
     EdgeInsetsGeometry? margin,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: margin ?? const EdgeInsets.only(bottom: 16),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-          width: 1,
+    return RepaintBoundary(
+      child: Card(
+        margin: margin ?? const EdgeInsets.only(bottom: 16),
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: _sectionCardBorderRadius,
         ),
-      ),
-      color: colorScheme.surfaceContainerLow,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
+        color: colorScheme.surfaceContainerLow,
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            child,
-          ],
+              const SizedBox(height: 16),
+              child,
+            ],
+          ),
         ),
       ),
     );
@@ -455,20 +458,18 @@ class SettingsPageState extends State<SettingsPage> {
             style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
         ...grouped.entries.map(
-          (MapEntry<String, List<JudgmentPreset>> entry) => Card(
-            margin: const EdgeInsets.symmetric(vertical: 6),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                width: 1,
+          (MapEntry<String, List<JudgmentPreset>> entry) => RepaintBoundary(
+            child: Card(
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              elevation: 0,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
               ),
-            ),
-            color: colorScheme.surfaceContainer,
-            child: ExpansionTile(
-              title: Text(entry.key),
-              children: entry.value
+              color: colorScheme.surfaceContainer,
+              clipBehavior: Clip.antiAlias,
+              child: ExpansionTile(
+                title: Text(entry.key),
+                children: entry.value
                   .map(
                     (preset) => ListTile(
                       title: Text(preset.label),
@@ -516,6 +517,7 @@ class SettingsPageState extends State<SettingsPage> {
                     ),
                   )
                   .toList(),
+              ),
             ),
           ),
         ),

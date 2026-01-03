@@ -6,7 +6,7 @@ import 'notes.dart';
 import 'judgment.dart';
 
 class SettingsModel extends ChangeNotifier {
-  String selectedUnit = 'ms';
+  String selectedUnit = 'auto';
   String selectedTimeScale = '1s';
   //小数の桁数設定
   int numDecimal = 2;
@@ -174,7 +174,7 @@ class SettingsModel extends ChangeNotifier {
     }
 
     // 時間単位を読み込む
-    selectedUnit = prefs.getString('selectedUnit') ?? 'ms';
+    selectedUnit = prefs.getString('selectedUnit') ?? 'auto';
 
     selectedTimeScale = prefs.getString('selectedTimeScale') ?? '1s';
 
