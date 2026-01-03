@@ -5,15 +5,18 @@ import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../ParamData/notes.dart';
 import '../ParamData/settings_model.dart';
+import 'metronome_page.dart';
 
 class CalculatorPage extends StatefulWidget {
   final TextEditingController bpmController; // bpmControllerを保持
   final FocusNode bpmFocusNode; // bpmFocusNodeを保持
+  final void Function(double bpm, String note, String interval)? onMetronomeRequest;
 
   const CalculatorPage({
     super.key,
     required this.bpmController, // requiredを使用して必須にする
     required this.bpmFocusNode,
+    this.onMetronomeRequest,
   });
 
   @override
@@ -88,82 +91,105 @@ class CalculatorPageState extends State<CalculatorPage> {
   static const _speedIcon = Icon(Icons.speed_rounded, size: 14);
 
 
-  Widget _buildNoteCard(String note, String bpm, BuildContext context) {
+  Widget _buildNoteCard(String noteName, String bpm, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return RepaintBoundary(
-      child: Container(
-        margin: _cardMargin,
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHigh,
-          borderRadius: _cardBorderRadius,
-          border: Border.all(
-            color: colorScheme.outline.withOpacity(0.12),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withOpacity(0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: _cardPadding,
-          child: Row(
-            children: [
-              // 計算アイコン
-              Container(
-                width: _iconSize,
-                height: _iconSize,
-                decoration: BoxDecoration(
-                  color: colorScheme.tertiaryContainer,
-                  borderRadius: _iconBorderRadius,
-                ),
-                child: IconTheme(
-                  data: IconThemeData(color: colorScheme.onTertiaryContainer),
-                  child: _calcIcon,
+      child: InkWell( // InkWellでラップしてタップ可能にする
+        borderRadius: _cardBorderRadius,
+        onTap: () {
+          final currentBpm = double.tryParse(bpmController.text) ?? 120.0;
+          final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
+
+          if (isTablet && widget.onMetronomeRequest != null) {
+            // Note: CalculatorPageではBPM換算であるため、メトロノームは換算後のBPMで4分音符を刻むのが一般的
+            widget.onMetronomeRequest!(currentBpm, '4', '0');
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MetronomePage(
+                  bpm: currentBpm,
+                  note: '4', 
+                  interval: '0',
                 ),
               ),
-              const SizedBox(width: 14),
-              // テキスト部分
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.getTranslation(note),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: colorScheme.onSurface,
-                        letterSpacing: 0.1,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        IconTheme(
-                          data: IconThemeData(color: colorScheme.tertiary),
-                          child: _speedIcon,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'BPM: $bpm',
-                          style: TextStyle(
-                            color: colorScheme.tertiary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+            );
+          }
+        },
+        child: Container(
+          margin: _cardMargin,
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHigh,
+            borderRadius: _cardBorderRadius,
+            border: Border.all(
+              color: colorScheme.outline.withOpacity(0.12),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withOpacity(0.06),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
             ],
+          ),
+          child: Padding(
+            padding: _cardPadding,
+            child: Row(
+              children: [
+                // 計算アイコン
+                Container(
+                  width: _iconSize,
+                  height: _iconSize,
+                  decoration: BoxDecoration(
+                    color: colorScheme.tertiaryContainer,
+                    borderRadius: _iconBorderRadius,
+                  ),
+                  child: IconTheme(
+                    data: IconThemeData(color: colorScheme.onTertiaryContainer),
+                    child: _calcIcon,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                // テキスト部分
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.getTranslation(noteName),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: colorScheme.onSurface,
+                          letterSpacing: 0.1,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          IconTheme(
+                            data: IconThemeData(color: colorScheme.tertiary),
+                            child: _speedIcon,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'BPM: $bpm',
+                            style: TextStyle(
+                              color: colorScheme.tertiary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -221,18 +247,53 @@ class CalculatorPageState extends State<CalculatorPage> {
               onExpansionChanged: (bool expanded) {
                 _toggleExpansion(title, expanded);
               },
-              children: [
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: enabledNotesList.length,
-                  itemBuilder: (context, index) {
-                    return _buildNoteCard(enabledNotesList[index]['note']!,
-                        enabledNotesList[index]['bpm']!, context);
-                  },
-                ),
-              ],
-            );
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      // 画面幅（constraints.maxWidth）に基づいて列数を決定
+                      final width = constraints.maxWidth;
+                      
+                      final int crossAxisCount;
+                      if (width >= 800) {
+                        crossAxisCount = 3;
+                      } else if (width >= 500) {
+                         crossAxisCount = 2;
+                      } else {
+                        crossAxisCount = 1;
+                      }
+
+                      if (crossAxisCount == 1) {
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: enabledNotesList.length,
+                          itemBuilder: (context, index) {
+                            return _buildNoteCard(enabledNotesList[index]['note']!,
+                                enabledNotesList[index]['bpm']!, context);
+                          },
+                        );
+                      }
+
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          childAspectRatio: 2.8,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemCount: enabledNotesList.length,
+                        itemBuilder: (context, index) {
+                          return _buildNoteCard(enabledNotesList[index]['note']!,
+                              enabledNotesList[index]['bpm']!, context);
+                        },
+                      );
+                    },
+                  ),
+                ],
+              );
           },
         ),
       ),

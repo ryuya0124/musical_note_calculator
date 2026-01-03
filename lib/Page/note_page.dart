@@ -6,15 +6,18 @@ import 'package:musical_note_calculator/extensions/app_localizations_extension.d
 import '../ParamData/settings_model.dart';
 import '../UI/unit_dropdown.dart';
 import '../ParamData/notes.dart';
+import 'metronome_page.dart';
 
 class NotePage extends StatefulWidget {
   final TextEditingController bpmController; // bpmControllerを保持
   final FocusNode bpmFocusNode; // bpmFocusNodeを保持
+  final void Function(double bpm, String note, String interval)? onMetronomeRequest;
 
   const NotePage({
     super.key,
     required this.bpmController, // requiredを使用して必須にする
     required this.bpmFocusNode,
+    this.onMetronomeRequest,
   });
 
   @override
@@ -139,13 +142,18 @@ class NotePageState extends State<NotePage> {
       child: bpmController.text.isEmpty || filteredNotes.isEmpty
           ? Center(child: Text(AppLocalizations.of(context)!.note_instruction))
           : LayoutBuilder(
-              builder: (context, constraints) {
-                // 大画面ではグリッド表示: 500dp以上で2列、800dp以上で3列
-                final crossAxisCount = constraints.maxWidth >= 800
-                    ? 3
-                    : constraints.maxWidth >= 500
-                        ? 2
-                        : 1;
+                builder: (context, constraints) {
+                  // 画面幅（constraints.maxWidth）に基づいて列数を決定
+                  final width = constraints.maxWidth;
+                  
+                  final int crossAxisCount;
+                  if (width >= 800) {
+                    crossAxisCount = 3;
+                  } else if (width >= 500) {
+                     crossAxisCount = 2;
+                  } else {
+                    crossAxisCount = 1;
+                  }
 
                 if (crossAxisCount == 1) {
                   // 1列の場合は従来のListViewを使用
@@ -189,71 +197,98 @@ class NotePageState extends State<NotePage> {
   Widget buildNoteCard(
       Map<String, String> note, Color appBarColor, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    
+    // noteマップから必要な情報を取得 (idがない場合はデフォルトで'4'を使用などの安全策)
+    final noteId = note['id'] ?? '4';
+    final noteName = note['name']!;
+    final duration = note['duration']!;
 
     return RepaintBoundary(
-      child: Container(
-        margin: _cardMargin,
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHigh,
-          borderRadius: _cardBorderRadius,
-          border: Border.all(
-            color: colorScheme.outline.withOpacity(0.12),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withOpacity(0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: _cardPadding,
-          child: Row(
-            children: [
-              // 周波数アイコン
-              Container(
-                width: _iconSize,
-                height: _iconSize,
-                decoration: BoxDecoration(
-                  color: colorScheme.secondaryContainer,
-                  borderRadius: _iconBorderRadius,
-                ),
-                child: IconTheme(
-                  data: IconThemeData(color: colorScheme.onSecondaryContainer),
-                  child: _frequencyIcon,
+      child: InkWell(
+        borderRadius: _cardBorderRadius,
+        onTap: () {
+          final bpm = double.tryParse(bpmController.text) ?? 120.0;
+          final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
+
+          if (isTablet && widget.onMetronomeRequest != null) {
+            widget.onMetronomeRequest!(bpm, noteId, '0');
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MetronomePage(
+                  bpm: bpm,
+                  note: noteId,
+                  interval: '0',
                 ),
               ),
-              const SizedBox(width: 14),
-              // テキスト部分
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.getTranslation(note['name']!),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: colorScheme.onSurface,
-                        letterSpacing: 0.1,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      note['duration']!,
-                      style: TextStyle(
-                        color: colorScheme.secondary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+            );
+          }
+        },
+        child: Container(
+          margin: _cardMargin,
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHigh,
+            borderRadius: _cardBorderRadius,
+            border: Border.all(
+              color: colorScheme.outline.withOpacity(0.12),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withOpacity(0.06),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
             ],
+          ),
+          child: Padding(
+            padding: _cardPadding,
+            child: Row(
+              children: [
+                // 周波数アイコン
+                Container(
+                  width: _iconSize,
+                  height: _iconSize,
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondaryContainer,
+                    borderRadius: _iconBorderRadius,
+                  ),
+                  child: IconTheme(
+                    data: IconThemeData(color: colorScheme.onSecondaryContainer),
+                    child: _frequencyIcon,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                // テキスト部分
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.getTranslation(noteName),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: colorScheme.onSurface,
+                          letterSpacing: 0.1,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        duration,
+                        style: TextStyle(
+                          color: colorScheme.secondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -292,8 +327,9 @@ class NotePageState extends State<NotePage> {
       );
 
       // フォーマットしてリストに追加
-      return {
+      return <String, String>{
         'name': note.name,
+        'id': note.note.toString(),
         'duration': _formatDuration(noteLength),
       };
     }).toList();

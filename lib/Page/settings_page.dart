@@ -286,12 +286,6 @@ class SettingsPageState extends State<SettingsPage> {
           title: loc.custom_notes,
           child: buildCustomNotesContent(context, colorScheme),
         ),
-        // 判定プリセットセクション
-        buildSectionCard(
-          context: context,
-          title: loc.judgment_presets,
-          child: buildJudgmentPresetContent(context, colorScheme),
-        ),
       ],
     );
   }
@@ -384,6 +378,12 @@ class SettingsPageState extends State<SettingsPage> {
               contentPadding: EdgeInsets.zero,
             ),
           ),
+        // 判定プリセットセクション
+        buildSectionCard(
+          context: context,
+          title: loc.judgment_presets,
+          child: buildJudgmentPresetContent(context, colorScheme),
+        ),
       ],
     );
   }

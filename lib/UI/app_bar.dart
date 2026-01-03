@@ -7,9 +7,12 @@ import 'dart:io';
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final int selectedIndex;
 
+  final List<Widget>? actions;
+
   const AppBarWidget({
     super.key,
     required this.selectedIndex,
+    this.actions,
   });
 
   @override
@@ -58,6 +61,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
         actions: [
+          if (actions != null) ...actions!,
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {

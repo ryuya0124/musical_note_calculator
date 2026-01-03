@@ -11,11 +11,13 @@ import '../ParamData/notes.dart';
 class HomePage extends StatefulWidget {
   final TextEditingController bpmController; // bpmControllerを保持
   final FocusNode bpmFocusNode; // bpmFocusNodeを保持
+  final void Function(double bpm, String note, String interval)? onMetronomeRequest;
 
   const HomePage({
     super.key,
-    required this.bpmController, // requiredを使用して必須にする
+    required this.bpmController,
     required this.bpmFocusNode,
+    this.onMetronomeRequest,
   });
   @override
   HomePageState createState() => HomePageState();
@@ -122,12 +124,20 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
           return LayoutBuilder(
             builder: (context, constraints) {
-              // 大画面ではグリッド表示: 500dp以上で2列、800dp以上で3列
-              final crossAxisCount = constraints.maxWidth >= 800
-                  ? 3
-                  : constraints.maxWidth >= 500
-                      ? 2
-                      : 1;
+              // 画面幅（constraints.maxWidth）に基づいて列数を決定
+              // Split Viewなどで幅が狭くなっている場合に対応
+              final width = constraints.maxWidth;
+              
+              final int crossAxisCount;
+              if (width >= 800) {
+                crossAxisCount = 3;
+              } else if (width >= 500) {
+                // 600 -> 500 に閾値を下げて、Split View時でも2列表示されやすくする
+                // ただし、極端に狭い場合は1列になる
+                crossAxisCount = 2;
+              } else {
+                crossAxisCount = 1;
+              }
 
               if (crossAxisCount == 1) {
                 // 1列の場合は従来のListViewを使用
@@ -199,16 +209,23 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
           child: InkWell(
             borderRadius: _cardBorderRadius,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MetronomePage(
-                    bpm: double.parse(bpmController.text),
-                    note: note['name']!,
-                    interval: note['duration']!,
+              final bpm = double.tryParse(bpmController.text) ?? 120.0;
+              final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
+
+              if (isTablet && widget.onMetronomeRequest != null) {
+                widget.onMetronomeRequest!(bpm, note['name']!, note['duration']!);
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MetronomePage(
+                      bpm: bpm,
+                      note: note['name']!,
+                      interval: note['duration']!,
+                    ),
                   ),
-                ),
-              );
+                );
+              }
             },
             child: Padding(
               padding: _cardPadding,
