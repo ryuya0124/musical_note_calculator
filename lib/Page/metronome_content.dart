@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
@@ -25,7 +26,7 @@ class MetronomeContent extends StatefulWidget {
 }
 
 class MetronomeContentState extends State<MetronomeContent>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   final metronome = Metronome();
   late double _currentQuarterBpm;
   late String note;
@@ -41,10 +42,9 @@ class MetronomeContentState extends State<MetronomeContent>
   int? customBeats;
 
   final _isPlayingController = StreamController<bool>.broadcast();
-  final _iconStateController = StreamController<bool>.broadcast();
-  StreamSubscription<int>? _tickSubscription;
-  bool isLeftIcon = true;
-  int lastUpdatedTime = 0;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
 
   // 音源のパス
   final String strongTick = 'metronome/metronome_tick_strong_48k_mono.wav';
@@ -63,20 +63,21 @@ class MetronomeContentState extends State<MetronomeContent>
       _currentQuarterBpm = 1;
     }
 
-    _initMetronome();
+    // アニメーション初期化
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: (60000 / _currentQuarterBpm).round()),
+    );
+    // 振り子の動き: -1.0 (左) <-> 1.0 (右)
+    // easeInOutSine で自然な減速・加速を表現
+    _animation = Tween<double>(begin: -1.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOutSine,
+      ),
+    );
 
-    _tickSubscription = metronome.tickStream.listen((_) {
-      final now = DateTime.now().millisecondsSinceEpoch;
-      if (now - lastUpdatedTime < 120) {
-        return;
-      }
-      lastUpdatedTime = now;
-      isLeftIcon = !isLeftIcon;
-      if (!_iconStateController.isClosed) {
-        _iconStateController.add(isLeftIcon);
-      }
-    });
-    _iconStateController.add(isLeftIcon);
+    _initMetronome();
   }
 
   @override
@@ -90,11 +91,12 @@ class MetronomeContentState extends State<MetronomeContent>
         _currentQuarterBpm = 1;
       }
       
-      // 再生中ならBPM更新
+      // アニメーション速度更新
+      _animationController.duration = Duration(milliseconds: (60000 / _currentQuarterBpm).round());
       if (isPlaying) {
+        _animationController.repeat(reverse: true);
         metronome.setBPM(_currentQuarterBpm.toInt());
       } else {
-        // メトロノーム自体は初期化済みなので再初期化の必要はないが、BPM値のセットはしておく
         metronome.setBPM(_currentQuarterBpm.toInt());
       }
     }
@@ -122,8 +124,7 @@ class MetronomeContentState extends State<MetronomeContent>
     stopMetronome();
     metronome.destroy();
     _isPlayingController.close();
-    _iconStateController.close();
-    _tickSubscription?.cancel();
+    _animationController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -187,6 +188,10 @@ class MetronomeContentState extends State<MetronomeContent>
     metronome.play();
     debugPrint('metronome.play() called');
 
+    // アニメーション開始 (Duration設定 -> Repeat)
+    _animationController.duration = Duration(milliseconds: (60000 / _currentQuarterBpm).round());
+    _animationController.repeat(reverse: true);
+
     isPlaying = true;
     _isPlayingController.sink.add(true);
   }
@@ -196,6 +201,9 @@ class MetronomeContentState extends State<MetronomeContent>
     debugPrint('Stopping metronome...');
     metronome.stop();
     debugPrint('metronome.stop() called');
+
+    _animationController.stop();
+    _animationController.reset();
 
     isPlaying = false;
     _isPlayingController.sink.add(false);
@@ -309,20 +317,14 @@ class MetronomeContentState extends State<MetronomeContent>
       ),
       child: AspectRatio(
         aspectRatio: 3 / 2,
-        child: StreamBuilder<bool>(
-          stream: _iconStateController.stream,
-          initialData: isLeftIcon,
-          builder: (context, snapshot) {
-            final showLeft = snapshot.data ?? true;
-            final assetPath = _metronomeAsset(context, showLeft);
-            return AnimatedSwitcher(
-              duration: const Duration(milliseconds: 120),
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
-              child: Image.asset(
-                assetPath,
-                key: ValueKey<String>(assetPath),
-                fit: BoxFit.contain,
+        child: AnimatedBuilder(
+          animation: _animation,
+          builder: (context, child) {
+            return CustomPaint(
+              painter: MetronomePainter(
+                angle: _animation.value * (math.pi / 4), // ±45度 (π/4)
+                color: colorScheme.primary,
+                onSurfaceColor: colorScheme.onSurface,
               ),
             );
           },
@@ -586,12 +588,7 @@ class MetronomeContentState extends State<MetronomeContent>
     return calculateNoteBPM(bpm, noteData, 4);
   }
 
-  String _metronomeAsset(BuildContext context, bool isLeft) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final position = isLeft ? 'left' : 'right';
-    final colorSuffix = isDarkMode ? '-white' : '';
-    return 'assets/metronome/metronome-$position$colorSuffix.png';
-  }
+  // String _metronomeAsset(BuildContext context, bool isLeft) ... removed
 
   String getLocalizedText(String key, BuildContext context) {
     return AppLocalizations.of(context)!.getTranslation(key);
@@ -767,5 +764,84 @@ class MetronomeContentState extends State<MetronomeContent>
         ),
       ],
     );
+  }
+}
+
+class MetronomePainter extends CustomPainter {
+  final double angle;
+  final Color color;
+  final Color onSurfaceColor;
+
+  MetronomePainter({
+    required this.angle,
+    required this.color,
+    required this.onSurfaceColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 描画の中心（支点）
+    final center = Offset(size.width / 2, size.height * 0.95);
+    final rodLength = size.height * 0.85;
+
+    // 棒 (Rod) のスタイル
+    final Paint rodPaint = Paint()
+      ..color = onSurfaceColor.withValues(alpha: 0.8)
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(angle);
+
+    // 1. 棒を描画
+    canvas.drawLine(const Offset(0, 0), Offset(0, -rodLength), rodPaint);
+
+    // 2. 支点 (Pivot) を描画
+    final Paint pivotPaint = Paint()
+      ..color = onSurfaceColor
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(const Offset(0, 0), 6, pivotPaint);
+
+    // 3. 重り (Bob) の位置計算
+    final double bobY = -rodLength * 0.8; 
+    final double bobWidth = 24.0;
+    final double bobHeight = 36.0;
+
+    final RRect bobRRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(
+        center: Offset(0, bobY),
+        width: bobWidth,
+        height: bobHeight,
+      ),
+      const Radius.circular(6),
+    );
+
+    // 影
+    canvas.drawShadow(
+        Path()..addRRect(bobRRect), Colors.black.withValues(alpha: 0.3), 4.0, true);
+
+    // 重りの本体
+    final Paint bobPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    canvas.drawRRect(bobRRect, bobPaint);
+
+    // 重りの枠線
+    final Paint bobBorderPaint = Paint()
+      ..color = onSurfaceColor.withValues(alpha: 0.9)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+    canvas.drawRRect(bobRRect, bobBorderPaint);
+
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant MetronomePainter oldDelegate) {
+    return oldDelegate.angle != angle ||
+        oldDelegate.color != color ||
+        oldDelegate.onSurfaceColor != onSurfaceColor;
   }
 }
