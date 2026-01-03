@@ -178,32 +178,84 @@ class MetronomePageState extends State<MetronomePage>
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 500),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildMetronomeVisualizer(context),
-                  const SizedBox(height: 20),
-                  buildBpmDisplay(context),
-                  const SizedBox(height: 12),
-                  buildNoteDisplay(context),
-                  const SizedBox(height: 16),
-                  buildQuarterNoteEquivalent(context),
-                  const SizedBox(height: 28),
-                  buildControlCard(context),
-                ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // 800dp以上で横並びレイアウト
+            final isWideScreen = constraints.maxWidth >= 800;
+
+            if (isWideScreen) {
+              return Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 32.0),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 900),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 左側: メトロノームビジュアライザー
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              buildMetronomeVisualizer(context),
+                              const SizedBox(height: 20),
+                              buildBpmDisplay(context),
+                              const SizedBox(height: 12),
+                              buildNoteDisplay(context),
+                              const SizedBox(height: 16),
+                              buildQuarterNoteEquivalent(context),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 32),
+                        // 右側: コントロールパネル
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              buildControlCard(context),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            // 小画面: 従来の縦並びレイアウト
+            return Center(
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildMetronomeVisualizer(context),
+                      const SizedBox(height: 20),
+                      buildBpmDisplay(context),
+                      const SizedBox(height: 12),
+                      buildNoteDisplay(context),
+                      const SizedBox(height: 16),
+                      buildQuarterNoteEquivalent(context),
+                      const SizedBox(height: 28),
+                      buildControlCard(context),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
   }
+
 
   Widget buildMetronomeVisualizer(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;

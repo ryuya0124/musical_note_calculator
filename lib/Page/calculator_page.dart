@@ -193,18 +193,58 @@ class CalculatorPageState extends State<CalculatorPage> {
                 }
 
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                  return ListView(
-                    children: snapshot.data!.keys.map((key) {
-                      // ノート名 (key) が有効かどうかを確認
-                      if (enabledNotes[key] ?? false) {
-                        // ノートが有効なら、_buildNoteGroup を呼び出して表示
-                        return _buildNoteGroup(
-                            key, snapshot.data![key]!, enabledNotes, context);
-                      } else {
-                        // ノートが無効なら、空のウィジェットを返す
-                        return const SizedBox.shrink(); // または他の非表示のウィジェット
+                  // 有効なノートのみをフィルタリング
+                  final filteredEntries = snapshot.data!.entries
+                      .where((entry) => enabledNotes[entry.key] ?? false)
+                      .toList();
+
+                  if (filteredEntries.isEmpty) {
+                    return Center(
+                      child: Text(
+                        AppLocalizations.of(context)!.calculator_instruction,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }
+
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      // 大画面ではグリッド表示: 600dp以上で2列、1000dp以上で3列
+                      final crossAxisCount = constraints.maxWidth >= 1000
+                          ? 3
+                          : constraints.maxWidth >= 600
+                              ? 2
+                              : 1;
+
+                      if (crossAxisCount == 1) {
+                        // 1列の場合は従来のListViewを使用
+                        return ListView(
+                          children: filteredEntries
+                              .map((entry) => _buildNoteGroup(
+                                  entry.key, entry.value, enabledNotes, context))
+                              .toList(),
+                        );
                       }
-                    }).toList(),
+
+                      // 2列以上の場合はGridViewを使用
+                      return GridView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          childAspectRatio: 1.5, // ExpansionTile用に縦長に
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemCount: filteredEntries.length,
+                        itemBuilder: (context, index) {
+                          final entry = filteredEntries[index];
+                          return _buildNoteGroup(
+                              entry.key, entry.value, enabledNotes, context);
+                        },
+                      );
+                    },
                   );
                 } else {
                   return Center(
@@ -224,3 +264,4 @@ class CalculatorPageState extends State<CalculatorPage> {
     );
   }
 }
+

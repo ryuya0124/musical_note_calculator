@@ -4,9 +4,10 @@ import 'home_page.dart';
 import 'note_page.dart';
 import 'calculator_page.dart';
 import '../UI/bottom_navigation_bar.dart'; // ナビゲーションバーをインポート
-import '../../UI/app_bar.dart';
-import '../../UI/bpm_input_section.dart';
+import '../UI/app_bar.dart';
+import '../UI/bpm_input_section.dart';
 import 'package:flutter/services.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -66,32 +67,102 @@ class _MainScreenState extends State<MainScreen> {
     super.dispose();
   }
 
+  /// NavigationRail用のナビゲーション先リストを構築
+  List<NavigationRailDestination> _buildNavigationRailDestinations(
+      BuildContext context, ColorScheme colorScheme) {
+    final loc = AppLocalizations.of(context)!;
+    
+    return [
+      NavigationRailDestination(
+        icon: Icon(Icons.music_note, color: colorScheme.onSurface),
+        selectedIcon: Icon(Icons.music_note, color: colorScheme.primary),
+        label: Text(loc.note_spacing),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.music_note_outlined, color: colorScheme.onSurface),
+        selectedIcon: Icon(Icons.music_note_outlined, color: colorScheme.primary),
+        label: Text(loc.note_count),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.calculate, color: colorScheme.onSurface),
+        selectedIcon: Icon(Icons.calculate, color: colorScheme.primary),
+        label: Text(loc.calculator),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.music_note_sharp, color: colorScheme.onSurface),
+        selectedIcon: Icon(Icons.music_note_sharp, color: colorScheme.primary),
+        label: Text(loc.anmitu),
+      ),
+    ];
+  }
+
+  /// メインコンテンツ部分を構築
+  Widget _buildMainContent() {
+    return Column(
+      children: [
+        // BpmInputSection をページリストの上に追加
+        BpmInputSection(
+          bpmController: bpmController,
+          bpmFocusNode: bpmFocusNode,
+        ),
+        Expanded(
+          // ページリスト
+          child: Stack(
+            children: List.generate(_pages.length, (index) {
+              return Offstage(
+                offstage: _selectedIndex != index,
+                child: _pages[index], // 現在選択されているページのみ表示
+              );
+            }),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isWideScreen = screenWidth >= 600;
+    final isExtendedRail = screenWidth >= 800;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // 大画面（600dp以上）: NavigationRail + メインコンテンツ
+    if (isWideScreen) {
+      return Scaffold(
+        appBar: AppBarWidget(
+          selectedIndex: _selectedIndex,
+        ),
+        body: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: _onTabSelected,
+              extended: isExtendedRail, // 800dp以上でラベル表示
+              minExtendedWidth: 180,
+              backgroundColor: colorScheme.surface,
+              indicatorColor: colorScheme.primaryContainer,
+              destinations: _buildNavigationRailDestinations(context, colorScheme),
+            ),
+            VerticalDivider(
+              thickness: 1,
+              width: 1,
+              color: colorScheme.outlineVariant,
+            ),
+            Expanded(
+              child: _buildMainContent(),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // 小画面（600dp未満）: 従来のBottomNavigationBar
     return Scaffold(
       appBar: AppBarWidget(
         selectedIndex: _selectedIndex,
       ),
-      body: Column(
-        children: [
-          // BpmInputSection をページリストの上に追加
-          BpmInputSection(
-            bpmController: bpmController,
-            bpmFocusNode: bpmFocusNode,
-          ),
-          Expanded(
-            // ページリスト
-            child: Stack(
-              children: List.generate(_pages.length, (index) {
-                return Offstage(
-                  offstage: _selectedIndex != index,
-                  child: _pages[index], // 現在選択されているページのみ表示
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
+      body: _buildMainContent(),
       bottomNavigationBar: BottomNavigationBarWidget(
         selectedIndex: _selectedIndex,
         onTabSelected: _onTabSelected, // コールバックを渡す

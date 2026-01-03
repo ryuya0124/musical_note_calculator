@@ -130,22 +130,52 @@ class NotePageState extends State<NotePage> {
 
   Widget buildNotesList(Map<String, bool> enabledNotes, Color appBarColor,
       List<Map<String, String>> notes) {
+    // 有効な音符のみをフィルタリング
+    final filteredNotes = notes
+        .where((note) => enabledNotes[note['name']] == true)
+        .toList();
+
     return Expanded(
-      child: bpmController.text.isEmpty
+      child: bpmController.text.isEmpty || filteredNotes.isEmpty
           ? Center(child: Text(AppLocalizations.of(context)!.note_instruction))
-          : ListView.builder(
-              itemCount: notes.length,
-              itemBuilder: (context, index) {
-                final note = notes[index];
-                if (enabledNotes[note['name']] == true) {
-                  return buildNoteCard(note, appBarColor, context);
-                } else {
-                  return Container();
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                // 大画面ではグリッド表示: 500dp以上で2列、800dp以上で3列
+                final crossAxisCount = constraints.maxWidth >= 800
+                    ? 3
+                    : constraints.maxWidth >= 500
+                        ? 2
+                        : 1;
+
+                if (crossAxisCount == 1) {
+                  // 1列の場合は従来のListViewを使用
+                  return ListView.builder(
+                    itemCount: filteredNotes.length,
+                    itemBuilder: (context, index) {
+                      return buildNoteCard(filteredNotes[index], appBarColor, context);
+                    },
+                  );
                 }
+
+                // 2列以上の場合はGridViewを使用
+                return GridView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    childAspectRatio: 2.8,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: filteredNotes.length,
+                  itemBuilder: (context, index) {
+                    return buildNoteCard(filteredNotes[index], appBarColor, context);
+                  },
+                );
               },
             ),
     );
   }
+
 
   Widget buildNoteCard(
       Map<String, String> note, Color appBarColor, BuildContext context) {

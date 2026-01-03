@@ -89,25 +89,83 @@ class SettingsPageState extends State<SettingsPage> {
       },
       child: Scaffold(
         appBar: AppBarWidget(selectedIndex: _selectedIndex),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildDisplaySettingsSection(context, colorScheme),
-                const SizedBox(height: 40),
-                buildAdvancedSettingsSection(context, colorScheme),
-                const SizedBox(height: 40),
-                buildAuthorSection(context, colorScheme),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            // 800dp以上で2カラムレイアウト
+            final isWideScreen = constraints.maxWidth >= 800;
+
+            if (isWideScreen) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 左カラム: 表示設定
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildDisplaySettingsSection(context, colorScheme),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    // 縦の区切り線
+                    VerticalDivider(
+                      thickness: 1,
+                      width: 1,
+                      color: colorScheme.outlineVariant,
+                    ),
+                    // 右カラム: 詳細設定 + アプリ情報
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildAdvancedSettingsSection(context, colorScheme),
+                              const SizedBox(height: 40),
+                              buildAuthorSection(context, colorScheme),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // 小画面: 従来の縦並びレイアウト
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildDisplaySettingsSection(context, colorScheme),
+                    const SizedBox(height: 40),
+                    buildAdvancedSettingsSection(context, colorScheme),
+                    const SizedBox(height: 40),
+                    buildAuthorSection(context, colorScheme),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
+
 
   Widget buildDisplaySettingsSection(
       BuildContext context, ColorScheme colorScheme) {
