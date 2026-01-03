@@ -622,6 +622,14 @@ class MetronomeContentState extends State<MetronomeContent>
       }
     }
 
+    // 現在の選択表示用のラベル
+    String currentLabel;
+    if (selectedBeatOption == customBeatSentinel) {
+      currentLabel = localizations.otherOption;
+    } else {
+      currentLabel = formatBeatLabel(selectedBeatOption);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -637,41 +645,86 @@ class MetronomeContentState extends State<MetronomeContent>
         Row(
           children: [
             Expanded(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color:
-                      colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(16),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  popupMenuTheme: PopupMenuThemeData(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 6,
+                    color: colorScheme.surfaceContainerHighest,
+                  ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<int>(
-                      isExpanded: true,
-                      value: selectedBeatOption,
-                      icon: const Icon(Icons.expand_more_rounded),
-                      items: [
-                        ...beatOptions.map(
-                          (b) => DropdownMenuItem<int>(
+                child: PopupMenuButton<int>(
+                  offset: const Offset(0, 8),
+                  itemBuilder: (context) {
+                    return [
+                      ...beatOptions.map((b) => PopupMenuItem(
                             value: b,
-                            child: Text(formatBeatLabel(b)),
+                            child: Text(
+                              formatBeatLabel(b),
+                              style: TextStyle(
+                                fontWeight: selectedBeatOption == b
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: selectedBeatOption == b
+                                    ? colorScheme.primary
+                                    : colorScheme.onSurface,
+                              ),
+                            ),
+                          )),
+                      PopupMenuItem(
+                        value: customBeatSentinel,
+                         child: Text(
+                          localizations.otherOption,
+                          style: TextStyle(
+                            fontWeight: selectedBeatOption == customBeatSentinel
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: selectedBeatOption == customBeatSentinel
+                                ? colorScheme.primary
+                                : colorScheme.onSurface,
                           ),
                         ),
-                        DropdownMenuItem<int>(
-                          value: customBeatSentinel,
-                          child: Text(localizations.otherOption),
+                      ),
+                    ];
+                  },
+                  onSelected: (val) {
+                    setState(() {
+                      selectedBeatOption = val;
+                    });
+                    if (isPlaying) {
+                      stopMetronome();
+                      startMetronome();
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 14.0),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.outline.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          currentLabel,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: colorScheme.onSurfaceVariant,
+                          size: 20,
                         ),
                       ],
-                      onChanged: (val) {
-                        if (val == null) return;
-                        setState(() {
-                          selectedBeatOption = val;
-                        });
-                        if (isPlaying) {
-                          stopMetronome();
-                          startMetronome();
-                        }
-                      },
                     ),
                   ),
                 ),
@@ -679,12 +732,24 @@ class MetronomeContentState extends State<MetronomeContent>
             ),
             const SizedBox(width: 12),
             if (selectedBeatOption == customBeatSentinel)
-              SizedBox(
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
                 width: 80,
                 child: TextField(
                   keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     labelText: localizations.beatLabel,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: colorScheme.outline.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: colorScheme.surfaceContainerHigh.withValues(alpha: 0.3),
                   ),
                   onChanged: (val) {
                     final parsed = int.tryParse(val);
