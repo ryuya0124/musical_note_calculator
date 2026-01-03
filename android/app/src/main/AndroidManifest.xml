@@ -3,6 +3,7 @@
         android:label="Rytmica"
         android:name="${applicationName}"
         android:enableOnBackInvokedCallback="true"
+        android:colorMode="wideColorGamut"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
@@ -31,6 +32,11 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Enable Impeller -->
+        <!-- Note: Impeller is default on recent Flutter versions for Android, but explicit setting can be useful for debugging or enforcement -->
+        <meta-data
+            android:name="io.flutter.embedding.android.ImpellerEnabled"
+            android:value="true" />
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>
 
