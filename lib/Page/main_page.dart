@@ -8,7 +8,9 @@ import '../UI/app_bar.dart';
 import '../UI/bpm_input_section.dart';
 import 'package:flutter/services.dart';
 import 'package:musical_note_calculator/l10n/app_localizations.dart';
+import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'metronome_content.dart';
+import '../UI/modern_side_bar.dart'; // import追加
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -134,31 +136,30 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  /// NavigationRail用のナビゲーション先リストを構築
-  List<NavigationRailDestination> _buildNavigationRailDestinations(
-      BuildContext context, ColorScheme colorScheme) {
+  /// ModernSideBar用のアイテムリストを構築
+  List<ModernSideBarItem> _buildSideBarItems(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     
     return [
-      NavigationRailDestination(
-        icon: Icon(Icons.music_note, color: colorScheme.onSurface),
-        selectedIcon: Icon(Icons.music_note, color: colorScheme.primary),
-        label: Text(loc.note_spacing),
+      ModernSideBarItem(
+        icon: Icons.music_note,
+        selectedIcon: Icons.music_note,
+        label: loc.note_spacing,
       ),
-      NavigationRailDestination(
-        icon: Icon(Icons.music_note_outlined, color: colorScheme.onSurface),
-        selectedIcon: Icon(Icons.music_note_outlined, color: colorScheme.primary),
-        label: Text(loc.note_count),
+      ModernSideBarItem(
+        icon: Icons.music_note_outlined,
+        selectedIcon: Icons.music_note_outlined,
+        label: loc.note_count,
       ),
-      NavigationRailDestination(
-        icon: Icon(Icons.calculate, color: colorScheme.onSurface),
-        selectedIcon: Icon(Icons.calculate, color: colorScheme.primary),
-        label: Text(loc.calculator),
+      ModernSideBarItem(
+        icon: Icons.calculate_outlined,
+        selectedIcon: Icons.calculate,
+        label: loc.calculator,
       ),
-      NavigationRailDestination(
-        icon: Icon(Icons.music_note_sharp, color: colorScheme.onSurface),
-        selectedIcon: Icon(Icons.music_note_sharp, color: colorScheme.primary),
-        label: Text(loc.anmitu),
+      ModernSideBarItem(
+        icon: Icons.music_note_sharp,
+        selectedIcon: Icons.music_note_sharp,
+        label: loc.anmitu,
       ),
     ];
   }
@@ -241,32 +242,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
             return Row(
               children: [
-                NavigationRail(
+                ModernSideBar(
                   selectedIndex: _selectedIndex,
                   onDestinationSelected: _onTabSelected,
-                  extended: isExtendedRail, 
-                  minExtendedWidth: 256, // 220 -> 256へ拡大
-                  backgroundColor: colorScheme.surface, // 背景色はテーマに従う
-                  indicatorColor: colorScheme.primaryContainer,
-                  // スタイル設定を追加して文字サイズを拡大
-                  labelType: isExtendedRail ? NavigationRailLabelType.none : NavigationRailLabelType.all,
-                  selectedLabelTextStyle: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
-                    letterSpacing: 0.5,
-                  ),
-                  unselectedLabelTextStyle: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurfaceVariant,
-                    letterSpacing: 0.2,
-                  ),
-                  selectedIconTheme: IconThemeData(size: 36, color: colorScheme.primary),
-                  unselectedIconTheme: IconThemeData(size: 32, color: colorScheme.onSurfaceVariant),
-                  groupAlignment: 0.0, // 中央揃え
-                  leading: const SizedBox(height: 32), // 上部に余白
-                  destinations: _buildNavigationRailDestinations(context, colorScheme),
+                  isExtended: isExtendedRail,
+                  destinations: _buildSideBarItems(context),
                 ),
                 VerticalDivider(
                   thickness: 1,

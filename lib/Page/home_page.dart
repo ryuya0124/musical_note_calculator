@@ -76,14 +76,16 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget buildUnitSwitchSection(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(right: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+      child: Wrap(
+        alignment: WrapAlignment.end,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 10,
+        runSpacing: 8,
         children: [
           Text(
             AppLocalizations.of(context)!.time_unit,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(width: 10),
           UnitDropdown(
             selectedUnit: selectedUnit,
             units: units,
