@@ -78,6 +78,45 @@ class SettingsPageState extends State<SettingsPage> {
     presetLateController.dispose();
     super.dispose();
   }
+  /// 統一されたセクションカードウィジェット
+  Widget buildSectionCard({
+    required BuildContext context,
+    required String title,
+    required Widget child,
+    EdgeInsetsGeometry? margin,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Card(
+      margin: margin ?? const EdgeInsets.only(bottom: 16),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1,
+        ),
+      ),
+      color: colorScheme.surfaceContainerLow,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,128 +208,140 @@ class SettingsPageState extends State<SettingsPage> {
 
   Widget buildDisplaySettingsSection(
       BuildContext context, ColorScheme colorScheme) {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context)!.display_settings,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
+        // 時間単位セクション
+        buildSectionCard(
+          context: context,
+          title: loc.time_unit,
+          child: UnitDropdown(
+            selectedUnit: context.watch<SettingsModel>().selectedUnit,
+            units: units,
+            onChanged: _handleUnitChange,
           ),
         ),
-        const SizedBox(height: 20),
-        buildTimeUnitDropdownSection(context, colorScheme),
-        const SizedBox(height: 20),
-        buildTimeScaleDropdownSection(context, colorScheme),
-        const SizedBox(height: 20),
-        buildNoteSettingsSection(context, colorScheme),
-        const SizedBox(height: 20),
-        buildCustomNotesSection(context, colorScheme), // カスタムノート追加
-        const SizedBox(height: 20),
-        buildJudgmentPresetSection(context, colorScheme),
+        // タイムスケールセクション
+        buildSectionCard(
+          context: context,
+          title: loc.timescale,
+          child: UnitDropdown(
+            selectedUnit: context.watch<SettingsModel>().selectedTimeScale,
+            units: timeScaleUnits,
+            onChanged: _handleTimeScaleUnitChange,
+          ),
+        ),
+        // 音符設定セクション
+        buildSectionCard(
+          context: context,
+          title: loc.note_settings,
+          child: buildNoteSettingsContent(context, colorScheme),
+        ),
+        // カスタム音符セクション
+        buildSectionCard(
+          context: context,
+          title: loc.custom_notes,
+          child: buildCustomNotesContent(context, colorScheme),
+        ),
+        // 判定プリセットセクション
+        buildSectionCard(
+          context: context,
+          title: loc.judgment_presets,
+          child: buildJudgmentPresetContent(context, colorScheme),
+        ),
       ],
     );
   }
 
   Widget buildAdvancedSettingsSection(
       BuildContext context, ColorScheme colorScheme) {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context)!.advanced_settings,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
-        ),
-
-        const SizedBox(height: 20),
-        //小数桁数
-        NumericInputColumnWidget(
-          controller: decimalsController,
-          focusNode: decimalsFocusNode,
-          titleText: AppLocalizations.of(context)!.decimal_places,
-          onChanged: (value) {
-            setState(() {
-              decimalValue = int.tryParse(value) ?? 0;
-            });
-            if (decimalValue < 1000 && decimalValue > 0) {
-              context.read<SettingsModel>().setNumDecimal(decimalValue);
-            }
-          },
-          onIncrement: () {
-            setState(() {
-              if (decimalValue < 1000) {
-                decimalValue++;
-                decimalsController.text = decimalValue.toString();
+        // 小数桁数セクション
+        buildSectionCard(
+          context: context,
+          title: loc.decimal_places,
+          child: NumericInputColumnWidget(
+            controller: decimalsController,
+            focusNode: decimalsFocusNode,
+            titleText: '',
+            onChanged: (value) {
+              setState(() {
+                decimalValue = int.tryParse(value) ?? 0;
+              });
+              if (decimalValue < 1000 && decimalValue > 0) {
+                context.read<SettingsModel>().setNumDecimal(decimalValue);
               }
-            });
-            context.read<SettingsModel>().setNumDecimal(decimalValue);
-          },
-          onDecrement: () {
-            setState(() {
-              if (decimalValue > 0) {
-                decimalValue--;
-                decimalsController.text = decimalValue.toString();
-              }
-            });
-            context.read<SettingsModel>().setNumDecimal(decimalValue);
-          },
-        ),
-
-        const SizedBox(height: 20),
-
-        // +-ボタンの増減値 (deltaValue)
-        NumericInputColumnWidget(
-          controller: deltaValueController,
-          focusNode: deltaValueFocusNode,
-          titleText: AppLocalizations.of(context)!.deltaValue,
-          onChanged: (value) {
-            setState(() {
-              deltaValue = double.tryParse(value) ?? 1;
-            });
-            context.read<SettingsModel>().setDeltaValue(deltaValue);
-          },
-          onIncrement: () {
-            setState(() {
-              deltaValue++;
-              deltaValueController.text = deltaValue.toString();
-            });
-            context.read<SettingsModel>().setDeltaValue(deltaValue);
-          },
-          onDecrement: () {
-            setState(() {
-              if (deltaValue > 0) {
-                deltaValue--;
-                deltaValueController.text = deltaValue.toString();
-              }
-            });
-            context.read<SettingsModel>().setDeltaValue(deltaValue);
-          },
-        ),
-
-        const SizedBox(height: 20),
-
-        // Material You
-        if (!context.watch<SettingsModel>().isDynamicColorAvailable) ...[
-          SwitchListTile(
-            title: Text(AppLocalizations.of(context)!.materialYou),
-            value: context.watch<SettingsModel>().useMaterialYou,
-            onChanged: (bool value) {
-              context.read<SettingsModel>().setMaterialYou(value);
             },
-            activeThumbColor: colorScheme.onPrimary, // スイッチがONのときのスライダー色
-            activeTrackColor: colorScheme.primary, // ON時のトラック色
-            inactiveThumbColor:
-                colorScheme.onSurface.withValues(alpha: 0.6), // OFF時のスライダー色
-            inactiveTrackColor:
-                colorScheme.onSurface.withValues(alpha: 0.3), // OFF時のトラック色
+            onIncrement: () {
+              setState(() {
+                if (decimalValue < 1000) {
+                  decimalValue++;
+                  decimalsController.text = decimalValue.toString();
+                }
+              });
+              context.read<SettingsModel>().setNumDecimal(decimalValue);
+            },
+            onDecrement: () {
+              setState(() {
+                if (decimalValue > 0) {
+                  decimalValue--;
+                  decimalsController.text = decimalValue.toString();
+                }
+              });
+              context.read<SettingsModel>().setNumDecimal(decimalValue);
+            },
           ),
-        ]
+        ),
+        // 増減値セクション
+        buildSectionCard(
+          context: context,
+          title: loc.deltaValue,
+          child: NumericInputColumnWidget(
+            controller: deltaValueController,
+            focusNode: deltaValueFocusNode,
+            titleText: '',
+            onChanged: (value) {
+              setState(() {
+                deltaValue = double.tryParse(value) ?? 1;
+              });
+              context.read<SettingsModel>().setDeltaValue(deltaValue);
+            },
+            onIncrement: () {
+              setState(() {
+                deltaValue++;
+                deltaValueController.text = deltaValue.toString();
+              });
+              context.read<SettingsModel>().setDeltaValue(deltaValue);
+            },
+            onDecrement: () {
+              setState(() {
+                if (deltaValue > 0) {
+                  deltaValue--;
+                  deltaValueController.text = deltaValue.toString();
+                }
+              });
+              context.read<SettingsModel>().setDeltaValue(deltaValue);
+            },
+          ),
+        ),
+        // Material You セクション
+        if (!context.watch<SettingsModel>().isDynamicColorAvailable)
+          buildSectionCard(
+            context: context,
+            title: loc.materialYou,
+            child: SwitchListTile(
+              title: Text(loc.materialYou),
+              value: context.watch<SettingsModel>().useMaterialYou,
+              onChanged: (bool value) {
+                context.read<SettingsModel>().setMaterialYou(value);
+              },
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
       ],
     );
   }
@@ -341,35 +392,23 @@ class SettingsPageState extends State<SettingsPage> {
 
   Widget buildNoteSettingsSection(
       BuildContext context, ColorScheme colorScheme) {
+    return buildNoteSettingsContent(context, colorScheme);
+  }
+
+  /// 音符設定のコンテンツ部分
+  Widget buildNoteSettingsContent(
+      BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context)!.note_settings,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
-        ),
-        const SizedBox(height: 20),
         ...context.watch<SettingsModel>().enabledNotes.keys.map((noteKey) {
-          return Container(
-            margin: const EdgeInsets.only(left: 8.0),
-            child: SwitchListTile(
-              title:
-                  Text(AppLocalizations.of(context)!.getTranslation(noteKey)),
-              value: context.watch<SettingsModel>().enabledNotes[noteKey]!,
-              onChanged: (bool value) {
-                context.read<SettingsModel>().toggleNoteEnabled(noteKey);
-              },
-              activeThumbColor: colorScheme.onPrimary, // スイッチがONのときのスライダー色
-              activeTrackColor: colorScheme.primary, // ON時のトラック色
-              inactiveThumbColor:
-                  colorScheme.onSurface.withValues(alpha: 0.6), // OFF時のスライダー色
-              inactiveTrackColor:
-                  colorScheme.onSurface.withValues(alpha: 0.3), // OFF時のトラック色
-            ),
+          return SwitchListTile(
+            title: Text(AppLocalizations.of(context)!.getTranslation(noteKey)),
+            value: context.watch<SettingsModel>().enabledNotes[noteKey]!,
+            onChanged: (bool value) {
+              context.read<SettingsModel>().toggleNoteEnabled(noteKey);
+            },
+            contentPadding: EdgeInsets.zero,
           );
         })
       ],
@@ -378,19 +417,29 @@ class SettingsPageState extends State<SettingsPage> {
 
   Widget buildCustomNotesSection(
       BuildContext context, ColorScheme colorScheme) {
+    return buildCustomNotesContent(context, colorScheme);
+  }
+
+  /// カスタム音符のコンテンツ部分
+  Widget buildCustomNotesContent(
+      BuildContext context, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildTitleSection(context, colorScheme),
-        const SizedBox(height: 10),
         buildCustomNotesList(context, colorScheme),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         buildNoteInputSection(context, colorScheme),
       ],
     );
   }
 
   Widget buildJudgmentPresetSection(
+      BuildContext context, ColorScheme colorScheme) {
+    return buildJudgmentPresetContent(context, colorScheme);
+  }
+
+  /// 判定プリセットのコンテンツ部分
+  Widget buildJudgmentPresetContent(
       BuildContext context, ColorScheme colorScheme) {
     final settingsModel = context.watch<SettingsModel>();
     final grouped = settingsModel.judgmentPresetsByGame;
@@ -400,15 +449,6 @@ class SettingsPageState extends State<SettingsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          loc.judgment_presets,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
-        ),
-        const SizedBox(height: 12),
         if (grouped.isEmpty)
           Text(
             loc.no_presets_available,
@@ -417,6 +457,15 @@ class SettingsPageState extends State<SettingsPage> {
         ...grouped.entries.map(
           (MapEntry<String, List<JudgmentPreset>> entry) => Card(
             margin: const EdgeInsets.symmetric(vertical: 6),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                width: 1,
+              ),
+            ),
+            color: colorScheme.surfaceContainer,
             child: ExpansionTile(
               title: Text(entry.key),
               children: entry.value

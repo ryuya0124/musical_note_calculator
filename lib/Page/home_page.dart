@@ -168,11 +168,15 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 1,
+      elevation: 0, // フラットデザインでボーダーを活かす
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1,
+        ),
       ),
-      color: colorScheme.surface.withValues(alpha: 0.1),
+      color: colorScheme.surfaceContainerHigh, // 背景と差別化された色
       child: OpenContainer(
         transitionType: ContainerTransitionType.fade,
         closedElevation: 0.0,
@@ -189,11 +193,19 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 color: colorScheme.onSurface,
               ),
             ),
-            trailing: Text(
-              note['duration']!,
-              style: TextStyle(
-                color: colorScheme.primary,
-                fontSize: 16,
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                note['duration']!,
+                style: TextStyle(
+                  color: colorScheme.primary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             onTap: openContainer, // タップでアニメーションを開始
@@ -209,6 +221,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ),
     );
   }
+
 
   void _handleUnitChange(String newUnit) {
     // selectedUnitの変更を直接StreamControllerに反映

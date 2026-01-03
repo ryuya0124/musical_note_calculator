@@ -183,12 +183,15 @@ class NotePageState extends State<NotePage> {
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 1,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1,
+        ),
       ),
-      color: colorScheme.surface
-          .withValues(alpha: 0.1), // カードの背景色（明るいテーマではsurface）
+      color: colorScheme.surfaceContainerHigh,
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
         title: Text(
@@ -196,19 +199,28 @@ class NotePageState extends State<NotePage> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
-            color: colorScheme.onSurface, // タイトルのテキスト色
+            color: colorScheme.onSurface,
           ),
         ),
-        trailing: Text(
-          note['duration']!,
-          style: TextStyle(
-            color: colorScheme.primary, // 重要な情報にはprimaryカラーを使用
-            fontSize: 16,
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            note['duration']!,
+            style: TextStyle(
+              color: colorScheme.primary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
     );
   }
+
 
   void _calculateNotes() {
     final bpmInput = bpmController.text;

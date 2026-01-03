@@ -84,27 +84,39 @@ class CalculatorPageState extends State<CalculatorPage> {
 
     return Card(
       margin:
-          const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // マージンの調整
-      elevation: 1,
+          const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20), // 角を丸くする
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1,
+        ),
       ),
-      color: colorScheme.surface, // 背景色をテーマに基づける
+      color: colorScheme.surfaceContainerHigh,
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16), // パディングを調整
+        contentPadding: const EdgeInsets.all(16),
         title: Text(
           AppLocalizations.of(context)!.getTranslation(note),
           style: TextStyle(
-            fontWeight: FontWeight.bold, // 太字にする
-            fontSize: 18, // フォントサイズを調整
-            color: colorScheme.onSurface, // テキスト色をテーマに基づける
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: colorScheme.onSurface,
           ),
         ),
-        trailing: Text(
-          'BPM: $bpm',
-          style: TextStyle(
-            color: colorScheme.primary,
-            fontSize: 16,
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            'BPM: $bpm',
+            style: TextStyle(
+              color: colorScheme.primary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
@@ -135,15 +147,20 @@ class CalculatorPageState extends State<CalculatorPage> {
     }).toList();
 
     return Card(
-      color: colorScheme.surface.withValues(alpha: 0.1), // カード背景色をテーマに適応
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0), // 角丸の半径を指定
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1,
+        ),
       ),
+      color: colorScheme.surfaceContainer,
       margin: const EdgeInsets.symmetric(
-          horizontal: 16.0, vertical: 10.0), // 左右と上下にマージン
+          horizontal: 16.0, vertical: 10.0),
       child: StreamBuilder<bool>(
         stream: _getExpansionStream(title),
-        initialData: false, // 初期状態は閉じた状態
+        initialData: false,
         builder: (context, snapshot) {
           final isExpanded = snapshot.data ?? false;
 
