@@ -11,6 +11,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4  # リポジトリをチェックアウト
 
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'gradle'
+
     - name: Cache Flutter SDK
       uses: actions/cache@v4
       with:
