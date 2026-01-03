@@ -203,93 +203,69 @@ class NotePageState extends State<NotePage> {
     final noteName = note['name']!;
     final duration = note['duration']!;
 
-    return RepaintBoundary(
-      child: InkWell(
+    return Container(
+      margin: _cardMargin,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHigh,
         borderRadius: _cardBorderRadius,
-        onTap: () {
-          final bpm = double.tryParse(bpmController.text) ?? 120.0;
-          final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
-
-          if (isTablet && widget.onMetronomeRequest != null) {
-            widget.onMetronomeRequest!(bpm, noteId, '0');
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MetronomePage(
-                  bpm: bpm,
-                  note: noteId,
-                  interval: '0',
-                ),
-              ),
-            );
-          }
-        },
-        child: Container(
-          margin: _cardMargin,
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHigh,
-            borderRadius: _cardBorderRadius,
-            border: Border.all(
-              color: colorScheme.outline.withOpacity(0.12),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.shadow.withOpacity(0.06),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.12),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
-          child: Padding(
-            padding: _cardPadding,
-            child: Row(
-              children: [
-                // 周波数アイコン
-                Container(
-                  width: _iconSize,
-                  height: _iconSize,
-                  decoration: BoxDecoration(
-                    color: colorScheme.secondaryContainer,
-                    borderRadius: _iconBorderRadius,
-                  ),
-                  child: IconTheme(
-                    data: IconThemeData(color: colorScheme.onSecondaryContainer),
-                    child: _frequencyIcon,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                // テキスト部分
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.getTranslation(noteName),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: colorScheme.onSurface,
-                          letterSpacing: 0.1,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        duration,
-                        style: TextStyle(
-                          color: colorScheme.secondary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+        ],
+      ),
+      child: Padding(
+        padding: _cardPadding,
+        child: Row(
+          children: [
+            // 周波数アイコン
+            Container(
+              width: _iconSize,
+              height: _iconSize,
+              decoration: BoxDecoration(
+                color: colorScheme.secondaryContainer,
+                borderRadius: _iconBorderRadius,
+              ),
+              child: IconTheme(
+                data: IconThemeData(color: colorScheme.onSecondaryContainer),
+                child: _frequencyIcon,
+              ),
             ),
-          ),
+            const SizedBox(width: 14),
+            // テキスト部分
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.getTranslation(noteName),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: colorScheme.onSurface,
+                      letterSpacing: 0.1,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    duration,
+                    style: TextStyle(
+                      color: colorScheme.secondary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

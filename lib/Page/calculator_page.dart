@@ -94,103 +94,78 @@ class CalculatorPageState extends State<CalculatorPage> {
   Widget _buildNoteCard(String noteName, String bpm, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return RepaintBoundary(
-      child: InkWell( // InkWellでラップしてタップ可能にする
+    return Container(
+      margin: _cardMargin,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHigh,
         borderRadius: _cardBorderRadius,
-        onTap: () {
-          final currentBpm = double.tryParse(bpmController.text) ?? 120.0;
-          final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
-
-          if (isTablet && widget.onMetronomeRequest != null) {
-            // Note: CalculatorPageではBPM換算であるため、メトロノームは換算後のBPMで4分音符を刻むのが一般的
-            widget.onMetronomeRequest!(currentBpm, '4', '0');
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MetronomePage(
-                  bpm: currentBpm,
-                  note: '4', 
-                  interval: '0',
-                ),
-              ),
-            );
-          }
-        },
-        child: Container(
-          margin: _cardMargin,
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHigh,
-            borderRadius: _cardBorderRadius,
-            border: Border.all(
-              color: colorScheme.outline.withOpacity(0.12),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.shadow.withOpacity(0.06),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.12),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
-          child: Padding(
-            padding: _cardPadding,
-            child: Row(
-              children: [
-                // 計算アイコン
-                Container(
-                  width: _iconSize,
-                  height: _iconSize,
-                  decoration: BoxDecoration(
-                    color: colorScheme.tertiaryContainer,
-                    borderRadius: _iconBorderRadius,
+        ],
+      ),
+      child: Padding(
+        padding: _cardPadding,
+        child: Row(
+          children: [
+            // 計算アイコン
+            Container(
+              width: _iconSize,
+              height: _iconSize,
+              decoration: BoxDecoration(
+                color: colorScheme.tertiaryContainer,
+                borderRadius: _iconBorderRadius,
+              ),
+              child: IconTheme(
+                data: IconThemeData(color: colorScheme.onTertiaryContainer),
+                child: _calcIcon,
+              ),
+            ),
+            const SizedBox(width: 14),
+            // テキスト部分
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.getTranslation(noteName),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: colorScheme.onSurface,
+                      letterSpacing: 0.1,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  child: IconTheme(
-                    data: IconThemeData(color: colorScheme.onTertiaryContainer),
-                    child: _calcIcon,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                // テキスト部分
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 4),
+                  Row(
                     children: [
+                      IconTheme(
+                        data: IconThemeData(color: colorScheme.tertiary),
+                        child: _speedIcon,
+                      ),
+                      const SizedBox(width: 4),
                       Text(
-                        AppLocalizations.of(context)!.getTranslation(noteName),
+                        'BPM: $bpm',
                         style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: colorScheme.onSurface,
-                          letterSpacing: 0.1,
+                          color: colorScheme.tertiary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          IconTheme(
-                            data: IconThemeData(color: colorScheme.tertiary),
-                            child: _speedIcon,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'BPM: $bpm',
-                            style: TextStyle(
-                              color: colorScheme.tertiary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -352,22 +327,29 @@ class CalculatorPageState extends State<CalculatorPage> {
                         );
                       }
 
-                      // 2列以上の場合はGridViewを使用
-                      return GridView.builder(
-                        cacheExtent: 500,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          childAspectRatio: 1.5,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
+                      // カラムごとにリストを分割して、それぞれのカラムで縦に並べる
+                      final List<List<MapEntry<String, List<Map<String, String>>>>>
+                          columns = List.generate(crossAxisCount, (_) => []);
+
+                      for (var i = 0; i < filteredEntries.length; i++) {
+                        columns[i % crossAxisCount].add(filteredEntries[i]);
+                      }
+
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: List.generate(crossAxisCount, (colIndex) {
+                            return Expanded(
+                              child: Column(
+                                children: columns[colIndex].map((entry) {
+                                  return _buildNoteGroup(entry.key, entry.value,
+                                      enabledNotes, context);
+                                }).toList(),
+                              ),
+                            );
+                          }),
                         ),
-                        itemCount: filteredEntries.length,
-                        itemBuilder: (context, index) {
-                          final entry = filteredEntries[index];
-                          return _buildNoteGroup(
-                              entry.key, entry.value, enabledNotes, context);
-                        },
                       );
                     },
                   );
