@@ -48,4 +48,5 @@ app.*.map.json
 lib/l10n/app_localizations*.dart
 macos/fastlane/api_key.json
 ios/fastlane/report.html
+ios/fastlane/report.xml
 macos/fastlane/report.xml
