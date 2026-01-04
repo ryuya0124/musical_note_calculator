@@ -107,5 +107,6 @@
   "anmitsuPossibleDesc": "判定幅が重なっているため、餡蜜が可能です",
   "anmitsuImpossibleDesc": "判定幅が重なっていないため、餡蜜は不可能です",
   "privacy_policy": "プライバシーポリシー",
-  "support": "サポート"
+  "support": "サポート",
+  "terms_of_service": "利用規約"
 }

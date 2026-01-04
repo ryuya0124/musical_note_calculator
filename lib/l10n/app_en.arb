@@ -107,5 +107,6 @@
   "anmitsuPossibleDesc": "The judgment windows overlap, so anmitsu is possible",
   "anmitsuImpossibleDesc": "The judgment windows do not overlap, so anmitsu is impossible",
   "privacy_policy": "Privacy Policy",
-  "support": "Support"
+  "support": "Support",
+  "terms_of_service": "Terms of Service"
 }

@@ -998,6 +998,8 @@ class SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 10),
         buildPrivacyPolicyLink(context, colorScheme),
         const SizedBox(height: 10),
+        buildTermsOfServiceLink(context, colorScheme),
+        const SizedBox(height: 10),
         buildSupportLink(context, colorScheme),
       ],
     );
@@ -1067,7 +1069,7 @@ class SettingsPageState extends State<SettingsPage> {
   Widget buildPrivacyPolicyLink(BuildContext context, ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () async {
-        final Uri url = Uri.parse("https://mnc.ryuya-dev.net/privacy");
+        final Uri url = Uri.parse("https://rytmica.ryuya-dev.net/privacy");
         try {
           await launchUrl(url, mode: LaunchMode.externalApplication);
         } catch (e) {
@@ -1101,11 +1103,49 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  // 利用規約
+  Widget buildTermsOfServiceLink(BuildContext context, ColorScheme colorScheme) {
+    return GestureDetector(
+      onTap: () async {
+        final Uri url = Uri.parse("https://rytmica.ryuya-dev.net/terms");
+        try {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to open the URL: $e')),
+            );
+          }
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10.0),
+        child: Row(
+          children: [
+            Icon(
+              Icons.article,
+              color: colorScheme.primary,
+              size: 28,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              AppLocalizations.of(context)!.terms_of_service,
+              style: TextStyle(
+                fontSize: 16,
+                color: colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // サポート
   Widget buildSupportLink(BuildContext context, ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () async {
-        final Uri url = Uri.parse("https://mnc.ryuya-dev.net/support");
+        final Uri url = Uri.parse("https://rytmica.ryuya-dev.net/support");
         try {
           await launchUrl(url, mode: LaunchMode.externalApplication);
         } catch (e) {
