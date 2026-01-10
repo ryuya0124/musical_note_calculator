@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../ParamData/settings_model.dart';
-import 'metronome_page.dart';
+import 'Metronome/metronome_page.dart';
 import 'package:musical_note_calculator/l10n/app_localizations.dart';
 import 'package:musical_note_calculator/extensions/app_localizations_extension.dart';
 import '../UI/unit_dropdown.dart';

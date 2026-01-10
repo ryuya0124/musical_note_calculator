@@ -6,7 +6,7 @@ import 'package:musical_note_calculator/extensions/app_localizations_extension.d
 import '../ParamData/settings_model.dart';
 import '../UI/unit_dropdown.dart';
 import '../ParamData/notes.dart';
-import 'metronome_page.dart';
+import 'Metronome/metronome_page.dart';
 
 class NotePage extends StatefulWidget {
   final TextEditingController bpmController; // bpmControllerを保持
