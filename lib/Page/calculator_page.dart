@@ -272,12 +272,10 @@ class CalculatorPageState extends State<CalculatorPage> {
 
                   return LayoutBuilder(
                     builder: (context, constraints) {
-                      // 大画面ではグリッド表示: 600dp以上で2列、1000dp以上で3列
-                      final crossAxisCount = constraints.maxWidth >= 1000
-                          ? 3
-                          : constraints.maxWidth >= 600
-                              ? 2
-                              : 1;
+                      // 大画面では動的にグリッド表示
+                      // 計算ページは内容が複雑なため、カードの最小幅を大きめに設定
+                      const double minCardWidth = 350.0;
+                      final int crossAxisCount = (constraints.maxWidth / minCardWidth).floor().clamp(1, 100);
 
                       if (crossAxisCount == 1) {
                         // 1列の場合は従来のListViewを使用

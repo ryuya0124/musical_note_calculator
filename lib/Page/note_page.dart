@@ -111,22 +111,52 @@ class NotePageState extends State<NotePage> {
 
   // ユニット切り替えセクション
   Widget buildUnitSwitchSection(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(right: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            AppLocalizations.of(context)!.timescale,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(width: 10),
-          UnitDropdown(
-            selectedUnit: selectedTimeScale,
-            units: units,
-            onChanged: _handleUnitChange, // 選択時のコールバックを設定
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // 画面幅が狭い場合は縦並び、広い場合は横並び
+          final isNarrow = constraints.maxWidth < 300;
+          
+          if (isNarrow) {
+            // 縦並び: テキスト左寄せ、ボタン右寄せ
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.timescale,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: UnitDropdown(
+                    selectedUnit: selectedTimeScale,
+                    units: units,
+                    onChanged: _handleUnitChange, // 選択時のコールバックを設定
+                  ),
+                ),
+              ],
+            );
+          } else {
+            // 横並び: 全体右寄せ
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.timescale,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 10),
+                UnitDropdown(
+                  selectedUnit: selectedTimeScale,
+                  units: units,
+                  onChanged: _handleUnitChange, // 選択時のコールバックを設定
+                ),
+              ],
+            );
+          }
+        },
       ),
     );
   }
@@ -144,16 +174,10 @@ class NotePageState extends State<NotePage> {
           : LayoutBuilder(
                 builder: (context, constraints) {
                   // 画面幅（constraints.maxWidth）に基づいて列数を決定
-                  final width = constraints.maxWidth;
-                  
-                  final int crossAxisCount;
-                  if (width >= 800) {
-                    crossAxisCount = 3;
-                  } else if (width >= 500) {
-                     crossAxisCount = 2;
-                  } else {
-                    crossAxisCount = 1;
-                  }
+                  // カードの最小幅を基準に動的に計算
+                  final double width = constraints.maxWidth;
+                  const double minCardWidth = 280.0;
+                  final int crossAxisCount = (width / minCardWidth).floor().clamp(1, 100);
 
                   // カラムごとにリストを分割して、それぞれのカラムで縦に並べる
                   final List<List<Map<String, String>>> columns =

@@ -94,6 +94,7 @@ platform :mac do
     # Appをビルド
     build_mac_app(
       scheme: "Runner",
+      configuration: "Release",
       export_method: "app-store",
       output_directory: "../build/macos/Build/Products/Release",
       output_name: "Rytmica",
@@ -255,6 +256,7 @@ platform :mac do
     # Appをビルド
     build_mac_app(
       scheme: "Runner",
+      configuration: "Release",
       export_method: "app-store",
       export_options: {
         provisioningProfiles: { 

@@ -65,6 +65,13 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
     case WM_FONTCHANGE:
       flutter_controller_->engine()->ReloadSystemFonts();
       break;
+    case WM_GETMINMAXINFO: {
+      // 最小ウィンドウサイズを設定 (幅400, 高さ400)
+      auto* minmax = reinterpret_cast<MINMAXINFO*>(lparam);
+      minmax->ptMinTrackSize.x = 400;
+      minmax->ptMinTrackSize.y = 400;
+      return 0;
+    }
   }
 
   return Win32Window::MessageHandler(hwnd, message, wparam, lparam);

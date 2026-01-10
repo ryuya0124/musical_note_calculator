@@ -473,7 +473,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
     final double windowEarly = earlyPreset.earlyMs;
     final double windowLate = latePreset.lateMs;
     final totalWindow = windowEarly + windowLate;
-    final anmituValue = totalWindow - noteLengthMs;
+    final anmituValue = (totalWindow - noteLengthMs) / 2;
     final color = _getResultColor(anmituValue);
     final loc = AppLocalizations.of(context)!;
     final decimals = settingsModel.numDecimal;
@@ -522,7 +522,7 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
         ),
         _ResultRow(
           title: loc.anmitsu_value,
-          value: '${anmituValue.toStringAsFixed(decimals)} ms',
+          value: '±${anmituValue.toStringAsFixed(decimals)} ms',
           valueColor: color,
         ),
         _ResultRow(
@@ -537,18 +537,18 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage>
   Color _getResultColor(double value) {
     if (value <= 0) return Colors.red;
     if (value <= 10) return Colors.orange;
-    if (value <= 20) return Colors.amber;
-    if (value <= 30) return Colors.lightGreen;
-    if (value <= 40) return Colors.green;
+    if (value <= 25) return Colors.amber;
+    if (value < 40) return Colors.yellow;
+    if (value < 50) return Colors.green;
     return Colors.blue;
   }
 
   String _getResultText(double value) {
     if (value <= 0) return AppLocalizations.of(context)!.impossible;
     if (value <= 10) return AppLocalizations.of(context)!.veryHard;
-    if (value <= 20) return AppLocalizations.of(context)!.hard;
-    if (value <= 30) return AppLocalizations.of(context)!.manageable;
-    if (value <= 40) return AppLocalizations.of(context)!.easy;
+    if (value <= 25) return AppLocalizations.of(context)!.hard;
+    if (value < 40) return AppLocalizations.of(context)!.manageable;
+    if (value < 50) return AppLocalizations.of(context)!.easy;
     return AppLocalizations.of(context)!.veryEasy;
   }
 
@@ -865,7 +865,7 @@ class _JudgmentDiagram extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${result.anmituValue.toStringAsFixed(decimals)} ms',
+                      '±${result.anmituValue.toStringAsFixed(decimals)} ms',
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: result.color,
@@ -1131,7 +1131,7 @@ class _JudgmentDiagramPainterVertical extends CustomPainter {
       canvas.drawRRect(overlapRRect, borderPaint);
 
       // 許容範囲のms表示（バッジスタイル）
-      final overlapText = '${result.anmituValue.toStringAsFixed(decimals)} ms';
+      final overlapText = '±${result.anmituValue.toStringAsFixed(decimals)} ms';
       final overlapTextPainter = TextPainter(
         text: TextSpan(
           text: overlapText,

@@ -8,6 +8,9 @@ class MainFlutterWindow: NSWindow {
     self.contentViewController = flutterViewController
     self.setFrame(windowFrame, display: true)
 
+    // 最小ウィンドウサイズを設定 (幅400, 高さ400)
+    self.minSize = NSSize(width: 400, height: 400)
+
     RegisterGeneratedPlugins(registry: flutterViewController)
 
     super.awakeFromNib()
