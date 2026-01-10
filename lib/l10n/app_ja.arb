@@ -25,9 +25,9 @@
   "oneBeatSextuplet": "1拍6連 (24分音符)",
   "thirty_second_note": "32分音符",
   "settings": "設定",
-  "display_settings": "デフォルト時間単位設定",
+  "display_settings": "表示設定",
   "time_unit": "時間単位",
-  "note_settings": "音符表示設定",
+  "note_settings": "音符設定",
   "advanced_settings": "詳細設定",
   "decimal_places": "小数の桁数",
   "deltaValue": "＋/－ ボタンの増減値",
@@ -86,7 +86,7 @@
   "judgment_presets": "判定プリセット",
   "judgment_name_label": "判定名",
   "no_presets_available": "プリセットはまだありません",
-  "custom_preset_section_title": "カスタムプリセットを追加",
+  "custom_preset_section_title": "カスタム判定プリセット",
   "game_name_label": "ゲーム名",
   "early_window_label": "早判定幅 (ms)",
   "late_window_label": "遅判定幅 (ms)",
@@ -108,5 +108,6 @@
   "anmitsuImpossibleDesc": "判定幅が重なっていないため、餡蜜は不可能です",
   "privacy_policy": "プライバシーポリシー",
   "support": "サポート",
-  "terms_of_service": "利用規約"
+  "terms_of_service": "利用規約",
+  "about_app": "アプリ情報"
 }

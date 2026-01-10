@@ -12,6 +12,19 @@ import 'package:musical_note_calculator/extensions/app_localizations_extension.d
 import 'dart:io';
 import '../UI/pageAnimation.dart';
 
+// 設定カテゴリの定義
+class SettingsCategory {
+  final String id;
+  final String titleKey;
+  final IconData icon;
+
+  const SettingsCategory({
+    required this.id,
+    required this.titleKey,
+    required this.icon,
+  });
+}
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -20,6 +33,38 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
+  // 選択中のカテゴリインデックス（マスターディテールUI用）
+  int _selectedCategoryIndex = 0;
+
+  // カテゴリ定義リスト
+  static const List<SettingsCategory> _categories = [
+    SettingsCategory(
+      id: 'display',
+      titleKey: 'display_settings',
+      icon: Icons.display_settings_rounded,
+    ),
+    SettingsCategory(
+      id: 'notes',
+      titleKey: 'note_settings',
+      icon: Icons.music_note_rounded,
+    ),
+    SettingsCategory(
+      id: 'judgment',
+      titleKey: 'judgment_presets',
+      icon: Icons.timer_outlined,
+    ),
+    SettingsCategory(
+      id: 'advanced',
+      titleKey: 'advanced_settings',
+      icon: Icons.tune_rounded,
+    ),
+    SettingsCategory(
+      id: 'about',
+      titleKey: 'about_app',
+      icon: Icons.info_outline_rounded,
+    ),
+  ];
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
 
@@ -163,6 +208,7 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: () {
@@ -172,55 +218,25 @@ class SettingsPageState extends State<SettingsPage> {
         appBar: AppBarWidget(selectedIndex: _selectedIndex),
         body: LayoutBuilder(
           builder: (context, constraints) {
-            // 800dp以上で2カラムレイアウト
+            // 800dp以上でマスターディテールレイアウト
             final isWideScreen = constraints.maxWidth >= 800;
 
             if (isWideScreen) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 左カラム: 表示設定
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildDisplaySettingsSection(context, colorScheme),
-                              const SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    // 縦の区切り線
-                    VerticalDivider(
-                      thickness: 1,
-                      width: 1,
-                      color: colorScheme.outlineVariant,
-                    ),
-                    // 右カラム: 詳細設定 + アプリ情報
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildAdvancedSettingsSection(context, colorScheme),
-                              const SizedBox(height: 40),
-                              buildAuthorSection(context, colorScheme),
-                              const SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              return Row(
+                children: [
+                  // 左側：カテゴリナビゲーション
+                  _buildCategoryNavigation(context, colorScheme, loc),
+                  // 区切り線
+                  VerticalDivider(
+                    thickness: 1,
+                    width: 1,
+                    color: colorScheme.outlineVariant,
+                  ),
+                  // 右側：選択したカテゴリの詳細
+                  Expanded(
+                    child: _buildCategoryDetail(context, colorScheme, loc),
+                  ),
+                ],
               );
             }
 
@@ -232,6 +248,8 @@ class SettingsPageState extends State<SettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildDisplaySettingsSection(context, colorScheme),
+                    const SizedBox(height: 40),
+                    buildNoteSettingsSection(context, colorScheme),
                     const SizedBox(height: 40),
                     buildAdvancedSettingsSection(context, colorScheme),
                     const SizedBox(height: 40),
@@ -245,6 +263,113 @@ class SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+
+  // カテゴリナビゲーション（左側）
+  Widget _buildCategoryNavigation(
+      BuildContext context, ColorScheme colorScheme, AppLocalizations loc) {
+    return Container(
+      width: 220,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLowest,
+        border: Border(
+          right: BorderSide(
+            color: colorScheme.outlineVariant.withOpacity(0.5),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          final isSelected = index == _selectedCategoryIndex;
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            child: Material(
+              color: Colors.transparent,
+              child: ListTile(
+                selected: isSelected,
+                selectedTileColor: colorScheme.secondaryContainer.withOpacity(0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                leading: Icon(
+                  category.icon,
+                  color: isSelected
+                      ? colorScheme.onSecondaryContainer
+                      : colorScheme.onSurfaceVariant,
+                ),
+                title: Text(
+                  _getCategoryTitle(loc, category.titleKey),
+                  style: TextStyle(
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected
+                        ? colorScheme.onSecondaryContainer
+                        : colorScheme.onSurface,
+                  ),
+                ),
+                onTap: () {
+                  setState(() {
+                    _selectedCategoryIndex = index;
+                  });
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // カテゴリタイトルを取得するヘルパーメソッド
+  String _getCategoryTitle(AppLocalizations loc, String titleKey) {
+    switch (titleKey) {
+      case 'display_settings':
+        return loc.display_settings;
+      case 'note_settings':
+        return loc.note_settings;
+      case 'judgment_presets':
+        return loc.judgment_presets;
+      case 'advanced_settings':
+        return loc.advanced_settings;
+      case 'about_app':
+        return loc.about_app;
+      default:
+        return titleKey;
+    }
+  }
+
+  // カテゴリ詳細（右側）
+  Widget _buildCategoryDetail(
+      BuildContext context, ColorScheme colorScheme, AppLocalizations loc) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      child: _buildSelectedCategoryContent(context, colorScheme),
+    );
+  }
+
+  // 選択されたカテゴリに応じたコンテンツを返す
+  Widget _buildSelectedCategoryContent(
+      BuildContext context, ColorScheme colorScheme) {
+    final category = _categories[_selectedCategoryIndex];
+
+    switch (category.id) {
+      case 'display':
+        return buildDisplaySettingsSection(context, colorScheme);
+      case 'notes':
+        return buildNoteSettingsSection(context, colorScheme);
+      case 'judgment':
+        return buildJudgmentPresetsSection(context, colorScheme);
+      case 'advanced':
+        return buildAdvancedSettingsSection(context, colorScheme);
+      case 'about':
+        return buildAuthorSection(context, colorScheme);
+      default:
+        return const SizedBox.shrink();
+    }
   }
 
 
@@ -274,17 +399,41 @@ class SettingsPageState extends State<SettingsPage> {
             onChanged: _handleTimeScaleUnitChange,
           ),
         ),
-        // 音符設定セクション
+        // Material You セクション
+        if (!context.watch<SettingsModel>().isDynamicColorAvailable)
+          buildSectionCard(
+            context: context,
+            title: loc.materialYou,
+            child: SwitchListTile(
+              title: Text(loc.materialYou),
+              value: context.watch<SettingsModel>().useMaterialYou,
+              onChanged: (bool value) {
+                context.read<SettingsModel>().setMaterialYou(value);
+              },
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget buildJudgmentPresetsSection(
+      BuildContext context, ColorScheme colorScheme) {
+    final loc = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 判定プリセットセクション
         buildSectionCard(
           context: context,
-          title: loc.note_settings,
-          child: buildNoteSettingsContent(context, colorScheme),
+          title: loc.judgment_presets,
+          child: buildJudgmentPresetContent(context, colorScheme),
         ),
-        // カスタム音符セクション
+        // カスタム判定プリセットセクション
         buildSectionCard(
           context: context,
-          title: loc.custom_notes,
-          child: buildCustomNotesContent(context, colorScheme),
+          title: loc.custom_preset_section_title,
+          child: buildCustomPresetForm(context, colorScheme),
         ),
       ],
     );
@@ -296,6 +445,7 @@ class SettingsPageState extends State<SettingsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+
         // 小数桁数セクション
         buildSectionCard(
           context: context,
@@ -364,26 +514,6 @@ class SettingsPageState extends State<SettingsPage> {
             },
           ),
         ),
-        // Material You セクション
-        if (!context.watch<SettingsModel>().isDynamicColorAvailable)
-          buildSectionCard(
-            context: context,
-            title: loc.materialYou,
-            child: SwitchListTile(
-              title: Text(loc.materialYou),
-              value: context.watch<SettingsModel>().useMaterialYou,
-              onChanged: (bool value) {
-                context.read<SettingsModel>().setMaterialYou(value);
-              },
-              contentPadding: EdgeInsets.zero,
-            ),
-          ),
-        // 判定プリセットセクション
-        buildSectionCard(
-          context: context,
-          title: loc.judgment_presets,
-          child: buildJudgmentPresetContent(context, colorScheme),
-        ),
       ],
     );
   }
@@ -434,7 +564,22 @@ class SettingsPageState extends State<SettingsPage> {
 
   Widget buildNoteSettingsSection(
       BuildContext context, ColorScheme colorScheme) {
-    return buildNoteSettingsContent(context, colorScheme);
+    final loc = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildSectionCard(
+          context: context,
+          title: loc.note_settings,
+          child: buildNoteSettingsContent(context, colorScheme),
+        ),
+        buildSectionCard(
+          context: context,
+          title: loc.custom_notes,
+          child: buildCustomNotesContent(context, colorScheme),
+        ),
+      ],
+    );
   }
 
   /// 音符設定のコンテンツ部分
@@ -513,7 +658,9 @@ class SettingsPageState extends State<SettingsPage> {
                     (preset) => ListTile(
                       title: Text(preset.label),
                       subtitle: Text(
-                        'Late +${preset.lateMs.toStringAsFixed(decimals)} ms / Early -${preset.earlyMs.toStringAsFixed(decimals)} ms | ${loc.total_window_label}: ${preset.totalWindowMs.toStringAsFixed(decimals)} ms',
+                        preset.isCustom
+                            ? 'Late +${preset.lateMs.toStringAsFixed(decimals)} ms / Early -${preset.earlyMs.toStringAsFixed(decimals)} ms | ${loc.total_window_label}: ${preset.totalWindowMs.toStringAsFixed(decimals)} ms'
+                            : 'Late +${preset.lateMs.toStringAsFixed(decimals)} ms / Early -${preset.earlyMs.toStringAsFixed(decimals)} ms',
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -560,8 +707,6 @@ class SettingsPageState extends State<SettingsPage> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        buildCustomPresetForm(context, colorScheme),
       ],
     );
   }
@@ -574,125 +719,110 @@ class SettingsPageState extends State<SettingsPage> {
         (linkWindowValues ||
             double.tryParse(presetLateController.text.trim()) != null);
 
-    return Card(
-      margin: const EdgeInsets.only(top: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: presetGameController,
+          decoration: InputDecoration(
+            labelText: loc.game_name_label,
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: colorScheme.primary),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                  color: colorScheme.onSurface.withValues(alpha: 0.5)),
+            ),
+          ),
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: presetLabelController,
+          decoration: InputDecoration(
+            labelText: loc.judgment_name_label,
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: colorScheme.primary),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                  color: colorScheme.onSurface.withValues(alpha: 0.5)),
+            ),
+          ),
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 12),
+        Row(
           children: [
-            Text(
-              loc.custom_preset_section_title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: presetGameController,
-              decoration: InputDecoration(
-                labelText: loc.game_name_label,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: colorScheme.primary),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: colorScheme.onSurface.withValues(alpha: 0.5)),
-                ),
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: presetLabelController,
-              decoration: InputDecoration(
-                labelText: loc.judgment_name_label,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: colorScheme.primary),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: colorScheme.onSurface.withValues(alpha: 0.5)),
-                ),
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: presetEarlyController,
-                    decoration: InputDecoration(
-                      labelText: loc.early_window_label,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: colorScheme.primary),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color:
-                                colorScheme.onSurface.withValues(alpha: 0.5)),
-                      ),
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (_) {
-                      if (linkWindowValues) {
-                        presetLateController.text = presetEarlyController.text;
-                      }
-                      setState(() {});
-                    },
+            Expanded(
+              child: TextField(
+                controller: presetEarlyController,
+                decoration: InputDecoration(
+                  labelText: loc.early_window_label,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.primary),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color:
+                            colorScheme.onSurface.withValues(alpha: 0.5)),
                   ),
                 ),
-                const SizedBox(width: 12),
-                if (!linkWindowValues)
-                  Expanded(
-                    child: TextField(
-                      controller: presetLateController,
-                      decoration: InputDecoration(
-                        labelText: loc.late_window_label,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: colorScheme.primary),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color:
-                                  colorScheme.onSurface.withValues(alpha: 0.5)),
-                        ),
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      onChanged: (_) => setState(() {}),
-                    ),
-                  ),
-              ],
-            ),
-            SwitchListTile(
-              value: linkWindowValues,
-              title: Text(loc.link_window_values),
-              onChanged: (value) {
-                setState(() {
-                  linkWindowValues = value;
-                  if (value) {
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                onChanged: (_) {
+                  if (linkWindowValues) {
                     presetLateController.text = presetEarlyController.text;
                   }
-                });
-              },
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: isButtonEnabled ? _handleAddPreset : null,
-                child: Text(loc.add_preset),
+                  setState(() {});
+                },
               ),
             ),
+            const SizedBox(width: 12),
+            if (!linkWindowValues)
+              Expanded(
+                child: TextField(
+                  controller: presetLateController,
+                  decoration: InputDecoration(
+                    labelText: loc.late_window_label,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: colorScheme.primary),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color:
+                              colorScheme.onSurface.withValues(alpha: 0.5)),
+                    ),
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
           ],
         ),
-      ),
+        SwitchListTile(
+          value: linkWindowValues,
+          title: Text(loc.link_window_values),
+          onChanged: (value) {
+            setState(() {
+              linkWindowValues = value;
+              if (value) {
+                presetLateController.text = presetEarlyController.text;
+              }
+            });
+          },
+          contentPadding: EdgeInsets.zero,
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerRight,
+          child: ElevatedButton(
+            onPressed: isButtonEnabled ? _handleAddPreset : null,
+            child: Text(loc.add_preset),
+          ),
+        ),
+      ],
     );
   }
 
@@ -727,6 +857,7 @@ class SettingsPageState extends State<SettingsPage> {
 
   Future<void> _showEditPresetDialog(JudgmentPreset preset) async {
     final loc = AppLocalizations.of(context)!;
+    final gameController = TextEditingController(text: '');
     final labelController = TextEditingController(text: preset.label);
     final earlyController =
         TextEditingController(text: preset.earlyMs.toString());
@@ -734,22 +865,32 @@ class SettingsPageState extends State<SettingsPage> {
         TextEditingController(text: preset.lateMs.toString());
     bool linkValues = (preset.earlyMs == preset.lateMs);
 
+    final isEditingCustom = preset.isCustom;
+
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (dialogContext, setStateDialog) {
-            final isValid = labelController.text.trim().isNotEmpty &&
+            final isValid = true &&
+                labelController.text.trim().isNotEmpty &&
                 double.tryParse(earlyController.text.trim()) != null &&
                 (linkValues ||
                     double.tryParse(lateController.text.trim()) != null);
 
             return AlertDialog(
-              title: Text(loc.edit_preset),
+              title: Text(isEditingCustom ? loc.edit_preset : loc.add_preset),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    TextField(
+                      controller: gameController,
+                      decoration: InputDecoration(
+                        labelText: loc.game_name_label,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: labelController,
                       decoration: InputDecoration(
@@ -811,18 +952,31 @@ class SettingsPageState extends State<SettingsPage> {
                           final late = linkValues
                               ? early
                               : double.parse(lateController.text.trim());
-                          context
-                              .read<SettingsModel>()
-                              .updateCustomJudgmentPreset(
-                                presetId: preset.id,
-                                label: labelController.text.trim(),
-                                earlyMs: early,
-                                lateMs: late,
-                              );
+
+                          if (isEditingCustom) {
+                            context
+                                .read<SettingsModel>()
+                                .updateCustomJudgmentPreset(
+                                  presetId: preset.id,
+                                  label: labelController.text.trim(),
+                                  earlyMs: early,
+                                  lateMs: late,
+                                );
+                          } else {
+                            context
+                                .read<SettingsModel>()
+                                .addJudgmentPreset(
+                                  game: gameController.text.trim(),
+                                  label: labelController.text.trim(),
+                                  earlyMs: early,
+                                  lateMs: late,
+                                );
+                          }
                           Navigator.of(dialogContext).pop();
                         }
                       : null,
-                  child: Text(loc.save_changes),
+                  child:
+                      Text(isEditingCustom ? loc.save_changes : loc.add_preset),
                 ),
               ],
             );
@@ -831,6 +985,7 @@ class SettingsPageState extends State<SettingsPage> {
       },
     );
 
+    gameController.dispose();
     labelController.dispose();
     earlyController.dispose();
     lateController.dispose();
@@ -956,52 +1111,57 @@ class SettingsPageState extends State<SettingsPage> {
   }
 
   Widget buildAuthorSection(BuildContext context, ColorScheme colorScheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.author,
-          style: TextStyle(
-            fontSize: 16,
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
+    final loc = AppLocalizations.of(context)!;
+    return buildSectionCard(
+      context: context,
+      title: loc.about_app,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            loc.author,
+            style: TextStyle(
+              fontSize: 16,
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            IconButton(
-              icon: Image.asset(
-                Theme.of(context).brightness == Brightness.light
-                    ? 'assets/github-mark.png'
-                    : 'assets/github-mark-white.png',
-                height: 30,
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              IconButton(
+                icon: Image.asset(
+                  Theme.of(context).brightness == Brightness.light
+                      ? 'assets/github-mark.png'
+                      : 'assets/github-mark-white.png',
+                  height: 30,
+                ),
+                onPressed: () {
+                  moveGithub(context);
+                },
+                color: Theme.of(context).colorScheme.primary,
               ),
-              onPressed: () {
-                moveGithub(context);
-              },
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            TextButton(
-              onPressed: () {
-                moveGithub(context);
-              },
-              child: Text(
-                AppLocalizations.of(context)!.view_on_github,
-                style: const TextStyle(fontSize: 16),
+              TextButton(
+                onPressed: () {
+                  moveGithub(context);
+                },
+                child: Text(
+                  loc.view_on_github,
+                  style: const TextStyle(fontSize: 16),
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        buildLicenceLink(context, colorScheme),
-        const SizedBox(height: 10),
-        buildPrivacyPolicyLink(context, colorScheme),
-        const SizedBox(height: 10),
-        buildTermsOfServiceLink(context, colorScheme),
-        const SizedBox(height: 10),
-        buildSupportLink(context, colorScheme),
-      ],
+            ],
+          ),
+          const SizedBox(height: 20),
+          buildLicenceLink(context, colorScheme),
+          const SizedBox(height: 10),
+          buildPrivacyPolicyLink(context, colorScheme),
+          const SizedBox(height: 10),
+          buildTermsOfServiceLink(context, colorScheme),
+          const SizedBox(height: 10),
+          buildSupportLink(context, colorScheme),
+        ],
+      ),
     );
   }
 
