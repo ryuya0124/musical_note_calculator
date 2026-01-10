@@ -268,7 +268,7 @@ class SettingsModel extends ChangeNotifier {
   }
 
   // カスタムノートの追加
-  void addCustomNote(String name, double value, bool dotted) {
+  void addCustomNote(String name, double value, [bool dotted = false]) {
     customNotes.add(NoteData(name, value, dotted)); // カスタムノートを追加
     enabledNotes[name] = true; // enabledNotesに登録し、デフォルトでtrueに設定
     registerNoteData(name, value, dotted);
@@ -277,16 +277,15 @@ class SettingsModel extends ChangeNotifier {
   }
 
 // カスタムノートの削除
-  void removeCustomNoteAt(int index) {
-    final noteName = customNotes[index].name; // 削除対象のノート名を取得
-    customNotes.removeAt(index); // カスタムノートリストから削除
+  void removeCustomNote(String noteName) {
+    customNotes.removeWhere((note) => note.name == noteName); // カスタムノートリストから削除
     enabledNotes.remove(noteName); // enabledNotesからも削除
     removeNoteData(noteName);
     _saveSettings(); // 保存
     notifyListeners();
   }
 
-  void addJudgmentPreset({
+  void addCustomJudgmentPreset({
     required String game,
     required String label,
     required double earlyMs,
@@ -328,6 +327,7 @@ class SettingsModel extends ChangeNotifier {
 
   void updateCustomJudgmentPreset({
     required String presetId,
+    required String game,
     required String label,
     required double earlyMs,
     required double lateMs,

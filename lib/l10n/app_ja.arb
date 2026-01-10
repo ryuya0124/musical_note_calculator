@@ -59,6 +59,7 @@
     }
   },
   "custom_notes": "カスタム音符",
+  "no_custom_notes": "カスタム音符はありません",
   "note_name": "音符名",
   "note_value": "音符の長さ(数値)",
   "add_note": "音符を追加",
@@ -91,6 +92,8 @@
   "early_window_label": "早判定幅 (ms)",
   "late_window_label": "遅判定幅 (ms)",
   "link_window_values": "早/遅判定幅を同じ値にする",
+  "link_early_late_values": "早/遅判定幅を同じ値にする",
+  "preset_added": "プリセットを追加しました",
   "add_preset": "プリセットを追加",
   "preset_visibility_toggle": "プリセットの表示切替",
   "edit_preset": "プリセットを編集",

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:musical_note_calculator/l10n/app_localizations.dart';
-import '../Page/settings_page.dart';
+import '../Page/Settings/settings_page.dart';
 import 'pageAnimation.dart';
 import 'dart:io';
 

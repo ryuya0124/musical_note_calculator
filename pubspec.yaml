@@ -93,6 +93,7 @@ flutter:
   assets:
     - assets/
     - assets/metronome/
+    - assets/icon/icon/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

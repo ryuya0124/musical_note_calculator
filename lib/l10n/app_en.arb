@@ -59,6 +59,7 @@
     }
   },
   "custom_notes": "Custom notes",
+  "no_custom_notes": "No custom notes",
   "note_name": "Note name",
   "note_value": "Length of note (number)",
   "add_note": "Add notes",
@@ -91,6 +92,8 @@
   "early_window_label": "Early window (ms)",
   "late_window_label": "Late window (ms)",
   "link_window_values": "Use the same value for early/late",
+  "link_early_late_values": "Use the same value for early/late",
+  "preset_added": "Preset added",
   "add_preset": "Add preset",
   "preset_visibility_toggle": "Toggle preset visibility",
   "edit_preset": "Edit preset",

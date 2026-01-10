@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:musical_note_calculator/Page/anmitu_checker_page.dart';
+import 'package:musical_note_calculator/Page/AnmitsuChecker/anmitsu_checker_page.dart';
 import 'home_page.dart';
 import 'note_page.dart';
 import 'calculator_page.dart';
