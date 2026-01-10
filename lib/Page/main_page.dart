@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:musical_note_calculator/Page/AnmitsuChecker/anmitsu_checker_page.dart';
-import 'home_page.dart';
+import 'Home/home_page.dart';
 import 'note_page.dart';
 import 'calculator_page.dart';
 import '../UI/bottom_navigation_bar.dart'; // ナビゲーションバーをインポート
@@ -8,8 +8,7 @@ import '../UI/app_bar.dart';
 import '../UI/bpm_input_section.dart';
 import 'package:flutter/services.dart';
 import 'package:musical_note_calculator/l10n/app_localizations.dart';
-import 'package:musical_note_calculator/l10n/app_localizations.dart';
-import 'metronome_content.dart';
+import 'Metronome/metronome_content.dart';
 import '../UI/modern_side_bar.dart'; // import追加
 
 class MainScreen extends StatefulWidget {
@@ -103,25 +102,21 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     // GlobalKeyを使って状態を保持し、レイアウト変更時のリビルドによるFocusNode破棄エラーを防ぐ
     _pages = [
       HomePage(
-        key: const GlobalObjectKey('home_page'),
         bpmController: bpmController,
         bpmFocusNode: bpmFocusNode,
         onMetronomeRequest: _openMetronomePanel,
       ), // ホームページ
       NotePage(
-        key: const GlobalObjectKey('note_page'),
         bpmController: bpmController,
         bpmFocusNode: bpmFocusNode,
         onMetronomeRequest: _openMetronomePanel,
       ), // ノートページ
       CalculatorPage(
-        key: const GlobalObjectKey('calculator_page'),
         bpmController: bpmController,
         bpmFocusNode: bpmFocusNode,
         onMetronomeRequest: _openMetronomePanel,
       ), // 計算機ページ
       AnmituCheckerPage(
-        key: const GlobalObjectKey('anmitu_checker_page'),
         bpmController: bpmController,
         bpmFocusNode: bpmFocusNode,
       ), // 餡蜜チェッカーページ

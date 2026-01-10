@@ -51,8 +51,6 @@ class NotePageState extends State<NotePage> {
 
   @override
   void dispose() {
-    bpmController.dispose();
-    bpmFocusNode.dispose();
     _notesStreamController.close(); // ストリームのクローズ
     super.dispose();
   }

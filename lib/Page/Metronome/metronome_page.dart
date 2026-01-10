@@ -19,10 +19,33 @@ class MetronomePage extends StatefulWidget {
 
 class MetronomePageState extends State<MetronomePage> {
   final _selectedIndex = 4;
+  bool _shouldPop = false;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final width = MediaQuery.of(context).size.width;
+
+    if (width >= 600) {
+      if (!_shouldPop) {
+        _shouldPop = true;
+        // ポップ処理を少し遅らせることで、Navigatorのロック状態や競合を回避する
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && ModalRoute.of(context)?.isCurrent == true) {
+            Navigator.of(context).pop({'switchToSplit': true});
+          }
+          if (mounted) {
+             setState(() {
+               _shouldPop = false;
+             });
+          } else {
+             _shouldPop = false;
+          }
+        });
+      }
+    } else {
+        _shouldPop = false;
+    }
 
     return Scaffold(
       appBar: AppBarWidget(selectedIndex: _selectedIndex),

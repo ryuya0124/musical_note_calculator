@@ -221,6 +221,7 @@ class MetronomeControls extends StatelessWidget {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 width: 80,
+                clipBehavior: Clip.hardEdge,
                 child: TextField(
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
