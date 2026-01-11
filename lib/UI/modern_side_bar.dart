@@ -82,6 +82,7 @@ class ModernSideBar extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut,
+            clipBehavior: Clip.hardEdge, // 遷移中のオーバーフローをクリップ
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: BorderRadius.circular(16),
@@ -92,60 +93,56 @@ class ModernSideBar extends StatelessWidget {
                 vertical: isExtended ? 16.0 : 8.0, // アイコンのみの時はコンパクトに
                 horizontal: isExtended ? 0 : 12.0, // アイコンのみの時は横にパディング
             ),
-            child: Row(
-              mainAxisSize: isExtended ? MainAxisSize.max : MainAxisSize.min,
-              mainAxisAlignment: isExtended
-                  ? MainAxisAlignment.start
-                  : MainAxisAlignment.center, // 拡張時は左寄せ、通常は中央
-              children: [
-                // アイコン部分
-                if (isExtended)
-                  Container(
-                    width: 56,
-                    alignment: Alignment.center,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: Icon(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // 実際の幅に基づいてテキストを表示するか決定
+                // アニメーション中は幅が狭いのでテキストを非表示
+                final showText = constraints.maxWidth > 150;
+                
+                return Row(
+                  mainAxisSize: isExtended ? MainAxisSize.max : MainAxisSize.min,
+                  mainAxisAlignment: isExtended
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.center,
+                  children: [
+                    // アイコン部分
+                    if (isExtended && showText)
+                      Container(
+                        width: 56,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          isSelected ? item.selectedIcon : item.icon,
+                          color: iconColor,
+                          size: 26,
+                        ),
+                      )
+                    else
+                      Icon(
                         isSelected ? item.selectedIcon : item.icon,
-                        key: ValueKey('${item.label}_$isSelected'),
                         color: iconColor,
-                        size: 26,
+                        size: 24,
                       ),
-                    ),
-                  )
-                else
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      isSelected ? item.selectedIcon : item.icon,
-                      key: ValueKey('${item.label}_$isSelected'),
-                      color: iconColor,
-                      size: 24, // アイコンのみの時は少し小さく
-                    ),
-                  ),
-                // ラベル部分（拡張時のみ表示）
-                if (isExtended) ...[
-                  Expanded(
-                    child: AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 200),
-                      style: TextStyle(
-                        fontFamily: 'Roboto', // 必要に応じて
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.w500,
-                        fontSize: 15,
-                        color: textColor,
-                        overflow: TextOverflow.ellipsis,
+                    // ラベル部分（幅が十分ある時のみ表示）
+                    if (showText && isExtended) ...[
+                      Expanded(
+                        child: Text(
+                          item.label,
+                          style: TextStyle(
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.w500,
+                            fontSize: 15,
+                            color: textColor,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          maxLines: 1,
+                        ),
                       ),
-                      child: Text(item.label),
-                    ),
-                  ),
-                  if (isSelected)
-                   // インジケーター代わりに右端に小さなポッチなどを置くか？
-                   // 今回は背景色で十分
-                   const SizedBox(width: 8), 
-                ],
-              ],
+                      if (isSelected) const SizedBox(width: 8),
+                    ],
+                  ],
+                );
+              },
             ),
           ),
         ),
