@@ -175,7 +175,9 @@ class JudgmentPresetContent extends StatelessWidget {
                           child: TextField(
                             controller: earlyController,
                             decoration: InputDecoration(
-                              labelText: loc.early_window_label,
+                              labelText: linkWindowValues
+                                  ? loc.timingWindow
+                                  : loc.early_window_label,
                               border: const OutlineInputBorder(),
                             ),
                             keyboardType: const TextInputType.numberWithOptions(
@@ -318,7 +320,9 @@ class _CustomPresetFormState extends State<CustomPresetForm> {
               child: TextField(
                 controller: presetEarlyController,
                 decoration: InputDecoration(
-                  labelText: loc.early_window_label,
+                  labelText: linkWindowValues
+                      ? loc.timingWindow
+                      : loc.early_window_label,
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: colorScheme.primary),
                   ),

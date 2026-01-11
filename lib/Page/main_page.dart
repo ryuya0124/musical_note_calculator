@@ -192,8 +192,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     final shortestSide = mediaQuery.size.shortestSide;
     // タブレット判定: 最短辺が600dp以上
     final isTablet = shortestSide >= 600;
-    // NavigationRailのラベル展開: 横幅が1000dp以上
-    final isExtendedRail = screenWidth >= 1000;
+    // NavigationRailのラベル展開: 横幅が1400dp以上
+    final isExtendedRail = screenWidth >= 1400;
     final colorScheme = Theme.of(context).colorScheme;
 
     // タブレット（最短辺600dp以上）: NavigationRail + メインコンテンツ
@@ -252,7 +252,31 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                 // メインコンテンツエリア
                 Expanded(
                   flex: 2, // メイン画面の比率 (パネル幅が固定/計算済みなのでflexはあまり意味を持たないが、Expandedで残り埋める)
-                  child: _buildMainContent(),
+                  child: Column(
+                    children: [
+                      // サイドバーが折り畳まれている時のみタブ名を表示
+                      if (!isExtendedRail)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          alignment: Alignment.centerLeft,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: colorScheme.outlineVariant,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            _buildSideBarItems(context)[_selectedIndex].label,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      Expanded(child: _buildMainContent()),
+                    ],
+                  ),
                 ),
 
                 // メトロノームパネル (Split View)

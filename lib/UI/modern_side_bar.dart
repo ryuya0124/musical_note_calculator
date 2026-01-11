@@ -85,26 +85,41 @@ class ModernSideBar extends StatelessWidget {
               // 選択時にわずかなボーダーを表示してもお洒落かもしれないが、
               // 今回は背景色（Container）で強調するMaterial 3スタイル
             ),
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            padding: EdgeInsets.symmetric(
+                vertical: isExtended ? 16.0 : 8.0, // アイコンのみの時はコンパクトに
+                horizontal: isExtended ? 0 : 12.0, // アイコンのみの時は横にパディング
+            ),
             child: Row(
+              mainAxisSize: isExtended ? MainAxisSize.max : MainAxisSize.min,
               mainAxisAlignment: isExtended
                   ? MainAxisAlignment.start
                   : MainAxisAlignment.center, // 拡張時は左寄せ、通常は中央
               children: [
                 // アイコン部分
-                Container(
-                  width: 56, // アイコンエリアの固定幅（クリックしやすく）
-                  alignment: Alignment.center,
-                  child: AnimatedSwitcher(
+                if (isExtended)
+                  Container(
+                    width: 56,
+                    alignment: Alignment.center,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: Icon(
+                        isSelected ? item.selectedIcon : item.icon,
+                        key: ValueKey('${item.label}_$isSelected'),
+                        color: iconColor,
+                        size: 26,
+                      ),
+                    ),
+                  )
+                else
+                  AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: Icon(
                       isSelected ? item.selectedIcon : item.icon,
                       key: ValueKey('${item.label}_$isSelected'),
                       color: iconColor,
-                      size: 26,
+                      size: 24, // アイコンのみの時は少し小さく
                     ),
                   ),
-                ),
                 // ラベル部分（拡張時のみ表示）
                 if (isExtended) ...[
                   Expanded(
