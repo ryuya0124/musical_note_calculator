@@ -11,6 +11,7 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+/dist
 
 # IntelliJ related
 *.iml
@@ -50,3 +51,4 @@ macos/fastlane/api_key.json
 ios/fastlane/report.html
 ios/fastlane/report.xml
 macos/fastlane/report.xml
+android/.kotlin/sessions/kotlin-compiler-4398873473331821429.salive

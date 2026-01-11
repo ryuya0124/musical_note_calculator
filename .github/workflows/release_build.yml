@@ -1,0 +1,192 @@
+name: Multi-Platform Release Build
+
+on:
+  workflow_dispatch:  # 手動トリガーのみ
+
+jobs:
+  # ============================================================
+  # Linux ビルド (x64 / ARM64)
+  # ============================================================
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Cache Flutter SDK
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.pub-cache
+          ~/.flutter
+        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-flutter-
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.38.3'
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Generate l10n
+      run: flutter gen-l10n
+
+    - name: Build Linux x64
+      run: flutter build linux --release
+
+    - name: Package Linux x64
+      run: |
+        mkdir -p dist
+        cp -r build/linux/x64/release/bundle dist/rytmica-linux-x64
+
+    - name: Build Linux ARM64
+      run: flutter build linux --release --target-platform linux-arm64 || echo "ARM64 build not supported"
+      continue-on-error: true
+
+    - name: Package Linux ARM64
+      run: |
+        if [ -d "build/linux/arm64/release/bundle" ]; then
+          cp -r build/linux/arm64/release/bundle dist/rytmica-linux-arm64
+        fi
+      continue-on-error: true
+
+    - name: Upload Linux x64 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: rytmica-linux-x64
+        path: dist/rytmica-linux-x64
+
+    - name: Upload Linux ARM64 artifact
+      uses: actions/upload-artifact@v4
+      if: hashFiles('dist/rytmica-linux-arm64') != ''
+      with:
+        name: rytmica-linux-arm64
+        path: dist/rytmica-linux-arm64
+
+  # ============================================================
+  # Android ビルド
+  # ============================================================
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'gradle'
+
+    - name: Cache Flutter SDK
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.pub-cache
+          ~/.flutter
+        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-flutter-
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.38.3'
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Generate l10n
+      run: flutter gen-l10n
+
+    - name: Build Android APKs (split per ABI)
+      run: flutter build apk --release --split-per-abi
+
+    - name: Upload Android APKs
+      uses: actions/upload-artifact@v4
+      with:
+        name: rytmica-android
+        path: build/app/outputs/flutter-apk/*.apk
+
+  # ============================================================
+  # Windows ビルド (x64 / ARM64 + MSIX)
+  # ============================================================
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Cache Flutter SDK
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~\AppData\Local\Pub\Cache
+          ~\.flutter
+        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-flutter-
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.38.3'
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Generate l10n
+      run: flutter gen-l10n
+
+    - name: Build Windows x64
+      run: flutter build windows --release
+
+    - name: Package Windows x64
+      run: |
+        mkdir -p dist
+        xcopy /E /I /Y build\windows\x64\runner\Release dist\rytmica-windows-x64
+      shell: cmd
+
+    - name: Build Windows ARM64
+      run: flutter build windows --release --target-platform windows-arm64
+      continue-on-error: true
+
+    - name: Package Windows ARM64
+      run: |
+        if (Test-Path "build\windows\arm64\runner\Release") {
+          xcopy /E /I /Y build\windows\arm64\runner\Release dist\rytmica-windows-arm64
+        }
+      shell: powershell
+      continue-on-error: true
+
+    - name: Build Windows MSIX (Universal)
+      run: dart run msix:create --build-windows false
+      continue-on-error: true
+
+    - name: Upload Windows x64 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: rytmica-windows-x64
+        path: dist/rytmica-windows-x64
+
+    - name: Upload Windows ARM64 artifact
+      uses: actions/upload-artifact@v4
+      if: hashFiles('dist/rytmica-windows-arm64') != ''
+      with:
+        name: rytmica-windows-arm64
+        path: dist/rytmica-windows-arm64
+
+    - name: Upload Windows MSIX artifact
+      uses: actions/upload-artifact@v4
+      if: hashFiles('build/windows/**/*.msix') != ''
+      with:
+        name: rytmica-windows-msix
+        path: build/windows/**/*.msix
+
