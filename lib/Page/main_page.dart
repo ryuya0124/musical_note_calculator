@@ -192,8 +192,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     final shortestSide = mediaQuery.size.shortestSide;
     // タブレット判定: 最短辺が600dp以上
     final isTablet = shortestSide >= 600;
-    // NavigationRailのラベル展開: 横幅が1400dp以上
-    final isExtendedRail = screenWidth >= 1400;
+    // NavigationRailのラベル展開: 横幅が1000dp以上
+    final isExtendedRail = screenWidth >= 1000;
     final colorScheme = Theme.of(context).colorScheme;
 
     // タブレット（最短辺600dp以上）: NavigationRail + メインコンテンツ

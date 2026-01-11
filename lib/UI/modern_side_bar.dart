@@ -25,7 +25,10 @@ class ModernSideBar extends StatelessWidget {
       curve: Curves.easeInOutCubicEmphasized,
       width: width,
       height: double.infinity,
-      color: colorScheme.surface, // 背景色
+      clipBehavior: Clip.hardEdge, // 遷移中のオーバーフローをクリップ
+      decoration: BoxDecoration(
+        color: colorScheme.surface, // 背景色
+      ),
       child: SafeArea(
         right: false, // 右側はコンテンツに続くためSafeArea不要
         child: Column(
