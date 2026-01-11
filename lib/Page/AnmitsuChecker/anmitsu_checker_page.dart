@@ -97,32 +97,57 @@ class AnmituCheckerPageState extends State<AnmituCheckerPage> {
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // ノーツ入力セクション
-                  buildNoteInputSection(),
-                  const SizedBox(height: 16),
-                  // ゲーム・プリセット切り替えセクション
-                  buildGameSwitchSection(selection, settingsModel.visibleJudgmentPresetsByGame),
-                  const SizedBox(height: 16),
-                  // タブ切り替え
-                  buildViewToggle(loc, colorScheme),
-                  const SizedBox(height: 16),
-                  // 選択されたビューを表示
-                  if (_selectedViewIndex == 0)
-                    buildResultSection(colorScheme)
-                  else
-                    buildDiagramSection(colorScheme, settingsModel.numDecimal),
-                ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // 画面幅が800px以上の場合は横並びレイアウト
+            final isWideScreen = constraints.maxWidth >= 800;
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isWideScreen ? double.infinity : 800,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // ノーツ入力セクション
+                      buildNoteInputSection(),
+                      const SizedBox(height: 16),
+                      // ゲーム・プリセット切り替えセクション
+                      buildGameSwitchSection(selection, settingsModel.visibleJudgmentPresetsByGame),
+                      const SizedBox(height: 16),
+                      // 広い画面では横並び、狭い画面ではタブ切り替え
+                      if (isWideScreen) ...[
+                        // 横並びレイアウト
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: buildResultSection(colorScheme),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: buildDiagramSection(colorScheme, settingsModel.numDecimal),
+                            ),
+                          ],
+                        ),
+                      ] else ...[
+                        // タブ切り替えレイアウト
+                        buildViewToggle(loc, colorScheme),
+                        const SizedBox(height: 16),
+                        if (_selectedViewIndex == 0)
+                          buildResultSection(colorScheme)
+                        else
+                          buildDiagramSection(colorScheme, settingsModel.numDecimal),
+                      ],
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
