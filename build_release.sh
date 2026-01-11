@@ -57,8 +57,8 @@ if [ "$OS_TYPE" = "linux" ]; then
     LINUX_X64_BUILD_DIR="$PROJECT_ROOT/build/linux/x64/release/bundle"
     if [ -d "$LINUX_X64_BUILD_DIR" ]; then
         echo -e "${YELLOW}Linux x64 バイナリをdistにコピー中...${NC}"
-        cp -r "$LINUX_X64_BUILD_DIR" "$DIST_DIR/rytmica-linux-x64"
-        echo -e "${GREEN}✅ Linux x64 ビルド完了: $DIST_DIR/rytmica-linux-x64${NC}"
+        cp -r "$LINUX_X64_BUILD_DIR" "$DIST_DIR/Rytmica-x64"
+        echo -e "${GREEN}✅ Linux x64 ビルド完了: $DIST_DIR/Rytmica-x64${NC}"
     else
         echo -e "${RED}❌ Linux x64 ビルドが見つかりません${NC}"
     fi
@@ -69,25 +69,25 @@ if [ "$OS_TYPE" = "linux" ]; then
     LINUX_ARM64_BUILD_DIR="$PROJECT_ROOT/build/linux/arm64/release/bundle"
     if [ -d "$LINUX_ARM64_BUILD_DIR" ]; then
         echo -e "${YELLOW}Linux ARM64 バイナリをdistにコピー中...${NC}"
-        cp -r "$LINUX_ARM64_BUILD_DIR" "$DIST_DIR/rytmica-linux-arm64"
-        echo -e "${GREEN}✅ Linux ARM64 ビルド完了: $DIST_DIR/rytmica-linux-arm64${NC}"
+        cp -r "$LINUX_ARM64_BUILD_DIR" "$DIST_DIR/Rytmica-arm64"
+        echo -e "${GREEN}✅ Linux ARM64 ビルド完了: $DIST_DIR/Rytmica-arm64${NC}"
     fi
 else
     echo -e "${YELLOW}⚠️  Linuxビルドは Linux ホストでのみサポートされています (現在のOS: $OS_TYPE)${NC}"
 fi
 
 # ============================================================
-# 2. Android (APK) ビルド
+# 2. Android (APK) ビルド - ARM64のみ
 # ============================================================
 echo -e "${GREEN}=== Android (APK) ビルド開始 ===${NC}"
-flutter build apk --release --split-per-abi
+flutter build apk --release --target-platform android-arm64
 
-# APKをdistにコピー
+# APKをdistにコピーしてリネーム
 ANDROID_BUILD_DIR="$PROJECT_ROOT/build/app/outputs/flutter-apk"
 if [ -d "$ANDROID_BUILD_DIR" ]; then
     echo -e "${YELLOW}APKをdistにコピー中...${NC}"
-    cp "$ANDROID_BUILD_DIR"/*.apk "$DIST_DIR/" 2>/dev/null || true
-    echo -e "${GREEN}✅ Android ビルド完了: $DIST_DIR/*.apk${NC}"
+    cp "$ANDROID_BUILD_DIR/app-arm64-v8a-release.apk" "$DIST_DIR/Rytmica.apk" 2>/dev/null || true
+    echo -e "${GREEN}✅ Android ビルド完了: $DIST_DIR/Rytmica.apk${NC}"
 else
     echo -e "${RED}❌ Androidビルドが見つかりません${NC}"
 fi
@@ -95,7 +95,7 @@ fi
 # ============================================================
 # 3. Windows ビルド (x64 / ARM - EXE分離、MSIXユニバーサル)
 # ============================================================
-if [ "$OS_TYPE" = "macos" ] || [ "$OS_TYPE" = "windows" ]; then
+if [ "$OS_TYPE" = "windows" ]; then
     echo -e "${GREEN}=== Windows ビルド開始 ===${NC}"
 
     # Windows x64 EXE
@@ -104,9 +104,9 @@ if [ "$OS_TYPE" = "macos" ] || [ "$OS_TYPE" = "windows" ]; then
     WINDOWS_X64_BUILD_DIR="$PROJECT_ROOT/build/windows/x64/runner/Release"
     if [ -d "$WINDOWS_X64_BUILD_DIR" ]; then
         echo -e "${YELLOW}Windows x64 バイナリをdistにコピー中...${NC}"
-        mkdir -p "$DIST_DIR/rytmica-windows-x64"
-        cp -r "$WINDOWS_X64_BUILD_DIR"/* "$DIST_DIR/rytmica-windows-x64/"
-        echo -e "${GREEN}✅ Windows x64 EXE ビルド完了: $DIST_DIR/rytmica-windows-x64${NC}"
+        mkdir -p "$DIST_DIR/Rytmica-x64"
+        cp -r "$WINDOWS_X64_BUILD_DIR"/* "$DIST_DIR/Rytmica-x64/"
+        echo -e "${GREEN}✅ Windows x64 EXE ビルド完了: $DIST_DIR/Rytmica-x64${NC}"
     else
         echo -e "${RED}❌ Windows x64 ビルドが見つかりません${NC}"
     fi
@@ -117,9 +117,9 @@ if [ "$OS_TYPE" = "macos" ] || [ "$OS_TYPE" = "windows" ]; then
     WINDOWS_ARM64_BUILD_DIR="$PROJECT_ROOT/build/windows/arm64/runner/Release"
     if [ -d "$WINDOWS_ARM64_BUILD_DIR" ]; then
         echo -e "${YELLOW}Windows ARM64 バイナリをdistにコピー中...${NC}"
-        mkdir -p "$DIST_DIR/rytmica-windows-arm64"
-        cp -r "$WINDOWS_ARM64_BUILD_DIR"/* "$DIST_DIR/rytmica-windows-arm64/"
-        echo -e "${GREEN}✅ Windows ARM64 EXE ビルド完了: $DIST_DIR/rytmica-windows-arm64${NC}"
+        mkdir -p "$DIST_DIR/Rytmica-arm64"
+        cp -r "$WINDOWS_ARM64_BUILD_DIR"/* "$DIST_DIR/Rytmica-arm64/"
+        echo -e "${GREEN}✅ Windows ARM64 EXE ビルド完了: $DIST_DIR/Rytmica-arm64${NC}"
     fi
 
     # Windows MSIX (ユニバーサル)
@@ -138,7 +138,7 @@ if [ "$OS_TYPE" = "macos" ] || [ "$OS_TYPE" = "windows" ]; then
         echo -e "${YELLOW}⚠️  Dartコマンドが見つかりません。MSIXビルドをスキップします${NC}"
     fi
 else
-    echo -e "${YELLOW}⚠️  Windowsビルドは macOS/Windows ホストでのみサポートされています (現在のOS: $OS_TYPE)${NC}"
+    echo -e "${YELLOW}⚠️  Windowsビルドは Windows ホストでのみサポートされています (現在のOS: $OS_TYPE)${NC}"
 fi
 
 # ============================================================

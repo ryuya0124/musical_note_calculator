@@ -41,7 +41,7 @@ jobs:
     - name: Package Linux x64
       run: |
         mkdir -p dist
-        cp -r build/linux/x64/release/bundle dist/rytmica-linux-x64
+        cp -r build/linux/x64/release/bundle dist/Rytmica-x64
 
     - name: Build Linux ARM64
       run: flutter build linux --release --target-platform linux-arm64 || echo "ARM64 build not supported"
@@ -50,25 +50,25 @@ jobs:
     - name: Package Linux ARM64
       run: |
         if [ -d "build/linux/arm64/release/bundle" ]; then
-          cp -r build/linux/arm64/release/bundle dist/rytmica-linux-arm64
+          cp -r build/linux/arm64/release/bundle dist/Rytmica-arm64
         fi
       continue-on-error: true
 
     - name: Upload Linux x64 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: rytmica-linux-x64
-        path: dist/rytmica-linux-x64
+        name: Rytmica-x64
+        path: dist/Rytmica-x64
 
     - name: Upload Linux ARM64 artifact
       uses: actions/upload-artifact@v4
-      if: hashFiles('dist/rytmica-linux-arm64') != ''
+      if: hashFiles('dist/Rytmica-arm64') != ''
       with:
-        name: rytmica-linux-arm64
-        path: dist/rytmica-linux-arm64
+        name: Rytmica-arm64
+        path: dist/Rytmica-arm64
 
   # ============================================================
-  # Android ビルド
+  # Android ビルド - ARM64のみ
   # ============================================================
   build-android:
     runs-on: ubuntu-latest
@@ -105,14 +105,17 @@ jobs:
     - name: Generate l10n
       run: flutter gen-l10n
 
-    - name: Build Android APKs (split per ABI)
-      run: flutter build apk --release --split-per-abi
+    - name: Build Android APK (ARM64 only)
+      run: flutter build apk --release --target-platform android-arm64
 
-    - name: Upload Android APKs
+    - name: Rename APK
+      run: mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/app/outputs/flutter-apk/Rytmica.apk
+
+    - name: Upload Android APK
       uses: actions/upload-artifact@v4
       with:
         name: rytmica-android
-        path: build/app/outputs/flutter-apk/*.apk
+        path: build/app/outputs/flutter-apk/Rytmica.apk
 
   # ============================================================
   # Windows ビルド (x64 / ARM64 + MSIX)
@@ -151,7 +154,7 @@ jobs:
     - name: Package Windows x64
       run: |
         mkdir -p dist
-        xcopy /E /I /Y build\windows\x64\runner\Release dist\rytmica-windows-x64
+        xcopy /E /I /Y build\windows\x64\runner\Release dist\Rytmica-x64
       shell: cmd
 
     - name: Build Windows ARM64
@@ -161,7 +164,7 @@ jobs:
     - name: Package Windows ARM64
       run: |
         if (Test-Path "build\windows\arm64\runner\Release") {
-          xcopy /E /I /Y build\windows\arm64\runner\Release dist\rytmica-windows-arm64
+          xcopy /E /I /Y build\windows\arm64\runner\Release dist\Rytmica-arm64
         }
       shell: powershell
       continue-on-error: true
@@ -173,15 +176,15 @@ jobs:
     - name: Upload Windows x64 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: rytmica-windows-x64
-        path: dist/rytmica-windows-x64
+        name: Rytmica-x64
+        path: dist/Rytmica-x64
 
     - name: Upload Windows ARM64 artifact
       uses: actions/upload-artifact@v4
-      if: hashFiles('dist/rytmica-windows-arm64') != ''
+      if: hashFiles('dist/Rytmica-arm64') != ''
       with:
-        name: rytmica-windows-arm64
-        path: dist/rytmica-windows-arm64
+        name: Rytmica-arm64
+        path: dist/Rytmica-arm64
 
     - name: Upload Windows MSIX artifact
       uses: actions/upload-artifact@v4
