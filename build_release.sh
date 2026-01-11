@@ -86,7 +86,15 @@ flutter build apk --release --target-platform android-arm64
 ANDROID_BUILD_DIR="$PROJECT_ROOT/build/app/outputs/flutter-apk"
 if [ -d "$ANDROID_BUILD_DIR" ]; then
     echo -e "${YELLOW}APKをdistにコピー中...${NC}"
-    cp "$ANDROID_BUILD_DIR/app-arm64-v8a-release.apk" "$DIST_DIR/Rytmica.apk" 2>/dev/null || true
+    if [ -f "$ANDROID_BUILD_DIR/app-release.apk" ]; then
+        cp "$ANDROID_BUILD_DIR/app-release.apk" "$DIST_DIR/Rytmica.apk"
+    elif [ -f "$ANDROID_BUILD_DIR/app-arm64-v8a-release.apk" ]; then
+        cp "$ANDROID_BUILD_DIR/app-arm64-v8a-release.apk" "$DIST_DIR/Rytmica.apk"
+    else
+        echo -e "${RED}APKファイルが見つかりません。${NC}"
+        ls -R "$ANDROID_BUILD_DIR"
+        exit 1
+    fi
     echo -e "${GREEN}✅ Android ビルド完了: $DIST_DIR/Rytmica.apk${NC}"
 else
     echo -e "${RED}❌ Androidビルドが見つかりません${NC}"
