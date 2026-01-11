@@ -4,6 +4,19 @@
 
 このアプリは、音ゲーや音楽制作、演奏時に便利なBPM（テンポ）や音符の長さに関する計算を行うツールです。
 
+## ダウンロード
+
+### App Store (macOS / iOS / iPadOS)
+[![Download on the App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com/jp/app/rytmica/id6757244924)
+
+macOS版とiOS/iPadOS版がApp Storeで公開されています。
+
+### Microsoft Store (Windows)
+Windows版はMicrosoft Storeで公開予定です。
+
+### Linux / Android
+Linux版とAndroid版は[GitHubの最新リリース](https://github.com/ryuya0124/rytmica/releases/latest)からダウンロードできます。
+
 ## アプリ画面例
 | 音符計算画面 | 音符回数画面 |
 | --- | --- |
