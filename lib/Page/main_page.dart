@@ -254,26 +254,41 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   flex: 2, // メイン画面の比率 (パネル幅が固定/計算済みなのでflexはあまり意味を持たないが、Expandedで残り埋める)
                   child: Column(
                     children: [
-                      // サイドバーが折り畳まれている時のみタブ名を表示
-                      if (!isExtendedRail)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                          alignment: Alignment.centerLeft,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: colorScheme.outlineVariant,
-                                width: 1,
-                              ),
+                      // サイドバーが折り畳まれている時のみタブ名を表示（アニメーション付き）
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        transitionBuilder: (child, animation) {
+                          return SizeTransition(
+                            sizeFactor: animation,
+                            axisAlignment: -1.0,
+                            child: FadeTransition(
+                              opacity: animation,
+                              child: child,
                             ),
-                          ),
-                          child: Text(
-                            _buildSideBarItems(context)[_selectedIndex].label,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                          );
+                        },
+                        child: !isExtendedRail
+                            ? Container(
+                                key: const ValueKey('tabTitle'),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                alignment: Alignment.centerLeft,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: colorScheme.outlineVariant,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  _buildSideBarItems(context)[_selectedIndex].label,
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(key: ValueKey('empty')),
+                      ),
                       Expanded(child: _buildMainContent()),
                     ],
                   ),
