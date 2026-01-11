@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:musical_note_calculator/l10n/app_localizations.dart';
@@ -37,8 +38,8 @@ class DisplaySettingsSection extends StatelessWidget {
                 context.read<SettingsModel>().setTimeScale(value),
           ),
         ),
-        // Material You セクション
-        if (!settingsModel.isDynamicColorAvailable)
+        // Material You セクション (Androidのみ)
+        if (Platform.isAndroid && !settingsModel.isDynamicColorAvailable)
           SettingsSectionCard(
             title: loc.materialYou,
             child: SwitchListTile(
