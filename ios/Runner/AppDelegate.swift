@@ -12,6 +12,7 @@ import UIKit
   }
   
   // iOS 15以降のステージマネージャー用：最小ウィンドウサイズを設定
+  /*
   override func application(
     _ application: UIApplication,
     configurationForConnecting connectingSceneSession: UISceneSession,
@@ -21,9 +22,11 @@ import UIKit
     configuration.delegateClass = SceneDelegate.self
     return configuration
   }
+  */
 }
 
 // SceneDelegateで最小ウィンドウサイズを設定
+/*
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
   
@@ -36,3 +39,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
   }
 }
+*/

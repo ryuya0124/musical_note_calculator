@@ -10,13 +10,64 @@ import 'Theme/custom_theme.dart';
 import 'Theme/materialDark.dart';
 import 'Theme/materialLight.dart';
 import 'dart:io';
+import 'dart:async';
 
 void main() async {
+  print('Rytmica: Start main()');
   WidgetsFlutterBinding.ensureInitialized();
+  print('Rytmica: WidgetsFlutterBinding initialized');
   
   // SettingsModelを作成して初期化
   final settingsModel = SettingsModel();
-  await settingsModel.initialize();
+  
+  try {
+    // 10秒でタイムアウトするように設定
+    await settingsModel.initialize().timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        throw TimeoutException('Settings initialization timed out');
+      },
+    );
+  } catch (e, stackTrace) {
+    // エラーが発生した場合はエラー画面を表示
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Initialization Error',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Failed to initialize settings.\n$e',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 20),
+                  TextButton(
+                    onPressed: () {
+                      // 再試行などの処理（現状はアプリ再起動が必要）
+                    }, 
+                    child: const Text('Please restart the app'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    // 元のmain処理を中断
+    return;
+  }
   
   runApp(
     ChangeNotifierProvider.value(
