@@ -62,14 +62,14 @@ jobs:
     - name: Upload Linux x64 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Rytmica-x64
+        name: Rytmica-Linux-x64
         path: dist/Rytmica-x64
 
     - name: Upload Linux ARM64 artifact
       uses: actions/upload-artifact@v4
       if: hashFiles('dist/Rytmica-arm64') != ''
       with:
-        name: Rytmica-arm64
+        name: Rytmica-Linux-arm64
         path: dist/Rytmica-arm64
 
   # ============================================================
@@ -191,14 +191,14 @@ jobs:
     - name: Upload Windows x64 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Rytmica-x64
+        name: Rytmica-Windows-x64
         path: dist/Rytmica-x64
 
     - name: Upload Windows ARM64 artifact
       uses: actions/upload-artifact@v4
       if: hashFiles('dist/Rytmica-arm64') != ''
       with:
-        name: Rytmica-arm64
+        name: Rytmica-Windows-arm64
         path: dist/Rytmica-arm64
 
     - name: Upload Windows MSIX artifact
