@@ -38,10 +38,16 @@ class CalculatorPageState extends State<CalculatorPage> {
     bpmController.addListener(_calculateNotes);
     _notesStreamController =
         StreamController<Map<String, List<Map<String, String>>>>();
+    
+    // 初期計算をトリガー
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateNotes();
+    });
   }
 
   @override
   void dispose() {
+    bpmController.removeListener(_calculateNotes); // リスナーを解除
     _notesStreamController.close();
     _expansionControllers.forEach((key, controller) {
       controller.close();

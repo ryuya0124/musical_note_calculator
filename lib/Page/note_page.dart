@@ -47,10 +47,16 @@ class NotePageState extends State<NotePage> {
     selectedTimeScale = context.read<SettingsModel>().selectedTimeScale;
     bpmController.addListener(_calculateNotes);
     _notesStreamController = StreamController<List<Map<String, String>>>();
+    
+    // 初期計算をトリガー
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateNotes();
+    });
   }
 
   @override
   void dispose() {
+    bpmController.removeListener(_calculateNotes); // リスナーを解除
     _notesStreamController.close(); // ストリームのクローズ
     super.dispose();
   }

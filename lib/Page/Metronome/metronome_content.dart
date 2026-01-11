@@ -212,76 +212,78 @@ class MetronomeContentState extends State<MetronomeContent>
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isWide = width >= 600;
+    // LayoutBuilderを使用して、親ウィジェットの実際の幅に基づいてレイアウトを決定
+    // Split Viewでは親の幅が制限されるため、MediaQueryではなくLayoutBuilderを使用
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 親の幅に基づいてレイアウトを決定
+        // Split Viewパネルは通常400px程度なので、700px以上の場合のみ横並びレイアウト
+        final isWide = constraints.maxWidth >= 700;
 
-    return Container(
-      color: Colors.transparent,
-      child: isWide
-          ? Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 900),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 左側: メトロノームビジュアライザー
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            MetronomeVisualizer(animation: _animation),
-                            const SizedBox(height: 20),
-                            MetronomeDisplay(
-                              bpm: widget.bpm,
-                              note: note,
-                              intervalTime: intervalTime,
-                              quarterNoteBpm: convertNoteDurationToBPM(widget.bpm, note),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 32),
-                      // 右側: コントロールパネル
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildControls(),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+        return Container(
+          color: Colors.transparent,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: isWide ? 24.0 : 16.0,
+                vertical: 24.0,
               ),
-            )
-          : Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MetronomeVisualizer(animation: _animation),
-                      const SizedBox(height: 20),
-                      MetronomeDisplay(
-                        bpm: widget.bpm,
-                        note: note,
-                        intervalTime: intervalTime,
-                        quarterNoteBpm: convertNoteDurationToBPM(widget.bpm, note),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: isWide ? 900 : 500),
+                child: isWide
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 左側: メトロノームビジュアライザー
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                MetronomeVisualizer(animation: _animation),
+                                const SizedBox(height: 20),
+                                MetronomeDisplay(
+                                  bpm: widget.bpm,
+                                  note: note,
+                                  intervalTime: intervalTime,
+                                  quarterNoteBpm: convertNoteDurationToBPM(widget.bpm, note),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 32),
+                          // 右側: コントロールパネル
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildControls(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          MetronomeVisualizer(animation: _animation),
+                          const SizedBox(height: 20),
+                          MetronomeDisplay(
+                            bpm: widget.bpm,
+                            note: note,
+                            intervalTime: intervalTime,
+                            quarterNoteBpm: convertNoteDurationToBPM(widget.bpm, note),
+                          ),
+                          const SizedBox(height: 28),
+                          _buildControls(),
+                        ],
                       ),
-                      const SizedBox(height: 28),
-                      _buildControls(),
-                    ],
-                  ),
-                ),
               ),
             ),
+          ),
+        );
+      },
     );
   }
 

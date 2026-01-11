@@ -40,6 +40,11 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _notesStreamController =
         StreamController<List<Map<String, String>>>.broadcast();
     WidgetsBinding.instance.addObserver(this);
+    
+    // 初期計算をトリガー
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateNotes();
+    });
   }
 
   @override

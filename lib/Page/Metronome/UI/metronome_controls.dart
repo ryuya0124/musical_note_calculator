@@ -61,35 +61,32 @@ class MetronomeControls extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // 拍子セレクター
+          _buildBeatSelector(context),
+          const SizedBox(height: 20),
+          // ボリュームセクション
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _buildBeatSelector(context)),
-              const SizedBox(width: 24),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    localizations.volumeLabel.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 14,
-                      letterSpacing: 1.2,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  Text(
-                    '$vol%',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                ],
+              Text(
+                localizations.volumeLabel.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 14,
+                  letterSpacing: 1.2,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '$vol%',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
           _buildVolumeBar(context),
           const SizedBox(height: 24),
           _buildToggleButton(context),
@@ -216,12 +213,10 @@ class MetronomeControls extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            if (selectedBeatOption == customBeatSentinel)
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: 80,
-                clipBehavior: Clip.hardEdge,
+            if (selectedBeatOption == customBeatSentinel) ...[
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 72,
                 child: TextField(
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
@@ -247,6 +242,7 @@ class MetronomeControls extends StatelessWidget {
                   },
                 ),
               ),
+            ],
           ],
         ),
       ],
